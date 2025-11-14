@@ -13,7 +13,16 @@ const getCollectionFn = (collection) => {
   };
 };
 
-export const users = getCollectionFn('users');
-export const posts = getCollectionFn('posts');
-export const comments = getCollectionFn('comments');
-export const data = getCollectionFn('data');
+const users = getCollectionFn('users');
+const posts = getCollectionFn('posts');
+const comments = getCollectionFn('comments');
+const data = getCollectionFn('data');
+
+const exports = {
+  users,
+  posts,
+  comments,
+  data
+};
+
+export default exports;
