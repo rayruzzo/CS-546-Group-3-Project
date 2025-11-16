@@ -15,7 +15,8 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const post = await postData.getPostById(req.params.id);
-        res.json(post);
+        // we will need to fetch the user data as well
+        res.render('post', { post, user: post.user });
     } catch (error) {
         res.status(404).json({ error: error.toString() });
     }
