@@ -528,9 +528,54 @@ const userFunctions = Object.freeze({
       
    },
 
-   // TODO
+   // TODO: check if we have the necessary permission to delete a user :D !!
    async deleteUser(userId) {
       
+      const errors = {};
+      
+      // TODO: replace this general validation section with the group's validation function
+      if (!userId) 
+         errors.isRequired = `userId is required`;
+
+      if (typeof userId !== "string") 
+         errors.notString = `userId must be a string`;
+
+      // prevent string methods from being called on non-strings
+      if (!errors.notString) {
+         userId = userId.trim();
+         
+         if (userId.length === 0)
+            errors.isEmpty = `userId cannot be an empty string`;
+   
+         if (!ObjectId.isValid(userId))
+            errors.invalidId = `Invalid userId`;
+      }
+
+
+      if (Object.keys(errors).length > 0) {
+         throw new Error("Invalid userId", {
+            cause: {
+               errors: errors,
+               value: userId
+            }
+         });
+      }
+
+      const deleteInfo = await movieCol.findOneAndDelete({
+         _id: ObjectId.createFromHexString(userId)
+      });
+
+      if (!deleteInfo) {
+         throw new Error(`Failed to delete user with id ${id}. Are you sure they exist?`, {
+            cause: {value: userId}
+         });
+      }
+
+      return {
+         message: `Your account, ${deleteInfo.profile.username} has been successfully deleted!`,
+         userId: userId,
+         deleted: true
+      }
    },
 
    // TODO
