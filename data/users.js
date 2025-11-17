@@ -125,7 +125,7 @@ const User = Object.freeze(class User {
       if (required && !name) 
          return {error: `${nameType} is required`};
       else if (!required)
-         return true;
+         return {result: name};
 
       if (typeof name !== "string") 
          return {error: `${nameType} must be a string`};
