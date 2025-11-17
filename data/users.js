@@ -523,9 +523,145 @@ const userFunctions = Object.freeze({
       return user;
    },
 
-   // TODO
-   async updateUser() {
+   // TODO: check if we have the necessary permission to update a user :D !!
+   async updateUser(
+         userId,
+         userData = {}
+   ) {
+      let {
+         email, 
+         password, 
+         role, 
+         zipcode, 
+         location, 
+         profile, 
+         dmsEnabled, 
+         ...invalidArgs
+      } = userData || {};
       
+      const errors = {};
+
+      const argsArr = [...arguments];
+
+      // check if too many or too little arguments provided
+      if (argsArr.length > 2)
+         errors.tooManyArguments = "Too many arguments. Required: (userId, {...userData})";
+      else if (argsArr.length < 2)
+         errors.notEnoughArguments = "Not enough arguments. Required: (userId, {...userData})";
+
+      // throw immediately if arguments length is invalid on the surface
+      if (Object.keys(errors).length > 0) {
+         throw new Error("Invalid arguments", {cause: {errors: errors}});
+      }
+
+      // TODO: replace this general validation section with the group's validation function
+      const userIdErrors = {};
+
+      if (!userId) 
+         userIdErrors.isRequired = `userId is required`;
+
+      if (typeof userId !== "string") 
+         userIdErrors.notString = `userId must be a string`;
+
+      // prevent string methods from being called on non-strings
+      if (!userIdErrors.notString) {
+
+         userId = userId.trim();
+         
+         if (userId.length === 0)
+            userIdErrors.isEmpty = `userId cannot be an empty string`;
+         else if (!ObjectId.isValid(userId))
+            userIdErrors.invalidId = `Invalid userId`;
+      }
+
+      // if userIdErrors exists, add to errors
+      if (Object.keys(userIdErrors).length > 0) {
+         errors.userId = userIdErrors;
+      }
+
+      // stop execution if provided user update data object is null
+      if (typeof userData !== "object")
+         errors.userData = "userData must be an object";
+      else if (!userData || !Object.keys(userData).length)
+         errors.userData = "userData to update cannot be empty";
+
+      if (Object.keys(errors).length > 0) {
+         throw new Error("Invalid arguments", {cause: {errors: errors}});
+      }
+
+
+      // check if extraneous args are provided to the defined userData object parameter
+      if (invalidArgs && Object.keys(invalidArgs).length)
+         errors.invalidArgumentsProvided = Object.keys(invalidArgs);
+
+      // TODO: validate email properly
+      // const emailInfo = User.validateEmail(email);
+      // if (emailInfo.error)
+      //    errors.email = emailInfo.error;
+      // else
+      //    email = emailInfo.result;
+
+      // TODO: validate password properly
+      // const passwordInfo = User.validatePassword(password);
+      // if (passwordInfo.error)
+      //    errors.password = passwordInfo.error;
+      // else
+      //    password = passwordInfo.result;
+
+      const roleInfo = User.validateRole(role);
+      if (roleInfo.error)
+         errors.role = roleInfo.error;
+      else
+         role = roleInfo.result;
+
+      // TODO: validate zipcode properly
+      // const zipCodeInfo = User.validateZipCode(zipcode);
+      // if (zipCodeInfo.errors)
+      //    errors.zipcode = zipCodeInfo.errors;
+      // else
+      //    zipcode = zipCodeInfo.result;
+
+      // TODO: validate Location properly
+      // const locationInfo = User.validateLocation(location);
+      // if (locationInfo.errors)
+      //    errors.location = locationInfo.errors;
+      // else
+      //    location = locationInfo.result;
+
+      // TODO: finish validating profile
+      const profileInfo = await User.validateProfile(profile || {});  // pass empty obj if `profile` is null
+      if (profileInfo.errors)
+         errors.profile = profileInfo.errors;
+      else
+         profile = profileInfo.result;
+
+      if (typeof dmsEnabled !== "boolean")
+         errors.dmsEnabled = "Please provide either true or false if you want to DM others";
+
+      // throw w/errors object before attempting to update a user
+      if (Object.keys(errors).length > 0) {
+         throw new Error("Cannot proceed to update user", {
+            cause: {errors: errors}
+         });
+      }
+
+
+      const userCollection = await users();
+		const updateInfo = await userCollection.updateOne(
+			{ _id: ObjectId.createFromHexString(userId) }, 
+			{ $set: { ...userData }}
+		);
+
+		if (updateInfo.matchedCount === 0)
+			throw new Error(`Cannot find user to update with id ${userId}`, {
+            cause: {value: userId}
+         });
+		if (!updateInfo.acknowledged || updateInfo.modifiedCount === 0)
+			throw new Error("Unable to update user. Possibly the exact same info was provided", {
+            cause: {value: userId}
+         });
+
+		return this.getUserById(userId);
    },
 
    // TODO: check if we have the necessary permission to delete a user :D !!
