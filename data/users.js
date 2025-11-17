@@ -460,10 +460,10 @@ const userFunctions = Object.freeze({
          dmsEnabled
       });
 
-      // const userCollection = await users();
-      // const userInfo = await userCollection.insertOne(newUser);
-      // if (!userInfo.insertedId)
-      //    errors.creationError = "Could not create a new user";
+      const userCollection = await users();
+      const userInfo = await userCollection.insertOne(newUser);
+      if (!userInfo.insertedId)
+         errors.creationError = "Could not create a new user";
 
 
       // must throw again if there's a problem creating a new user in db
@@ -479,9 +479,48 @@ const userFunctions = Object.freeze({
       return newUser;
    },
 
-   // TODO
    async getUserById(userId) {
-      userId = validators
+
+      const errors = {};
+      
+      // TODO: replace this general validation section with the group's validation function
+      if (!userId) 
+         errors.isRequired = `userId is required`;
+
+      if (typeof userId !== "string") 
+         errors.notString = `userId must be a string`;
+
+      // prevent string methods from being called on non-strings
+      if (!errors.notString) {
+         userId = userId.trim();
+         
+         if (userId.length === 0)
+            errors.isEmpty = `userId cannot be an empty string`;
+   
+         if (!ObjectId.isValid(userId))
+            errors.invalidId = `Invalid userId`;
+      }
+
+
+      if (Object.keys(errors).length > 0) {
+         throw new Error("Invalid userId", {
+            cause: {
+               errors: errors,
+               value: userId
+            }
+         });
+      }
+
+      const userCollection = await users();
+      const user = await userCollection.findOne({ _id: ObjectId.createFromHexString(userId) });
+
+      if (!user) {
+         throw new Error(`User with id ${userId} does not exist`, {
+            cause: {value: userId}
+         });
+      }
+
+      return user;
    },
 
    // TODO
