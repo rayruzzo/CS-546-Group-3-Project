@@ -52,7 +52,7 @@ const User = Object.freeze(class User {
       if (typeof email !== "string") 
          return {error: `email must be a string`};
 
-      email = email.trim();
+      email = email.trim().toLowerCase();
 
       if (email.length === 0)
          return {error: `email cannot be an empty string`};
@@ -83,7 +83,7 @@ const User = Object.freeze(class User {
       if (typeof role !== "string") 
          return {error: `role must be a string`};
 
-      role = role.trim();
+      role = role.trim().toLowerCase();
 
       if (role.length === 0)
          return {error: `role cannot be an empty string`};
@@ -104,7 +104,7 @@ const User = Object.freeze(class User {
       if (typeof username !== "string") 
          return {error: `username must be a string`};
 
-      username = username.trim();
+      username = username.trim().toLowerCase();
 
       if (username.length === 0)
          return {error: `username cannot be an empty string`};
