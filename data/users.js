@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import bcrypt from "bcrypt";
 import { users } from "../config/mongoCollections.js";
 
 // local frozen `User` class which is exposed through `userFunctions` at the bottom
@@ -11,9 +12,13 @@ const User = Object.freeze(class User {
       ADMIN: "admin"
    })
 
-   // private fields used for caching server stats right after every server restart
+   // private fields used for caching server stats, etc. right after every server restart
    static #totalUserCount;
    static #totalBannedUserCount;
+
+   // password salting config
+   static #targetHashTimeSeconds = 3;  // hash time will at least be this value
+   static #optimalSaltRounds;
 
    // default props for each user instance
    _id;         // note: `insertOne()` actually mutates this class instance and adds `_id`
@@ -340,10 +345,54 @@ const User = Object.freeze(class User {
       return;
    }
 
+   static #setOptimalSaltRounds(optimalSaltRounds) {
+      User.#optimalSaltRounds = optimalSaltRounds;
+      return;
+   }
+
 
    // !!!!!!!!!!!! //
    // INITIALIZERS //
    // !!!!!!!!!!!! //
+
+   static async calculateOptimalSaltRounds() {
+
+      // setting an initial low value so we can calculate 
+      // a benchmark faster which we then can scale easily
+      const STARTING_SALT_DO_NOT_USE = 11;
+
+      let minSaltRounds = STARTING_SALT_DO_NOT_USE;  // set starting default
+      const absoluteMinHashTimeSeconds = 1.25;
+      const benchmarkPW = "ThisIsThe5thWorstPasswordEver";
+
+      // benchmark absolute minimum salt rounds
+      const startTime = performance.now();
+      await bcrypt.hash(benchmarkPW, minSaltRounds);
+      const endTime = performance.now();
+
+      let secondsElapsed = (endTime - startTime) / 1000;
+
+      // every additional salt round roughly doubles the hashing time
+      while (secondsElapsed < absoluteMinHashTimeSeconds) {
+         ++minSaltRounds;
+         secondsElapsed *= 2;
+      }
+
+      console.log("ABSOLUTE MINIMUM SALT ROUNDS:", minSaltRounds);
+
+      // calculate optimal salt rounds
+      let optimalSaltRounds = minSaltRounds;         // set starting default
+
+      while (secondsElapsed < User.#targetHashTimeSeconds) {
+         ++optimalSaltRounds;
+         secondsElapsed *= 2;
+      }
+
+      console.log("OPTIMAL SALT ROUNDS SET TO:", optimalSaltRounds);
+      
+      User.#setOptimalSaltRounds(optimalSaltRounds);
+      return;
+   }
 
    // retrieve and cache some user-specific stats
    static async restoreStats() {
@@ -723,10 +772,13 @@ const userFunctions = Object.freeze({
    // TODO ...the rest
 })
 
-
 // CACHE some stats on server startup to avoid expensive `collection.countDocuments()`
 // FIXME:
 // await User.restoreStats();
+
+// await calculation of optimal salt rounds just in case 
+// user tries logging in/signing up immediately after server restart
+await User.calculateOptimalSaltRounds();
 
 
 export default userFunctions;
