@@ -18,11 +18,9 @@ const posts = getCollectionFn('posts');
 const comments = getCollectionFn('comments');
 const data = getCollectionFn('data');
 
-const exports = {
-  users,
-  posts,
-  comments,
-  data
-};
-
-export default exports;
+export default {  
+  users,  
+  posts,  
+  comments,  
+  data  
+};  

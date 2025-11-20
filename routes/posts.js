@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
         // Implementation for getting posts will go here
     } 
     catch (error) {
-        res.status(404).json({ error: error.toString() });
+        res.end()
     }
 });
 
@@ -16,7 +16,7 @@ router.get('/:id', async (req, res) => {
     try {
         const post = await postData.getPostById(req.params.id);
         // we will need to fetch the user data as well
-        res.render('post', { post, user: post.user });
+        res.render('post', { title: post.title, post: post, user: post.user });
     } catch (error) {
         res.status(404).json({ error: error.toString() });
     }
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
         const newPost = await postData.createPost(title, userId, content, type, category, commentsEnabled, tags);
         res.json(newPost);
     } catch (error) {
-        res.status(404).json({ error: error.toString() });
+        res.status(400).json({ error: error.toString() });
     }
 });
 
@@ -51,5 +51,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-const postRouter = router;
-export default postRouter;
+export default router;

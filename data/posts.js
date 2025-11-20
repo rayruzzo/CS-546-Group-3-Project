@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { posts } from "../mongoCollections.js"
+import db from "../config/mongoCollections.js"
 import validators from "../validation.js"
 
 const postTypes = {
@@ -75,7 +75,6 @@ const createPost = async (
     const validatedPost = _validatePost(title, userId, content, type, category, commentsEnabled, tags);
 
     const newPost = {
-        id: new ObjectId(),
         title: validatedPost.title,
         userId: validatedPost.userId,
         content: validatedPost.content,
@@ -90,7 +89,7 @@ const createPost = async (
     }
 
 
-    const postCollection = await posts();
+    const postCollection = await db.posts();
     const insertInfo = await postCollection.insertOne(newPost);
     if (!insertInfo.acknowledged || !insertInfo.insertedId) {
         throw "Could not add post";
@@ -103,7 +102,7 @@ const createPost = async (
 
 const getPostById = async (id) => {
     id = validators.validateId(id, "Post ID");
-    const postCollection = await posts();
+    const postCollection = await db.posts();
     const post = await postCollection.findOne({ _id: new ObjectId(id) });
     if (!post) throw "Post not found";
     return post;
@@ -117,13 +116,14 @@ const getNPosts = async (n, skip = 0) => {
     const postCollection = await posts();
     const postList = await postCollection.find({}).skip(skip).limit(n).toArray();
 
-    if (!postList) throw "No posts found";
+    if (postList.length === 0) throw "No posts found";
+
     return postList;
 }
 
 const removePost = async (id) => {
     id = validators.validateId(id, "Post ID");
-    const postCollection = await posts();
+    const postCollection = await db.posts();
     const deletionInfo = await postCollection.deleteOne({ _id: new ObjectId(id) });
 
     if (deletionInfo.deletedCount === 0) {
@@ -136,7 +136,7 @@ const removePost = async (id) => {
 const updatePost = async (id, title, userId, content, type, category, commentsEnabled, tags) => {
     id = validators.validateId(id, "Post ID");
     const validatedPost = _validatePost(title, userId, content, type, category, commentsEnabled, tags);
-    const postCollection = await posts();
+    const postCollection = await db.posts();
     const updatedPost = {
         title: validatedPost.title,
         userId: validatedPost.userId,
@@ -149,7 +149,7 @@ const updatePost = async (id, title, userId, content, type, category, commentsEn
     };
     const updateInfo = await postCollection.updateOne({ _id: new ObjectId(id) }, { $set: updatedPost });
     if (updateInfo.modifiedCount === 0) {
-        throw "Could not update post";
+        throw new Error("Invalid category");  
     }
     return await getPostById(id);
 }

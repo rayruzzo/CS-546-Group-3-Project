@@ -1,4 +1,4 @@
-import postRouter from './posts.js'
+import {default as postRouter} from './posts.js'
 
 const constructorMethod = (app) => {
     app.use('/posts', postRouter);

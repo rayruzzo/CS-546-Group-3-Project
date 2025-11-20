@@ -1,4 +1,4 @@
-import postFunctions from "./posts";
+import postFunctions from "./posts.js";
 
 const postData = postFunctions;
 

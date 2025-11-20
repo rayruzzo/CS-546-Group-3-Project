@@ -1,11 +1,13 @@
 <head>
-    <title>{{post.title}}</title>
+    <title>{{title}}</title>
 </head>
 <body>
     <article>
         <h1>{{post.title}}</h1>
         <div class="author">{{user.username}}</div>
-        <div class="date">{{post.date}}</div>
+        <div class="date">  
+            <time datetime="{{post.date}}">{{post.date}}</time>  
+        </div> 
         <div class="content">{{post.content}}</div>
 
         <div class="comments">

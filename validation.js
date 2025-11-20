@@ -27,11 +27,9 @@ const validateBoolean = (bool, varName) => {
     return bool;
 }
 
-const exports = {
+export default {
     validateId,
     validateString,
     validateArray,
     validateBoolean
 };
-
-export default exports;
