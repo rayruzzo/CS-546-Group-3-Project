@@ -16,7 +16,7 @@ const User = Object.freeze(class User {
    static #totalBannedUserCount;
 
    // default props for each user instance
-   _id;
+   _id;         // note: `insertOne()` actually mutates this class instance and adds `_id`
    email;
    password;
    role         = User.roles.USER;
@@ -32,7 +32,6 @@ const User = Object.freeze(class User {
 
    // `User` class is local to this file, these will already be validated in `userFunctions`
    constructor({email, password, role, zipcode, profile, dmsEnabled}) {
-      this._id        = new ObjectId();
       this.email      = email,
       this.password   = password,             // TODO: hash & salt this password
       this.role       = role,     
