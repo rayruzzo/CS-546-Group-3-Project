@@ -1,6 +1,8 @@
 import { ObjectId } from "mongodb";
-import db from "../config/mongoCollections.js"
+import posts from "../config/mongoCollections.js"
 import validators from "../validation.js"
+import locations from "./locations.js";
+import { get } from "http";
 
 const postTypes = {
     OFFER: "offer",
@@ -89,7 +91,7 @@ const createPost = async (
     }
 
 
-    const postCollection = await db.posts();
+    const postCollection = await posts();
     const insertInfo = await postCollection.insertOne(newPost);
     if (!insertInfo.acknowledged || !insertInfo.insertedId) {
         throw "Could not add post";
@@ -102,7 +104,7 @@ const createPost = async (
 
 const getPostById = async (id) => {
     id = validators.validateId(id, "Post ID");
-    const postCollection = await db.posts();
+    const postCollection = await posts();
     const post = await postCollection.findOne({ _id: new ObjectId(id) });
     if (!post) throw "Post not found";
     return post;
@@ -123,7 +125,7 @@ const getNPosts = async (n, skip = 0) => {
 
 const removePost = async (id) => {
     id = validators.validateId(id, "Post ID");
-    const postCollection = await db.posts();
+    const postCollection = await posts();
     const deletionInfo = await postCollection.deleteOne({ _id: new ObjectId(id) });
 
     if (deletionInfo.deletedCount === 0) {
@@ -136,7 +138,7 @@ const removePost = async (id) => {
 const updatePost = async (id, title, userId, content, type, category, commentsEnabled, tags) => {
     id = validators.validateId(id, "Post ID");
     const validatedPost = _validatePost(title, userId, content, type, category, commentsEnabled, tags);
-    const postCollection = await db.posts();
+    const postCollection = await posts();
     const updatedPost = {
         title: validatedPost.title,
         userId: validatedPost.userId,
@@ -154,12 +156,37 @@ const updatePost = async (id, title, userId, content, type, category, commentsEn
     return await getPostById(id);
 }
 
+const getPostsInRadius = async (zipcode, radius, n, skip = 0) => {
+    zipcode = validators.validateString(zipcode, "Zipcode");
+    radius = validators.validateNumber(radius, "Radius");
+    if (radius <= 0) {
+        throw "Radius must be a positive number";
+    }
+    n = validators.validateNumber(n, "Number of posts");
+    if (n <= 0) {
+        throw "Number of posts must be a positive number";
+    }
+    skip = validators.validateNumber(skip, "Skip value");
+    if (skip < 0) {
+        throw "Skip value cannot be negative";
+    }
+
+    const locations = await locations.getZipsInRadius(zipcode, radius);
+
+    const postCollection = await posts();
+    const locationZipcodes = locationsInRadius.map(loc => loc.zipcode);
+    const postList = await postCollection.find({ zipcode: { $in: locationZipcodes } }).skip(skip).limit(n).toArray();
+
+    return postList;
+}
+
 const postFunctions = {
     createPost,
     getPostById,
     getNPosts,
     removePost,
-    updatePost
+    updatePost,
+    getPostsInRadius
 };
 
 export default postFunctions;

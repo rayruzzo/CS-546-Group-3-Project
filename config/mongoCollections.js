@@ -17,10 +17,12 @@ const users = getCollectionFn('users');
 const posts = getCollectionFn('posts');
 const comments = getCollectionFn('comments');
 const data = getCollectionFn('data');
+const locations = getCollectionFn('locations');
 
 export default {  
   users,  
   posts,  
   comments,  
-  data  
+  data,
+  locations  
 };  
