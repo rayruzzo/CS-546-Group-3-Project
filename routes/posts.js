@@ -5,7 +5,7 @@ const router = Router();
 
 router.get('/', async (req, res) => {
     try {
-        // Implementation for getting posts will go here
+        res.end()
     } 
     catch (error) {
         res.end()
