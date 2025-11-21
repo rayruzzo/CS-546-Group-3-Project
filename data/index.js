@@ -1,5 +1,3 @@
-import postFunctions from "./posts.js";
-
-const postData = postFunctions;
+import {default as postData} from "./posts.js";
 
 export default { postData };
