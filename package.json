@@ -15,6 +15,7 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
+    "dev": "node --watch --watch-preserve-output app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js"
   },
