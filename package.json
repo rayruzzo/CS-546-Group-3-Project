@@ -22,8 +22,5 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongodb": "^7.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^24.10.1"
   }
 }
