@@ -64,18 +64,17 @@
 
             // Update the posts list
             if (data.posts && data.posts.length > 0) {
-                const postsHTML = `
-                    <ul>
-                        ${data.posts.map(post => `
-                            <li>
-                                <h3>${escapeHtml(post.title)}</h3>
-                                <p>${escapeHtml(post.userName)} Posted on: ${formatDate(post.datePosted)}</p>
-                                <p>${escapeHtml(post.content)}</p>
-                            </li>
-                        `).join('')}
-                    </ul>
-                `;
-                postsListContainer.innerHTML = postsHTML;
+                const postsHTML = data.posts.map(post => `
+                    <li>
+                        <h3>${DOMPurify.sanitize(post.title)}</h3>
+                        <p class="posted-by">Posted by: ${DOMPurify.sanitize(post.userName || 'Anonymous')} on ${new Date(post.createdAt).toLocaleDateString()}</p>
+                        <p class="post-preview">${DOMPurify.sanitize(post.content.slice(0, 100))}...</p>
+                        <p class="post-meta">Category: ${DOMPurify.sanitize(post.category)} | Type: ${DOMPurify.sanitize(post.type)}</p>    
+                        <a href="/posts/${post._id}">Read more</a>
+                    </li>
+                `).join('');
+                
+                postsListContainer.innerHTML = `<ul>${postsHTML}</ul>`;
             } else {
                 postsListContainer.innerHTML = '<p>No posts available in your area at the moment. Please check back later!</p>';
             }
@@ -85,21 +84,4 @@
         }
     }
 
-    // Helper function to escape HTML and prevent XSS
-    function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return String(text || '').replace(/[&<>"']/g, m => map[m]);
-    }
-
-    // Helper function to format date
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toString() !== 'Invalid Date' ? date.toLocaleDateString() : 'Unknown date';
-    }
 })();
