@@ -20,6 +20,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
+
 // Middleware to set mock user data in session
 app.use((req, res, next) => {
   if (!req.session.user) {
@@ -27,6 +28,8 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// setup middleware
 app.use('/public', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -66,7 +69,6 @@ server.on('error', (e) => {
       console.error(e);
    }
 });
-
 
 // `process` is this Node process
 // debugging graceful shutdown from 
