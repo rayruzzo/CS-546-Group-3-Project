@@ -15,7 +15,13 @@ router.get('/', async (req, res) => {
         }
 
         // Load posts for authenticated user based on their zip code
-        const posts = await loadPosts(req, { limit: 10 });
+        let posts = [];
+        try {
+            posts = await loadPosts(req.session.user.zipCode, { limit: 10 });
+        } catch (error) {
+            console.error('Error loading posts:', error.message);
+            // If location not found or other error, just show empty posts
+        }
         
         res.render('home', { 
             title: 'Home',

@@ -1,6 +1,6 @@
 //This will allow us to show more posts without reloading the page
 //get the current logged in user from session
-import { filterPosts } from "../data/posts.js";
+import postData from "../data/posts.js";
 import locationData from "../data/locations.js";
 
 const loadPosts = async (userZipCode, filters = {}) => {
@@ -36,7 +36,7 @@ const loadPosts = async (userZipCode, filters = {}) => {
             skip: filters.skip || 0
         };
 
-        const postsList = await filterPosts(postFilters);
+        const postsList = await postData.filterPosts(postFilters);
         return postsList;
     } catch (error) {
         throw error;

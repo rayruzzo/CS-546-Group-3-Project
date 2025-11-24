@@ -1,4 +1,4 @@
-import {locations} from '../config/mongoCollections.js';
+import db from '../config/mongoCollections.js';
 import validators from '../validation.js';
 
 const _validateZipcode = (zipcode) => {
@@ -9,10 +9,21 @@ const _validateZipcode = (zipcode) => {
 }
 
 const _validateLatLong = (value, name) => {
-    if (typeof value !== 'number' || value < -180 || value > 180) {
-        throw `Invalid ${name} value`;
+        if (typeof value !== 'number') {  
+        throw `Invalid ${name} value`;  
+    }  
+    if (name === "Latitude") {  
+        if (value < -90 || value > 90) {  
+            throw `Invalid ${name} value, must be between -90 and 90`;  
+        }  
+    } else if (name === "Longitude") {  
+        if (value < -180 || value > 180) {  
+            throw `Invalid ${name} value, must be between -180 and 180`;  
+        }  
+    } else {  
+        throw `Unknown coordinate name: ${name}`;  
     }
-    return value;
+    return value;  
 }
 
 const _validateStateCode = (state_code) => {
@@ -49,7 +60,7 @@ const _validateLocation = (zipcode, city, state, state_code, latitude, longitude
 
 const create_location = async (zipcode, city, state, state_code, latitude, longitude) => {
 
-    const locCollection = await locations();
+    const locCollection = await db.locations();
 
     const newLocation = _validateLocation(zipcode, city, state, state_code, latitude, longitude);
 
@@ -62,7 +73,7 @@ const create_location = async (zipcode, city, state, state_code, latitude, longi
 
 const getCoordinatesByZipcode = async (zipcode) => {
     zipcode = _validateZipcode(zipcode);
-    const locCollection = await locations();
+    const locCollection = await db.locations();
     const location = await locCollection.findOne({ zipcode: zipcode });
     if (!location) throw "Location not found";
     return {
@@ -76,11 +87,9 @@ const findLocationsInRadius = async (latitude, longitude, radius, n, skip) => {
     longitude = _validateLatLong(longitude, "Longitude");
     radius = _validateRadius(radius);
     
-    
-    
     // Convert radius from miles to radians for MongoDB $center operator
     const radiusInRadians = radius / 3963.2;
-    const locCollection = await locations();
+    const locCollection = await db.locations();
     const locationsInRadius = await locCollection.find({
         loc: {$geoWithin: { $center: [ [ longitude, latitude ], radiusInRadians ] } }
     }).skip(skip).limit(n).toArray();
@@ -105,7 +114,7 @@ const getZipsInRadius = async (zipcode, radius, n, skip) => {
 
 const getLocationByZipcode = async (zipcode) => {
     zipcode = _validateZipcode(zipcode);
-    const locCollection = await locations();
+    const locCollection = await db.locations();
     const location = await locCollection.findOne({ zipcode: zipcode });
     if (!location) throw "Location not found";
     return location;

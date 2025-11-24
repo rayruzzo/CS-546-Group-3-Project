@@ -27,7 +27,7 @@ router.get('/filter', async (req, res) => {
             skip: skip
         };
         
-        const filteredPosts = await loadPosts(req, filters);
+        const filteredPosts = await loadPosts(req.session.user.zipCode, filters);
         
         res.json({ posts: filteredPosts });
     } catch (error) {
