@@ -1,4 +1,3 @@
-import { get } from 'http';
 import {locations} from '../config/mongoCollections.js';
 import validators from '../validation.js';
 
@@ -52,7 +51,7 @@ const create_location = async (zipcode, city, state, state_code, latitude, longi
 
     const locCollection = await locations();
 
-    newLocation = _validateLocation(zipcode, city, state, state_code, latitude, longitude);
+    const newLocation = _validateLocation(zipcode, city, state, state_code, latitude, longitude);
 
     const insertInfo = await locCollection.insertOne(newLocation);
     if (!insertInfo.acknowledged || !insertInfo.insertedId) {
@@ -75,13 +74,15 @@ const getCoordinatesByZipcode = async (zipcode) => {
 const findLocationsInRadius = async (latitude, longitude, radius, n, skip) => {
     latitude = _validateLatLong(latitude, "Latitude");
     longitude = _validateLatLong(longitude, "Longitude");
-    if (typeof radius !== 'number' || radius <= 0) {
-        throw "Invalid radius value";
-    }
+    radius = _validateRadius(radius);
     
+    
+    
+    // Convert radius from miles to radians for MongoDB $center operator
+    const radiusInRadians = radius / 3963.2;
     const locCollection = await locations();
     const locationsInRadius = await locCollection.find({
-        loc: {$geoWithin: { $center: [ [ longitude, latitude ], radius ] } }
+        loc: {$geoWithin: { $center: [ [ longitude, latitude ], radiusInRadians ] } }
     }).skip(skip).limit(n).toArray();
 
     return locationsInRadius;

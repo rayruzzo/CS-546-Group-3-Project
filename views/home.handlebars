@@ -20,20 +20,9 @@
                 <label for="category">Category:</label>
                 <select name="category" id="category">
                     <option value="">All Categories</option>
-                    <option value="transport">Transport</option>
-                    <option value="housing">Housing</option>
-                    <option value="services">Services</option>
-                    <option value="goods">Goods</option>
-                    <option value="food">Food</option>
-                    <option value="pet care">Pet Care</option>
-                    <option value="child care">Child Care</option>
-                    <option value="elder care">Elder Care</option>
-                    <option value="education">Education</option>
-                    <option value="event">Event</option>
-                    <option value="tool">Tool</option>
-                    <option value="repair">Repair</option>
-                    <option value="landcare">Land Care</option>
-                    <option value="other">Other</option>
+                    {{#each categories}}
+                        <option value="{{this.value}}">{{this.label}}</option>
+                    {{/each}}
                 </select>
             </div>
 
@@ -61,7 +50,7 @@
             {{#each posts}}
                 <li>
                 <h3>{{this.title}}</h3>
-                <p>{{this.userName}}Posted on: {{this.datePosted}}</p>
+                <p>{{this.userName}} Posted on: {{this.datePosted}}</p>
                 <p>{{this.content}}</p>
                 </li>
             {{/each}}

@@ -94,12 +94,12 @@
             '"': '&quot;',
             "'": '&#039;'
         };
-        return text.replace(/[&<>"']/g, m => map[m]);
+        return String(text || '').replace(/[&<>"']/g, m => map[m]);
     }
 
     // Helper function to format date
     function formatDate(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleDateString();
+        return date.toString() !== 'Invalid Date' ? date.toLocaleDateString() : 'Unknown date';
     }
 })();

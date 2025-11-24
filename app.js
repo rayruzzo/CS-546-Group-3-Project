@@ -16,8 +16,17 @@ const { PORT } = process.env;
 // setup middleware
 app.use(session({
   name: 'TestSessionCookie',
-  user: {zipCode: "07030",} // setting as a test user with a zip code
+  secret: 'your-session-secret', // replace with a secure secret in production
+  resave: false,
+  saveUninitialized: false
 }));
+// Middleware to set mock user data in session
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    req.session.user = { zipCode: "07030" }; // setting as a test user with a zip code
+  }
+  next();
+});
 app.use('/public', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -39,7 +48,7 @@ const server = app.listen(PORT);
 // only display success log if listening
 server.on('listening', () => {
    console.log(`Server up and running at http://localhost:${PORT}`);
-})
+});
 
 
 // handle EADDRINUSE (port already in use) error
@@ -56,7 +65,7 @@ server.on('error', (e) => {
    } else {
       console.error(e);
    }
-})
+});
 
 
 // `process` is this Node process

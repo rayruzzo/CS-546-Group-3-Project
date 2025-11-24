@@ -11,13 +11,20 @@ router.get('/filter', async (req, res) => {
         }
 
         // Extract all possible filter parameters
+        // Validate and clamp numeric parameters
+        const rawDistance = parseInt(req.query.distance, 10);
+        const distance = (!isNaN(rawDistance)) ? Math.max(1, Math.min(100, rawDistance)) : 10;
+        const rawLimit = parseInt(req.query.limit, 10);
+        const limit = (!isNaN(rawLimit)) ? Math.max(1, Math.min(100, rawLimit)) : 10;
+        const rawSkip = parseInt(req.query.skip, 10);
+        const skip = (!isNaN(rawSkip)) ? Math.max(0, Math.min(10000, rawSkip)) : 0;
         const filters = {
-            distance: parseInt(req.query.distance) || 10,
+            distance: distance,
             category: req.query.category,
             type: req.query.type,
             tags: req.query.tags ? req.query.tags.split(',') : undefined,
-            limit: parseInt(req.query.limit) || 10,
-            skip: parseInt(req.query.skip) || 0
+            limit: limit,
+            skip: skip
         };
         
         const filteredPosts = await loadPosts(req, filters);

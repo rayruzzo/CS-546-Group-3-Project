@@ -3,12 +3,10 @@
 import { filterPosts } from "../data/posts.js";
 import locationData from "../data/locations.js";
 
-const loadPosts = async (req, filters = {}) => {
+const loadPosts = async (userZipCode, filters = {}) => {
     try {
-        const userZipCode = req.session.user?.zipCode;
-        
         if (!userZipCode) {
-            throw new Error("User zip code not found in session");
+            throw new Error("User zip code not provided");
         }
 
         // Get user's location

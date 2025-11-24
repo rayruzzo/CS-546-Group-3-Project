@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
         }
 
         // Load posts for authenticated user based on their zip code
-        const posts = await loadPosts(req, null, 10);
+        const posts = await loadPosts(req, { limit: 10 });
         
         res.render('home', { 
             title: 'Home',
