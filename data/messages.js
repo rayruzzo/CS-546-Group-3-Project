@@ -1,4 +1,5 @@
 // User <-> Thread <-> Messages
+// Will add in async once mongo is setup, for now just keeping engine normal to ensure works synchronously first.
 
 /**************************************************************************** 
  * Function createMessage(from, to, content)
@@ -96,9 +97,16 @@ addMessageToThread(thread1, msg2);
 addMessageToThread(thread1, msg3);
 dmThreads.push(thread1);
 
+console.log('***********SEED FOR DIRECT MESSAGING START***********');
+console.log('---------------SEED FROM: MESSAGES.JS----------------');
 console.log(fetchThreadById(dmThreads, thread1.id));
 console.log(fetchThreadsForUser(dmThreads, "TestUser1"));
+console.log('***********SEED FOR DIRECT MESSAGING END*************');
 
+
+/****************************************************************************
+ * Exports
+ ****************************************************************************/
 export {
     createMessage,
     createThread,
