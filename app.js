@@ -1,13 +1,23 @@
 import 'dotenv/config';
 import express from 'express';
 import exphbs from 'express-handlebars';
+import session from 'express-session';
 import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
+import checkAndSeedLocations from './scripts/checkAndSeed.js';
 
 const app = express();
+
+// Check and seed locations if needed (runs once on startup)
+await checkAndSeedLocations();
+
 const { PORT } = process.env;
 
 // setup middleware
+app.use(session({
+  name: 'TestSessionCookie',
+  user: {zipCode: "07030",} // setting as a test user with a zip code
+}));
 app.use('/public', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));

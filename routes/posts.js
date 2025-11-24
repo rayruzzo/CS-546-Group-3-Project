@@ -1,7 +1,33 @@
 import Router from 'express';
 import postData from '../data/index.js'
+import loadPosts from '../scripts/loadPosts.js';
 
 const router = Router();
+
+router.get('/filter', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        // Extract all possible filter parameters
+        const filters = {
+            distance: parseInt(req.query.distance) || 10,
+            category: req.query.category,
+            type: req.query.type,
+            tags: req.query.tags ? req.query.tags.split(',') : undefined,
+            limit: parseInt(req.query.limit) || 10,
+            skip: parseInt(req.query.skip) || 0
+        };
+        
+        const filteredPosts = await loadPosts(req, filters);
+        
+        res.json({ posts: filteredPosts });
+    } catch (error) {
+        console.error('Error filtering posts:', error);
+        res.status(500).json({ error: 'Failed to filter posts' });
+    }
+});
 
 router.get('/', async (req, res) => {
     try {

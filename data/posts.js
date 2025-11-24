@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import db from "../config/mongoCollections.js"
 import validators from "../validation.js"
+import locationData from "./locations.js"
 
 const postTypes = {
     OFFER: "offer",
@@ -154,12 +155,90 @@ const updatePost = async (id, title, userId, content, type, category, commentsEn
     return await getPostById(id);
 }
 
+const filterPosts = async (filters = {}) => {
+    /*
+     * filters object can include:
+     * - latitude: number (center latitude for radius search)
+     * - longitude: number (center longitude for radius search)
+     * - radius: number (distance in miles for radius search)
+     * - zipCodes: array of zip codes (alternative to lat/long/radius)
+     * - category: string (post category)
+     * - type: string (offer or request)
+     * - tags: array of tags (matches any)
+     * - userId: string (posts by specific user)
+     * - limit: number (default 10)
+     * - skip: number (default 0)
+     */
+    
+    const { 
+        latitude,
+        longitude,
+        radius,
+        zipCodes, 
+        category, 
+        type, 
+        tags, 
+        userId,
+        limit = 10, 
+        skip = 0 
+    } = filters;
+
+    // Build MongoDB query dynamically
+    const query = {};
+
+    // Handle location-based filtering
+    let finalZipCodes = zipCodes;
+    
+    // If lat/long/radius provided, find zip codes in radius
+    if (latitude !== undefined && longitude !== undefined && radius) {
+        const locations = await locationData.findLocationsInRadius(
+            latitude, 
+            longitude, 
+            radius, 
+            1000, // Get many locations
+            0
+        );
+        finalZipCodes = locations.map(loc => loc.zipcode);
+    }
+
+    if (finalZipCodes && Array.isArray(finalZipCodes) && finalZipCodes.length > 0) {
+        query.zipcode = { $in: finalZipCodes };
+    }
+
+    if (category) {
+        query.category = _validateCategory(category);
+    }
+
+    if (type) {
+        query.type = _validateType(type);
+    }
+
+    if (tags && Array.isArray(tags) && tags.length > 0) {
+        query.tags = { $in: tags };
+    }
+
+    if (userId) {
+        query.userId = validators.validateId(userId, "User ID");
+    }
+
+    const postCollection = await db.posts();
+    const posts = await postCollection
+        .find(query)
+        .sort({ createdAt: -1 }) // Most recent first
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+    return posts;
+}
+
 const postFunctions = {
     createPost,
     getPostById,
     getNPosts,
     removePost,
-    updatePost
+    updatePost,
+    filterPosts,
 };
 
 export default postFunctions;
