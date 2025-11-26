@@ -6,6 +6,24 @@ import { parse } from 'csv-parse';
 const checkAndSeedLocations = async () => {
     try {
         const locationsCollection = await db.locations();
+        
+        // Create 2dsphere index for locations
+        try {
+            await locationsCollection.createIndex({ loc: "2dsphere" });
+            console.log('Created 2dsphere index on locations collection');
+        } catch (e) {
+            console.log('2dsphere index already exists on locations');
+        }
+
+        // Create 2dsphere index for posts
+        const postsCollection = await db.posts();
+        try {
+            await postsCollection.createIndex({ loc: "2dsphere" });
+            console.log('Created 2dsphere index on posts collection');
+        } catch (e) {
+            console.log('2dsphere index already exists on posts');
+        }
+        
         const count = await locationsCollection.countDocuments();
         
         if (count > 0) {
@@ -33,7 +51,8 @@ const checkAndSeedLocations = async () => {
                     state: row['admin name1'],
                     state_code: row['admin code1'],
                     latitude: parseFloat(row['latitude']),
-                    longitude: parseFloat(row['longitude'])
+                    longitude: parseFloat(row['longitude']),
+                    loc: { type: "Point", coordinates: [parseFloat(row['longitude']), parseFloat(row['latitude'])] }
                 });
             }
         }

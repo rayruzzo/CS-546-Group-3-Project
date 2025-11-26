@@ -54,7 +54,8 @@ const _validateLocation = (zipcode, city, state, state_code, latitude, longitude
         state: validators.validateString(state, "State"),
         state_code: _validateStateCode(state_code),
         latitude: _validateLatLong(latitude, "Latitude"),
-        longitude: _validateLatLong(longitude, "Longitude")
+        longitude: _validateLatLong(longitude, "Longitude"),
+        loc: { type: "Point", coordinates: [longitude, latitude] }
     };
 }
 

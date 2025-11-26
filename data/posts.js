@@ -66,6 +66,7 @@ const _validatePost = (title, userId, content, type, category, commentsEnabled, 
 const createPost = async (
     title,
     userId, 
+    zipcode,
     content,
     type,
     category,
@@ -75,9 +76,13 @@ const createPost = async (
 
     const validatedPost = _validatePost(title, userId, content, type, category, commentsEnabled, tags);
 
+    // Get location data for the zipcode - it already has the loc field
+    const location = await locationData.getLocationByZipcode(zipcode);
+    
     const newPost = {
         title: validatedPost.title,
         userId: validatedPost.userId,
+        zipcode: zipcode,
         content: validatedPost.content,
         type: validatedPost.type,
         category: validatedPost.category,
@@ -86,7 +91,7 @@ const createPost = async (
         createdAt: new Date(),
         updatedAt: new Date(),
         comments: [],
-        //zipcode: user.getZipCode(userId)
+        loc: location.loc  // Use the loc field directly from locations collection
     }
 
 
@@ -155,13 +160,48 @@ const updatePost = async (id, title, userId, content, type, category, commentsEn
     return await getPostById(id);
 }
 
+const getPostsNearZipcode = async (zipcode, radiusMiles = 5, limit = 10, skip = 0) => {
+    const location = None
+    try {
+        location = await locationData.getLocationByZipcode(zipcode);
+    } catch (err) {
+        throw err;
+    }
+    
+    limit = validateWholeNumber(limit, "Limit");
+    skip = validateWholeNumber(skip, "Skip");
+    radiusMiles = validateWholeNumber(radiusMiles, "Radius");
+
+    const radiusMeters = radiusMiles * 1609.34;
+
+    const postCollection = await db.posts();
+    
+    // Use $near for geospatial query - automatically sorts by distance
+    if (!location || !location.loc) {
+        throw "Location data not found for the given zipcode";
+    }
+    
+    const posts = await postCollection
+        .find({
+            loc: {
+                $near: {
+                    $geometry: location,
+                    $maxDistance: radiusMeters
+                }
+            }
+        })
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+    return posts;
+}
+
 const filterPosts = async (filters = {}) => {
     /*
      * filters object can include:
-     * - latitude: number (center latitude for radius search)
-     * - longitude: number (center longitude for radius search)
+     * - zipcode: string (center zipcode for radius search)
      * - radius: number (distance in miles for radius search)
-     * - zipCodes: array of zip codes (alternative to lat/long/radius)
      * - category: string (post category)
      * - type: string (offer or request)
      * - tags: array of tags (matches any)
@@ -171,10 +211,8 @@ const filterPosts = async (filters = {}) => {
      */
     
     const { 
-        latitude,
-        longitude,
+        zipcode,
         radius,
-        zipCodes, 
         category, 
         type, 
         tags, 
@@ -186,23 +224,20 @@ const filterPosts = async (filters = {}) => {
     // Build MongoDB query dynamically
     const query = {};
 
-    // Handle location-based filtering
-    let finalZipCodes = zipCodes;
-    
-    // If lat/long/radius provided, find zip codes in radius
-    if (latitude !== undefined && longitude !== undefined && radius) {
-        const locations = await locationData.findLocationsInRadius(
-            latitude, 
-            longitude, 
-            radius, 
-            1000, // Get many locations
-            0
-        );
-        finalZipCodes = locations.map(loc => loc.zipcode);
-    }
-
-    if (finalZipCodes && Array.isArray(finalZipCodes) && finalZipCodes.length > 0) {
-        query.zipcode = { $in: finalZipCodes };
+    // Handle geospatial filtering if zipcode and radius provided
+    if (zipcode && radius) {
+        const location = await locationData.getLocationByZipcode(zipcode);
+        const radiusMeters = radius * 1609.34; // Convert miles to meters
+        
+        query.loc = {
+            $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: [location.longitude, location.latitude]
+                },
+                $maxDistance: radiusMeters
+            }
+        };
     }
 
     if (category) {
@@ -222,9 +257,11 @@ const filterPosts = async (filters = {}) => {
     }
 
     const postCollection = await db.posts();
+    
+    // Note: When using $near, results are automatically sorted by distance
+    // Cannot use .sort() with $near
     const posts = await postCollection
         .find(query)
-        .sort({ createdAt: -1 }) // Most recent first
         .skip(skip)
         .limit(limit)
         .toArray();
@@ -239,6 +276,7 @@ const postFunctions = {
     removePost,
     updatePost,
     filterPosts,
+    getPostsNearZipcode
 };
 
 export default postFunctions;
