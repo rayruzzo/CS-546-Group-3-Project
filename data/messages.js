@@ -97,11 +97,13 @@ addMessageToThread(thread1, msg2);
 addMessageToThread(thread1, msg3);
 dmThreads.push(thread1);
 
+/*
 console.log('***********SEED FOR DIRECT MESSAGING START***********');
 console.log('---------------SEED FROM: MESSAGES.JS----------------');
 console.log(fetchThreadById(dmThreads, thread1.id));
 console.log(fetchThreadsForUser(dmThreads, "TestUser1"));
 console.log('***********SEED FOR DIRECT MESSAGING END*************');
+*/
 
 
 /****************************************************************************
