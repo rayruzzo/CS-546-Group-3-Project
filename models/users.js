@@ -1,0 +1,181 @@
+import { ObjectId } from "mongodb";
+import yup, { ObjectSchema } from "yup";
+import { loadYupCustomMethods } from "../utils/yupUtils.js";
+import userData from "../data/users.js";
+import db from "../config/mongoCollections.js";
+
+const { users } = db;
+
+/** load custom Yup methods */
+loadYupCustomMethods()
+
+// +++++++++++++++++++++++++++ //
+// User Schema Building Blocks //
+// +++++++++++++++++++++++++++ //
+
+export const objectIdSchema = yup
+   .mixed((_id) => ObjectId.isValid(_id))
+   .transform(function (value, originalValue) {
+      return originalValue.trim() || undefined;
+   })
+   .typeError(({ label }) => `${label} id is not a valid id`)
+   .required();
+
+
+export const usernameSchema = yup
+   .string()
+   .sequence([
+      () => yup.string().min(4).required().label("Username"),
+      () => yup.string().lowercase().trim().uniqueUsername(null, users)
+   ]);
+
+
+export const nameSchemaBase = yup
+   .string()
+   .min(2)
+   .nullable()             // NOTE: default key in MongoDB should be `null`
+   .default(null)
+   .trim();
+
+
+export const profileSchema = yup.object({
+   username: 
+      usernameSchema,      // REQUIRED
+
+   firstName:              // OPTIONAL
+      nameSchemaBase.label("First Name"),
+
+   lastName:               // OPTIONAL
+      nameSchemaBase.label("Last Name"),
+
+   dob:                    // REQUIRED
+      yup.date()
+         .typeError(({ label, type }) => `${label} must be a ${type}`)
+         .min(new Date().getFullYear() - 150, "Impossible. You are not this old")
+         .max(new Date().getFullYear() - 18,  "You must be 18 years or older")
+         .required()
+         .label("Date of Birth"),
+
+   bio:                    // OPTIONAL    
+      yup.string()
+         .max(250)
+         .nullable()
+         .default(null)
+         .trim()
+         .label("Bio"),
+
+   profilePicture:         // OPTIONAL
+      yup.string()
+         .url()
+         .nullable()
+         .default(null)
+         .trim()
+         .label("Profile Picture"),
+})
+.label("User Profile")
+.exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
+.required();
+
+
+export const settingsSchema = yup.object({
+   dmsEnabled: yup.boolean()
+      .typeError(({ label, type }) => `${label} must be either 'true' or 'false'`)
+      .default(true)
+      .label("Enable Direct Messages")
+
+   // ...more settings
+})
+.label("Settings")
+.exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
+.required();
+
+
+// ========================== //
+// User Route-Specific Schema //
+// ========================== //
+
+/**
+ * Validates an `ObjectId` on the surface to not make unecessary requests to MongoDB.
+ * 
+ * @param {string} label - the label to inject in the `${label} id is not a valid id` error message
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const getResourceByIdSchema = (label) => yup.object({
+   id: objectIdSchema.label(label || "id")
+});
+
+
+// ***************** //
+// User Main Schemas //
+// ***************** //
+
+export const userSchema = yup.object({
+   email: 
+      yup.string()
+         // handle string transforms directly in `transform()` to catch dev TypeError's
+         .transform(function (value, originalValue) {
+            return this.isType(originalValue) ? originalValue.trim().toLowerCase() : originalValue;
+         })
+         // `sequence()` custom yup method - avoid trips to the server for data obviously invalid
+         .sequence([
+            () => yup.string()
+               .typeError(({ label, type }) => `${label} must be a ${type}`)
+               .email()
+               .required()
+               .label("Email"),
+            () => yup.string().uniqueEmail(null, users),
+         ]),
+
+   password:          // NOTE: password will be hashed in `createUser()`, not here
+      yup.string()
+         // below, like above is only used to validate for dev (HTML inputs always return strings)
+         .transform(function (value, originalValue) {
+            return this.isType(originalValue) ? originalValue.trim() : originalValue;
+         })
+         // `typeError()` is for dev (HTML inputs are already strings)
+         .typeError(({ label, type }) => `${label} must be a ${type}`)
+         .min(10)
+         // regex good enough for this project but def not for prod
+         // https://stackoverflow.com/questions/48345922/reference-password-validation
+         .matches(
+            /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/gmu,
+            ({ path }) => `${path} must have at least one lowercase letter, uppercase letter, one number, and one special character`
+         )
+         .required()
+         .label("Password"),
+
+   role: 
+      yup.string()
+         .lowercase()
+         .trim()
+         .oneOf(Object.values(userData.server.roles))
+         .default(userData.server.roles.USER)
+         .label("Role")
+         .required(),
+
+
+   zipcode:            // TODO: finish zipcode validation
+      yup.string()
+         .required()
+         .trim()
+         .length(5)
+         .matches(
+            /^[0-9]{5}$/gm,
+            ({ label }) => `${label} must be 5 digits long`)
+         // TODO: <----- LOOKUP ZIPCODE HERE
+         .label("Zipcode"),
+
+   location:           // TODO: finish location validation
+      yup.string()
+         .required()
+         .label("Location"),
+
+   profile: 
+      profileSchema,
+
+   settings: 
+      settingsSchema,
+})
+.label("User")
+.exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
+.required();
