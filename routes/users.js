@@ -25,8 +25,10 @@ router.post("/",
 
 router.put("/:id", 
    // FIXME: get logged in user in middleware right here to compare previous data and updated data, because the same email and/or username can be used in the PUT method. It fails currently, because it mistakenly thinks there is already a user with those same properties
-   validateSchema(getResourceByIdSchema("User"), "params"), 
-   validateSchema(userSchema, "body"), 
+   validateSchema(
+      [getResourceByIdSchema("User"), "params"],
+      [userSchema, "body"],
+   ), 
    async (req, res, next) => {
 
       const { id } = req.params;
