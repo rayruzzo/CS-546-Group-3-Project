@@ -12,7 +12,7 @@ import { Schema } from "yup";
  * 
  * @overload
  * @param {...[Schema, (string|undefined)]} schemaTuples - Tuples of `Schema, requestProperty`
- * @return {Array<Promise<Function>>}
+ * @return {<Promise<Function>}
  *
  * @overload
  * @param {() => AnySchema} schema        - Any Yup schema
@@ -66,16 +66,16 @@ export function validateSchema(...schemaTuples) {
    }
 
 
-   // perform validation for each schema sequentially
-   for (const tuple of arrayOfSchemaTuples) {
+   return async function(req, res, next) {
 
-      const [ schema, requestProperty = "body" ] = tuple;
+      // perform validation for each schema sequentially
+      for (const tuple of arrayOfSchemaTuples) {
 
-      if (!validReqProps.includes(requestProperty))
-         throw new Error(`Invalid request property for schema validation. Valid: ${validReqProps.join(", ")}`);
+         const [ schema, requestProperty = "body" ] = tuple;
+
+         if (!validReqProps.includes(requestProperty))
+            throw new Error(`Invalid request property for schema validation. Valid: ${validReqProps.join(", ")}`);
       
-      return async function(req, res, next) {
-   
          // TODO: check for a user session to pass `{ email, username }` to Yup as "context"
    
          try {
@@ -86,9 +86,6 @@ export function validateSchema(...schemaTuples) {
                { abortEarly: false }    // `false` shows all errors
             );
    
-            // call next scheduled middleware
-            next();
-   
          } catch (e) {
    
             // send correct error to client
@@ -96,6 +93,9 @@ export function validateSchema(...schemaTuples) {
             return res.status(400).json(e);
          }
       }
+
+      // call next scheduled middleware
+      next();
    }
 }
 
