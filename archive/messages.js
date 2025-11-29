@@ -1,3 +1,5 @@
+// Prototype file (No Longer Used)
+
 // User <-> Thread <-> Messages
 // Will add in async once mongo is setup, for now just keeping engine normal to ensure works synchronously first.
 
@@ -85,6 +87,8 @@ function generateId() {
 /****************************************************************************
  * Seeded Sample Data/Testing
  ****************************************************************************/
+
+/*
 let dmThreads = []; // Will be storing Threads in mongo but this is just for testing.
 
 const thread1 = createThread("TestUser1", "TestUser2");
@@ -96,6 +100,7 @@ addMessageToThread(thread1, msg1);
 addMessageToThread(thread1, msg2);
 addMessageToThread(thread1, msg3);
 dmThreads.push(thread1);
+*/
 
 /*
 console.log('***********SEED FOR DIRECT MESSAGING START***********');
