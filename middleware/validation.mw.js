@@ -27,7 +27,7 @@ import { Schema } from "yup";
 export function validateSchema(...schemaTuples) {
 
    /** supported request properties to validate */ 
-   const validReqProps = ["body", "params"];
+   const validReqProps = ["body", "params", "query"];
 
    // ensure that all function signatures are handled by making
    // the input an array of Yup Schema tuples
