@@ -1,131 +1,106 @@
+import { create } from 'express-handlebars';
 import db from '../config/mongoCollections.js';
-import validators from '../validation.js';
+import { locationSchema, zipcodeSchema } from '../models/locations.js';
 
-const _validateZipcode = (zipcode) => {
-    if (zipcode.length < 5 || zipcode.length > 10) {
-        throw "Invalid zipcode length";
+const { locations } = db;
+
+const Location = Object.freeze(class Location {
+    _id;
+    zipcode;
+    city;
+    state_code;
+    latitude;
+    longitude;
+
+    constructor({ _id, zipcode, city, state_code, latitude, longitude }) {
+        this._id = _id;
+        this.zipcode = zipcode;
+        this.city = city;
+        this.state_code = state_code;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.loc = { type: "Point", coordinates: [this.longitude, this.latitude] };
     }
-    return zipcode;
+});
+
+const locationFunctions = {
+    async createLocation(zipcode, city, state_code, latitude, longitude) {
+        const errors = {};
+
+        const newLocationData = new Location({
+            zipcode,
+            city,
+            state_code,
+            latitude,
+            longitude,
+        });
+
+        const validatedLocation = locationSchema.parse(newLocationData);
+        
+        const locationsCollection = await locations();
+        const insertInfo = await locationsCollection.insertOne(validatedLocation);
+        if (!insertInfo.insertedId)
+         errors.creationError = "Could not create a new location";
+
+        if (Object.keys(errors).length > 0) {
+         throw new Error("Error creating location", {
+            cause: {errors: errors}
+         });
+      }
+
+      console.log("NEW LOCATION CREATED");
+
+      return { location: newLocationData, success: true };
+    },
+
+    async getLocationById(id) {
+        if (!id) throw new Error("Location ID must be provided", { cause: { id: "Location ID not provided" } });
+        
+        const locationsCollection = await locations();
+        const location = await locationsCollection.findOne({ _id: ObjectId.createFromHexString(id) });
+        if (!location) throw new Error("Location not found", { cause: { id: "No location found with the provided ID" } });
+
+        return { location: location, success: true };
+    },
+
+    async updateLocation(locationId, validLocationData) {
+        if (!locationId) throw new Error("Location ID must be provided", { cause: { locationId: "Location ID not provided" } });
+        if (!validLocationData || Object(validLocationData) !== validLocationData) throw new Error("Location data must be provided", { cause: { validLocationData: "Location data not provided" } });
+
+        const locationsCollection = await locations();
+        const updatedLocationData = locationSchema.parse(validLocationData);
+
+        const updateInfo = await locationsCollection.updateOne(
+            { _id: updatedLocationData._id },
+            { $set: {...validLocationData} }
+        );
+
+        if (updateInfo.matchedCount === 0) throw new Error("Location not found", { cause: { locationId: "No location found with the provided ID" } });
+        if (updateInfo.modifiedCount === 0) throw new Error("Could not update location", { cause: { locationId: "Location update failed" } });
+        return { location: this.getLocationById(updatedLocationData._id), success: true };
+    },
+
+    async deleteLocation(id) {
+        if (!id) throw new Error("Location ID must be provided", { cause: { id: "Location ID not provided" } });
+
+        const locationsCollection = await locations();
+        const deletionInfo = await locationsCollection.deleteOne({ _id: ObjectId.createFromHexString(id) });
+
+        if (deletionInfo.deletedCount === 0) throw new Error("Could not delete location", { cause: { id: "No location found with the provided ID" } });
+
+        return { locationId: id, deleted: true };
+    },
+
+    async getLocationByZipcode(zipcode) {
+        if (!zipcode) throw new Error("Zipcode must be provided", { cause: { zipcode: "Zipcode not provided" } });
+        const validatedZipcode = zipcodeSchema.parse(zipcode);
+
+        const locationsCollection = await locations();
+        const location = await locationsCollection.findOne({ zipcode: validatedZipcode });
+        if (!location) throw new Error("Location not found", { cause: { zipcode: "No location found with the provided zipcode" } });
+
+        return location;
+    },
 }
 
-const _validateLatLong = (value, name) => {
-        if (typeof value !== 'number') {  
-        throw `Invalid ${name} value`;  
-    }  
-    if (name === "Latitude") {  
-        if (value < -90 || value > 90) {  
-            throw `Invalid ${name} value, must be between -90 and 90`;  
-        }  
-    } else if (name === "Longitude") {  
-        if (value < -180 || value > 180) {  
-            throw `Invalid ${name} value, must be between -180 and 180`;  
-        }  
-    } else {  
-        throw `Unknown coordinate name: ${name}`;  
-    }
-    return value;  
-}
-
-const _validateStateCode = (state_code) => {
-    if (state_code.length !== 2) {
-        throw "State code must be 2 characters";
-    }
-    return state_code.toUpperCase();
-}
-
-const _validateRadius = (radius) => {
-    if (typeof radius !== 'number' || radius <= 0) {
-        throw "Invalid radius value";
-    }
-    return radius;
-}
-
-const _validatePositiveNumber = (value, name) => {
-    if (typeof value !== 'number' || value < 0) {
-        throw `Invalid ${name} value`;
-    }
-    return value;
-}
-
-const _validateLocation = (zipcode, city, state, state_code, latitude, longitude) => {
-    return {
-        zipcode: _validateZipcode(zipcode),
-        city: validators.validateString(city, "City"),
-        state: validators.validateString(state, "State"),
-        state_code: _validateStateCode(state_code),
-        latitude: _validateLatLong(latitude, "Latitude"),
-        longitude: _validateLatLong(longitude, "Longitude"),
-        loc: { type: "Point", coordinates: [longitude, latitude] }
-    };
-}
-
-const create_location = async (zipcode, city, state, state_code, latitude, longitude) => {
-
-    const locCollection = await db.locations();
-
-    const newLocation = _validateLocation(zipcode, city, state, state_code, latitude, longitude);
-
-    const insertInfo = await locCollection.insertOne(newLocation);
-    if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-        throw "Could not add location";
-    }
-    return insertInfo.insertedId;
-};
-
-const getCoordinatesByZipcode = async (zipcode) => {
-    zipcode = _validateZipcode(zipcode);
-    const locCollection = await db.locations();
-    const location = await locCollection.findOne({ zipcode: zipcode });
-    if (!location) throw "Location not found";
-    return {
-        latitude: location.latitude,
-        longitude: location.longitude
-    };
-}
-
-const findLocationsInRadius = async (latitude, longitude, radius, n, skip) => {
-    latitude = _validateLatLong(latitude, "Latitude");
-    longitude = _validateLatLong(longitude, "Longitude");
-    radius = _validateRadius(radius);
-    
-    // Convert radius from miles to radians for MongoDB $center operator
-    const radiusInRadians = radius / 3963.2;
-    const locCollection = await db.locations();
-    const locationsInRadius = await locCollection.find({
-        loc: {$geoWithin: { $center: [ [ longitude, latitude ], radiusInRadians ] } }
-    }).skip(skip).limit(n).toArray();
-
-    return locationsInRadius;
-}
-
-const getZipsInRadius = async (zipcode, radius, n, skip) => {
-    zipcode = _validateZipcode(zipcode);
-    radius = _validateRadius(radius);
-    n = _validatePositiveNumber(n, "Number of locations");
-    skip = _validatePositiveNumber(skip, "Skip value");
-
-    const coords = await getCoordinatesByZipcode(zipcode);
-    const latitude = coords.latitude;
-    const longitude = coords.longitude;
-    const locationsInRadius = await findLocationsInRadius(latitude, longitude, radius, n, skip);
-    const zipcodes = locationsInRadius.map(loc => loc.zipcode);
-    return zipcodes;
-}
-
-
-const getLocationByZipcode = async (zipcode) => {
-    zipcode = _validateZipcode(zipcode);
-    const locCollection = await db.locations();
-    const location = await locCollection.findOne({ zipcode: zipcode });
-    if (!location) throw "Location not found";
-    return location;
-}
-
-
-export default {
-    create_location,
-    getCoordinatesByZipcode,
-    findLocationsInRadius,
-    getLocationByZipcode,
-    getZipsInRadius
-};
+export default locationFunctions;

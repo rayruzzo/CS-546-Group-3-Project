@@ -1,42 +1,11 @@
 import Router from 'express';
 import postData from '../data/index.js'
 import loadPosts from '../scripts/loadPosts.js';
+import postSchema from '../schemas/postSchema.js';
 
 const router = Router();
 
-router.get('/filter', async (req, res) => {
-    try {
-        if (!req.session.user) {
-            return res.status(401).json({ error: 'Not authenticated' });
-        }
-
-        // Extract all possible filter parameters
-        // Validate and clamp numeric parameters
-        const rawDistance = parseInt(req.query.distance, 10);
-        const distance = (!isNaN(rawDistance)) ? Math.max(1, Math.min(100, rawDistance)) : 10;
-        const rawLimit = parseInt(req.query.limit, 10);
-        const limit = (!isNaN(rawLimit)) ? Math.max(1, Math.min(100, rawLimit)) : 10;
-        const rawSkip = parseInt(req.query.skip, 10);
-        const skip = (!isNaN(rawSkip)) ? Math.max(0, Math.min(10000, rawSkip)) : 0;
-        const filters = {
-            distance: distance,
-            category: req.query.category,
-            type: req.query.type,
-            tags: req.query.tags ? req.query.tags.split(',') : undefined,
-            limit: limit,
-            skip: skip
-        };
-        
-        const filteredPosts = await loadPosts(req.session.user.zipCode, filters);
-        
-        res.json({ posts: filteredPosts });
-    } catch (error) {
-        console.error('Error filtering posts:', error);
-        res.status(500).json({ error: 'Failed to filter posts' });
-    }
-});
-
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => {   
     try {
         res.end()
     } 
@@ -84,4 +53,35 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+router.get('/filter', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        // Extract all possible filter parameters
+        // Validate and clamp numeric parameters
+        const rawDistance = parseInt(req.query.distance, 10);
+        const distance = (!isNaN(rawDistance)) ? Math.max(1, Math.min(100, rawDistance)) : 10;
+        const rawLimit = parseInt(req.query.limit, 10);
+        const limit = (!isNaN(rawLimit)) ? Math.max(1, Math.min(100, rawLimit)) : 10;
+        const rawSkip = parseInt(req.query.skip, 10);
+        const skip = (!isNaN(rawSkip)) ? Math.max(0, Math.min(10000, rawSkip)) : 0;
+        const filters = {
+            distance: distance,
+            category: req.query.category,
+            type: req.query.type,
+            tags: req.query.tags ? req.query.tags.split(',') : undefined,
+            limit: limit,
+            skip: skip
+        };
+        
+        const filteredPosts = await loadPosts(req.session.user.zipCode, filters);
+        
+        res.json({ posts: filteredPosts });
+    } catch (error) {
+        console.error('Error filtering posts:', error);
+        res.status(500).json({ error: 'Failed to filter posts' });
+    }
+});
 export default router;
