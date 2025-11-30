@@ -161,7 +161,7 @@ const updatePost = async (id, title, userId, content, type, category, commentsEn
 }
 
 const getPostsNearZipcode = async (zipcode, radiusMiles = 5, limit = 10, skip = 0) => {
-    const location = None
+    const location = null;
     try {
         location = await locationData.getLocationByZipcode(zipcode);
     } catch (err) {
