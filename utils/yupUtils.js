@@ -48,7 +48,7 @@ export function loadYupCustomMethods() {
                );               
 
             const userCol = await userCollection();
-            const emailExists = await userCol.findOne({ "email": value });
+            const emailExists = await userCol.findOne({ "email": value.toLowerCase() });
 
             if (emailExists) {
                message = message || `${this.schema.spec.label} already taken`;
@@ -79,9 +79,20 @@ export function loadYupCustomMethods() {
                );
 
             const userCol = await userCollection();
-            const usernameExists = await userCol.findOne({ "profile.username": value });
 
-            if (usernameExists) {
+            // to perform a case-insensitive MongoDB search, we need to use an index
+            // https://www.mongodb.com/docs/manual/core/index-case-insensitive/
+            userCol.createIndex(
+               { "profile.username": 1 }, 
+               { collation: { locale: "en", strength: 2 }}
+            )
+
+            // collation is supported on `db.collection.find()` and not `db.collection.findOne()`
+            const usernameExists = await userCol.find({ "profile.username": value }).collation(
+               { locale: "en", strength: 2 }
+            ).toArray();
+
+            if (usernameExists.length) {
                message = message || `${this.schema.spec.label} already taken`;
                return context.createError({ message });
             }

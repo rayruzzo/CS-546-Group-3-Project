@@ -25,8 +25,18 @@ export const objectIdSchema = yup
 export const usernameSchema = yup
    .string()
    .sequence([
-      () => yup.string().min(4).required().label("Username"),
-      () => yup.string().lowercase().trim().uniqueUsername(null, users)
+      () => yup.string()
+               .min(4)
+               .max(50)
+               .matches(
+                  /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/gm,
+                  ({ label }) => `${label} must be 4 to 50 basic latin characters composed of letters, numbers, or non-consecutive dashes, but no dashes at the beginning or end`
+               )
+               .required()
+               .label("Username"),
+
+      () => yup.string().lowercase().trim(),
+      () => yup.string().uniqueUsername(null, users),
    ]);
 
 
