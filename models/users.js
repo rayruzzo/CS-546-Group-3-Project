@@ -22,6 +22,43 @@ export const objectIdSchema = yup
    .required();
 
 
+export const emailSchema = yup
+   .string()
+   // handle string transforms directly in `transform()` to catch dev TypeError's
+   .transform(function (value, originalValue) {
+      return this.isType(originalValue) ? originalValue.trim().toLowerCase() : originalValue;
+   })
+   // `sequence()` custom yup method - avoid trips to the server for data obviously invalid
+   .sequence([
+      () => yup.string()
+               .typeError(({ label, type }) => `${label} must be a ${type}`)
+               .email()
+               .required()
+               .label("Email"),
+
+      () => yup.string().uniqueEmail(null, users),
+   ]);
+
+
+export const passwordSchema = yup
+   .string()
+   // below, like above is only used to validate for dev (HTML inputs always return strings)
+   .transform(function (value, originalValue) {
+      return this.isType(originalValue) ? originalValue.trim() : originalValue;
+   })
+   // `typeError()` is for dev (HTML inputs are already strings)
+   .typeError(({ label, type }) => `${label} must be a ${type}`)
+   .min(10)
+   // regex good enough for this project but def not for prod
+   // https://stackoverflow.com/questions/48345922/reference-password-validation
+   .matches(
+      /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/gmu,
+      ({ path }) => `${path} must have at least one lowercase letter, uppercase letter, one number, and one special character`
+   )
+   .required()
+   .label("Password");
+
+
 export const usernameSchema = yup
    .string()
    .sequence([
@@ -88,10 +125,11 @@ export const profileSchema = yup.object({
 
 
 export const settingsSchema = yup.object({
-   dmsEnabled: yup.boolean()
-      .typeError(({ label, type }) => `${label} must be either 'true' or 'false'`)
-      .default(true)
-      .label("Enable Direct Messages")
+   dmsEnabled: 
+      yup.boolean()
+         .typeError(({ label, type }) => `${label} must be either 'true' or 'false'`)
+         .default(true)
+         .label("Enable Direct Messages")
 
    // ...more settings
 })
@@ -121,38 +159,10 @@ export const getResourceByIdSchema = (label) => yup.object({
 
 export const userSchema = yup.object({
    email: 
-      yup.string()
-         // handle string transforms directly in `transform()` to catch dev TypeError's
-         .transform(function (value, originalValue) {
-            return this.isType(originalValue) ? originalValue.trim().toLowerCase() : originalValue;
-         })
-         // `sequence()` custom yup method - avoid trips to the server for data obviously invalid
-         .sequence([
-            () => yup.string()
-               .typeError(({ label, type }) => `${label} must be a ${type}`)
-               .email()
-               .required()
-               .label("Email"),
-            () => yup.string().uniqueEmail(null, users),
-         ]),
+      emailSchema,
 
    password:          // NOTE: password will be hashed in `createUser()`, not here
-      yup.string()
-         // below, like above is only used to validate for dev (HTML inputs always return strings)
-         .transform(function (value, originalValue) {
-            return this.isType(originalValue) ? originalValue.trim() : originalValue;
-         })
-         // `typeError()` is for dev (HTML inputs are already strings)
-         .typeError(({ label, type }) => `${label} must be a ${type}`)
-         .min(10)
-         // regex good enough for this project but def not for prod
-         // https://stackoverflow.com/questions/48345922/reference-password-validation
-         .matches(
-            /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/gmu,
-            ({ path }) => `${path} must have at least one lowercase letter, uppercase letter, one number, and one special character`
-         )
-         .required()
-         .label("Password"),
+      passwordSchema,
 
    role: 
       yup.string()
