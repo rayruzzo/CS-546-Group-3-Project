@@ -95,7 +95,7 @@ export const settingsSchema = yup.object({
 // ========================== //
 
 /**
- * Validates an `ObjectId` on the surface to not make unecessary requests to MongoDB.
+ * Validates an `ObjectId` on the surface to not make unnecessary requests to MongoDB.
  * 
  * @param {string} label - the label to inject in the `${label} id is not a valid id` error message
  * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`

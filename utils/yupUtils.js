@@ -8,7 +8,7 @@ export function loadYupCustomMethods() {
 
    /**
     * Adds a sequential method to Yup that validates in order.
-    * Used to avoid unecessary requests to server if value is obviously invalid.
+    * Used to avoid unnecessary requests to server if value is obviously invalid.
     * Slightly modified from: https://github.com/jquense/yup/issues/851#issuecomment-1049705180
     */
    yup.addMethod(yup.string, "sequence", function (testFunctionArray) {
