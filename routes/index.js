@@ -1,6 +1,8 @@
 import {default as postRouter} from './posts.js'
+import {default as homeRouter} from './home.js'
 
-const constructorMethod = (app) => {
+const configRoutes = (app) => {
+    app.use('/', homeRouter);
     app.use('/posts', postRouter);
 
     app.use((req, res) => {
@@ -8,4 +10,4 @@ const constructorMethod = (app) => {
   });
 };
 
-export default constructorMethod;
+export default configRoutes;
