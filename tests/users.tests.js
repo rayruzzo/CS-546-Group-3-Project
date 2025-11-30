@@ -80,7 +80,6 @@ export async function testUsers() {
          password: "  !shortP1",
          // role: "user",
          zipcode: "      9021a   ",
-         // location: "City, State",
          profile: {
             username: "aa",
             firstName: "A",
@@ -127,7 +126,6 @@ export async function testUsers() {
          password: "thisPasswordIsValid123!?",
          // role: "user",
          zipcode: "      99999   ",
-         location: "City, State",
          profile: {
             username: "bagels420",
             firstName: "Arnold",
@@ -146,7 +144,6 @@ export async function testUsers() {
          password: userSchemaTest.password,
          role: userSchemaTest.role,
          zipcode: userSchemaTest.zipcode,
-         location: userSchemaTest.location,
          profile: {
             username: userSchemaTest.profile.username,
             firstName: userSchemaTest.profile.firstName,
@@ -176,7 +173,6 @@ export async function testUsers() {
          password: "thisPasswordIsValid123!?",
          role: "ROLE",
          zipcode: "99999",
-         location: "City, State",
          profile: {
             username: "bagels420",
             firstName: "Not Arnold",

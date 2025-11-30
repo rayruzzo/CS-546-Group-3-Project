@@ -32,7 +32,6 @@ const User = Object.freeze(class User {
    password;
    role         = User.roles.USER;
    zipcode;
-   location;
    profile;
    settings;
    isBanned     = false;
@@ -42,12 +41,11 @@ const User = Object.freeze(class User {
 
 
    // `User` class is local to this file, these will already be validated in `userFunctions`
-   constructor({email, password, role, zipcode, location, profile, settings}) {
+   constructor({email, password, role, zipcode, profile, settings}) {
       this.email      = email,
       this.password   = password,
       this.role       = role,     
       this.zipcode    = zipcode,
-      this.location   = location,
       this.profile    = profile,              
       this.settings   = settings
 
@@ -224,7 +222,6 @@ const userFunctions = Object.freeze({
          password, 
          role, 
          zipcode,
-         location,
          profile, 
          settings
       } = validUserData;
@@ -240,7 +237,6 @@ const userFunctions = Object.freeze({
          password, 
          role, 
          zipcode, 
-         location,
          profile, 
          settings
       });

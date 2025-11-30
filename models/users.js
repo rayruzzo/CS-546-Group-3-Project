@@ -165,11 +165,6 @@ export const userSchema = yup.object({
          // TODO: <----- LOOKUP ZIPCODE HERE
          .label("Zipcode"),
 
-   location:           // TODO: finish location validation
-      yup.string()
-         .required()
-         .label("Location"),
-
    profile: 
       profileSchema,
 
