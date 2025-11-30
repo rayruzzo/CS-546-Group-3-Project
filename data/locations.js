@@ -41,7 +41,7 @@ const _validateRadius = (radius) => {
 }
 
 const _validatePositiveNumber = (value, name) => {
-    if (typeof value !== 'number' || value < 0) {
+    if (Number.isNaN(value) || value < 0) {
         throw `Invalid ${name} value`;
     }
     return value;
