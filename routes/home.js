@@ -26,7 +26,8 @@ router.get('/', async (req, res) => {
         res.render('home', { 
             title: 'Home',
             user: req.session.user,
-            posts: posts
+            posts: posts,
+            categories: // import categories
         });
     } catch (error) {
         console.error('Error loading home page:', error);
@@ -34,6 +35,7 @@ router.get('/', async (req, res) => {
             title: 'Home',
             user: req.session.user || null,
             posts: [],
+            categories: // import categories
             error: 'Failed to load posts'
         });
     }

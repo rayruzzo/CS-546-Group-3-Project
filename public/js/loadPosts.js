@@ -14,6 +14,8 @@
     filterForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         await loadFilteredPosts();
+        
+        // update url
     });
 
     // Add change listeners to all filters that exist

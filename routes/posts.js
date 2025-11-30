@@ -22,7 +22,14 @@ router.get('/filter', async (req, res) => {
             distance: distance,
             category: req.query.category,
             type: req.query.type,
-            tags: req.query.tags ? req.query.tags.split(',') : undefined,
+            tags: req.query.tags
+                ? req.query.tags
+                    .split(',')
+                    .map(t => t.trim())
+                    .filter(t => t.length > 0)
+                    .slice(0, 10)
+                    .map(t => t.substring(0, 50))
+                : undefined,
             limit: limit,
             skip: skip
         };
