@@ -180,8 +180,47 @@ const User = Object.freeze(class User {
       await User.#setLatestTotalBannedUserCount();
       return;
    }
-}
-)
+
+   /**
+    * Initialize indexes for **users** collection, etc.
+    * @returns {Promise<void>}
+    */
+   static async init() {
+
+      console.log("\n------------------------------------------")
+
+      // to perform a case-insensitive MongoDB search, we need to use an index
+      // https://www.mongodb.com/docs/manual/core/index-case-insensitive/
+      const userCol = await users();
+
+      const usernameInsensitiveIndex = await userCol.createIndex(
+         { "profile.username": 1 }, 
+         { 
+            collation: { locale: "en", strength: 2 },
+            name: "caseInsensitiveUsername"
+         }
+      )
+      console.log("Index created:", usernameInsensitiveIndex);
+
+      // unique indexes:
+      // TODO: this is an absolute last resort (should probably remove these `unique` as they run at CRUD-time)
+      // https://www.mongodb.com/docs/drivers/node/current/indexes/#unique-indexes
+      const uniqueEmailIndex = await userCol.createIndex(
+         { "email": 1 }, 
+         { unique: true, name: "uniqueEmail" }
+      )
+      console.log("Index created:", uniqueEmailIndex);
+
+      const uniqueUsernameIndex = await userCol.createIndex(
+         { "profile.username": 1 }, 
+         { unique: true, name: "uniqueUsername"}
+      )
+      console.log("Index created:", uniqueUsernameIndex);
+      console.log("------------------------------------------\n")
+      
+      return;
+   }
+})
 
 
 /**
@@ -364,6 +403,7 @@ const userFunctions = Object.freeze({
 // FIXME:
 // await User.restoreStats();
 
-
+// TODO: move this into an app-wide init pipeline
+await userFunctions.server.init();
 
 export default userFunctions;
