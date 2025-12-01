@@ -76,14 +76,23 @@ export function validateSchema(...schemaTuples) {
          if (!validReqProps.includes(requestProperty))
             throw new Error(`Invalid request property for schema validation. Valid: ${validReqProps.join(", ")}`);
       
-         // TODO: check for a user session to pass `{ email, username }` to Yup as "context"
+         // TODO: test user sessions to pass `{ email, username }` to Yup as "context"
    
          try {
    
             // modify request object with neatly shaped data from validation
             req[requestProperty] = await schema.validate(
                { ...req[requestProperty] }, 
-               { abortEarly: false }    // `false` shows all errors
+               { 
+                  abortEarly: false,        // `false` shows all errors
+                  context: {                
+                     session: {             // decides whether some fields are active based on session
+                        // user: {
+                        //    email: "test@test.com", profile: { username: "testingAgainHere" } 
+                        // }
+                     }
+                  }
+               }    
             );
    
          } catch (e) {
