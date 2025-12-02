@@ -1,5 +1,5 @@
 import { Collection } from "mongodb";
-import yup from "yup";
+import yup, { Schema } from "yup";
 
 /**
  * Loads custom methods for Yup validation chains
@@ -11,17 +11,28 @@ export function loadYupCustomMethods() {
     * Used to avoid unnecessary requests to server if value is obviously invalid.
     * Slightly modified from: https://github.com/jquense/yup/issues/851#issuecomment-1049705180
     */
-   yup.addMethod(yup.string, "sequence", function (testFunctionArray) {
-      return this.test(async (value, context) => {
+   yup.addMethod(yup.string, "sequence", function sequence(testFunctionArray) {
+      return this.test(async (value, testContext) => {
+
+         // get the `context` passed into the original top-level `validate()`
+         // NOTE: used for executing differently depending on if there is a user session or not
+         const validationContext = testContext?.options?.context;
+
+         // also pass down whether optional or required from parent
+         const optional = testContext?.schema?.spec?.optional;
+
          try {
 
             let arrayLen = testFunctionArray.length;
             for (let i = 0; i < arrayLen; i++) {
-               await testFunctionArray[i]().validate(value);
-            }
+               await testFunctionArray[i]().validate(value, 
+                  { context: { ...validationContext, optional: optional } }
+                  // ^ we also have to pass `context` ^ to all the sequenced validators
+               );
+            }                      
 
          } catch ({ message }) {
-            return context.createError({ message });
+            return testContext.createError({ message });
          }
 
          // advance if all sequential tests are true
