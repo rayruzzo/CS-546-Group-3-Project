@@ -61,27 +61,49 @@ export function loadYupCustomMethods() {
    /**
     * Adds a method to Yup that Hits up MongoDB and checks if the `email` is unique
     */
-   yup.addMethod(yup.string, "uniqueEmail", function (message, userCollection) {
+   yup.addMethod(yup.string, "uniqueEmail", function uniqueEmail(message, userCollection) {
 
       return this.label("Email").test(
          "uniqueEmail", 
          message, 
-         async function (value, context) {
-            
+         async function (value, testContext) {
+
             if (!userCollection)
                throw new Error("Please provide a MongoDB Collection");
             if (!(typeof userCollection !== Collection))
                throw new Error(
                   "userCollection is not a MongoDB Collection", 
                   {cause: userCollection}
-               );               
+               );
+
+
+            // get the `context` passed into the original top-level `validate()`
+            // NOTE: used for executing differently depending on if there is a user session or not
+            const validationContext = testContext?.options?.context;
+
+            // check whether this is required or has been set optional by `requiredIfNotLoggedIn()`
+            const optional = validationContext?.optional;
+            
+            // grab session context if exists
+            const sessionEmail = validationContext?.session?.user?.email?.toLowerCase();
+
+            // `email` is allowed to be the same if current user session is the owner of it
+            if (sessionEmail && sessionEmail === value?.toLowerCase()) {
+               return true;
+            }
+
+            // if there is no `email` being passed in (ex. only with updates) then it's ok to be blank 
+            if (sessionEmail && optional && value === undefined) {
+               return true;
+            }
+
 
             const userCol = await userCollection();
-            const emailExists = await userCol.findOne({ "email": value.toLowerCase() });
+            const foundUser = await userCol.findOne({ email: value.toLowerCase() });
 
-            if (emailExists) {
+            if (foundUser) {
                message = message || `${this.schema.spec.label} already taken`;
-               return context.createError({ message });
+               return testContext.createError({ message });
             }
 
             return true;
@@ -89,15 +111,16 @@ export function loadYupCustomMethods() {
       )
    })
 
+
    /**
     * Adds a method to Yup that Hits up MongoDB and checks if the `username` is unique
     */
-   yup.addMethod(yup.string, "uniqueUsername", function (message, userCollection) {
+   yup.addMethod(yup.string, "uniqueUsername", function uniqueUsername(message, userCollection) {
 
       return this.label("Username").test(
          "uniqueUsername", 
          message, 
-         async function (value, context) {
+         async function (value, testContext) {
 
             if (!userCollection)
                throw new Error("Please provide a MongoDB Collection");
@@ -107,23 +130,36 @@ export function loadYupCustomMethods() {
                   {cause: userCollection}
                );
 
-            const userCol = await userCollection();
+            // get the `context` passed into the original top-level `validate()`
+            // NOTE: used for executing differently depending on if there is a user session or not
+            const validationContext = testContext?.options?.context;
 
-            // to perform a case-insensitive MongoDB search, we need to use an index
-            // https://www.mongodb.com/docs/manual/core/index-case-insensitive/
-            userCol.createIndex(
-               { "profile.username": 1 }, 
-               { collation: { locale: "en", strength: 2 }}
-            )
+            // check whether this is required or has been set optional by `requiredIfNotLoggedIn()`
+            const optional = validationContext?.optional;
+            
+            // grab session context if exists
+            const sessionUsername = validationContext?.session?.user?.profile?.username?.toLowerCase();
+
+            // `username` is allowed to be the same if current user session is the owner of it
+            if (sessionUsername && sessionUsername === value?.toLowerCase()) {
+               return true;
+            }
+
+            // if there is no `username` being passed in (ex. only with updates) then it's ok to be blank 
+            if (sessionUsername && optional && value === undefined) {
+               return true;
+            }
+
 
             // collation is supported on `db.collection.find()` and not `db.collection.findOne()`
-            const usernameExists = await userCol.find({ "profile.username": value }).collation(
+            const userCol = await userCollection();
+            const foundUser = await userCol.find({ "profile.username": value }).collation(
                { locale: "en", strength: 2 }
             ).toArray();
 
-            if (usernameExists.length) {
+            if (foundUser.length) {
                message = message || `${this.schema.spec.label} already taken`;
-               return context.createError({ message });
+               return testContext.createError({ message });
             }
 
             return true;
