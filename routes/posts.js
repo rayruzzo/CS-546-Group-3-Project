@@ -1,7 +1,6 @@
 import Router from 'express';
 import postData from '../data/index.js'
 import loadPosts from '../scripts/loadPosts.js';
-import postSchema from '../schemas/postSchema.js';
 
 const router = Router();
 
@@ -14,45 +13,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
-    try {
-        const post = await postData.getPostById(req.params.id);
-        // we will need to fetch the user data as well
-        res.render('post', { title: post.title, post: post, user: post.user });
-    } catch (error) {
-        res.status(404).json({ error: error.toString() });
-    }
-});
-
-router.post('/', async (req, res) => {
-    try {
-        const { title, userId, content, type, category, commentsEnabled, tags } = req.body;
-        const newPost = await postData.createPost(title, userId, content, type, category, commentsEnabled, tags);
-        res.json(newPost);
-    } catch (error) {
-        res.status(400).json({ error: error.toString() });
-    }
-});
-
-router.put('/:id', async (req, res) => {
-    try {
-        const { title, userId, content, type, category, commentsEnabled, tags } = req.body;
-        const updatedPost = await postData.updatePost(req.params.id, title, userId, content, type, category, commentsEnabled, tags);
-        res.json(updatedPost);
-    } catch (error) {
-        res.status(404).json({ error: error.toString() });
-    }
-});
-
-router.delete('/:id', async (req, res) => {
-    try {
-        const deletedPost = await postData.removePost(req.params.id);
-        res.json(deletedPost);
-    } catch (error) {
-        res.status(404).json({ error: error.toString() });
-    }
-});
-
+// Define /filter BEFORE /:id to prevent Express from matching "filter" as an id
 router.get('/filter', async (req, res) => {
     try {
         if (!req.session.user) {
@@ -81,7 +42,56 @@ router.get('/filter', async (req, res) => {
         res.json({ posts: filteredPosts });
     } catch (error) {
         console.error('Error filtering posts:', error);
-        res.status(500).json({ error: 'Failed to filter posts' });
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ error: error.message || 'Failed to filter posts' });
     }
 });
+
+router.get('/:id', async (req, res) => {
+    try {
+        const post = await postData.getPostById(req.params.id);
+        // we will need to fetch the user data as well
+        res.render('post', { title: post.title, post: post, user: post.user });
+    } catch (error) {
+        res.status(404).json({ error: error.toString() });
+    }
+});
+
+router.post('/', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: 'You must be logged in to create a post' });
+        }
+
+        const { title, content, type, category, commentsEnabled, tags } = req.body;
+        
+        const userId = req.session.user._id;
+        
+        const newPost = await postData.createPost(title, userId, content, type, category, commentsEnabled, tags);
+        res.json(newPost);
+    } catch (error) {
+        res.status(400).json({ error: error.toString() });
+    }
+});
+
+router.put('/:id', async (req, res) => {
+    try {
+        const { title, userId, content, type, category, commentsEnabled, tags } = req.body;
+        const updatedPost = await postData.updatePost(req.params.id, title, userId, content, type, category, commentsEnabled, tags);
+        res.json(updatedPost);
+    } catch (error) {
+        res.status(404).json({ error: error.toString() });
+    }
+});
+
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedPost = await postData.removePost(req.params.id);
+        res.json(deletedPost);
+    } catch (error) {
+        res.status(404).json({ error: error.toString() });
+    }
+});
+
 export default router;

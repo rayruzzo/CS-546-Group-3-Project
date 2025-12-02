@@ -1,4 +1,8 @@
 import yup from "yup";
+import { loadYupCustomMethods } from "../utils/yupUtils.js";
+
+/** load custom Yup methods */
+loadYupCustomMethods();
 
 const usStateAbbreviations = [
   'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'HD', 
@@ -10,22 +14,28 @@ const usStateAbbreviations = [
 export const citySchema = yup
     .string()
     .sequence([
-        yup.string().min(1, "City name must be at least 1 character long"),
-        yup.string().max(100, "City name must be at most 100 characters long"),
+        () => yup.string().trim(),
+        () => yup.string().min(1, "City name must be at least 1 character long"),
+        () => yup.string().max(100, "City name must be at most 100 characters long"),
     ])
-    .required().trim();
+    .required();
 
 export const stateCodeSchema = yup
     .string()
-    .length(2, "State code must be exactly 2 characters long")
-    .uppercase("State code must be uppercase")
-    .oneOf(usStateAbbreviations, "Invalid US state code")
-    .required().trim();
+    .sequence([
+        () => yup.string().trim().uppercase(),
+        () => yup.string().length(2, "State code must be exactly 2 characters long"),
+        () => yup.string().oneOf(usStateAbbreviations, "Invalid US state code"),
+    ])
+    .required();
 
 export const zipcodeSchema = yup
     .string()
-    .matches(/^\d{5}(-\d{4})?$/, "Invalid zipcode format")
-    .required().trim();
+    .sequence([
+        () => yup.string().trim(),
+        () => yup.string().matches(/^\d{5}(-\d{4})?$/, "Invalid zipcode format"),
+    ])
+    .required();
 
 export const latitudeSchema = yup
     .number()

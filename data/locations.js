@@ -35,7 +35,7 @@ const locationFunctions = {
             longitude,
         });
 
-        const validatedLocation = locationSchema.parse(newLocationData);
+        const validatedLocation = await locationSchema.validate(newLocationData);
         
         const locationsCollection = await locations();
         const insertInfo = await locationsCollection.insertOne(validatedLocation);
@@ -68,7 +68,7 @@ const locationFunctions = {
         if (!validLocationData || Object(validLocationData) !== validLocationData) throw new Error("Location data must be provided", { cause: { validLocationData: "Location data not provided" } });
 
         const locationsCollection = await locations();
-        const updatedLocationData = locationSchema.parse(validLocationData);
+        const updatedLocationData = await locationSchema.validate(validLocationData);
 
         const updateInfo = await locationsCollection.updateOne(
             { _id: updatedLocationData._id },
@@ -93,13 +93,40 @@ const locationFunctions = {
 
     async getLocationByZipcode(zipcode) {
         if (!zipcode) throw new Error("Zipcode must be provided", { cause: { zipcode: "Zipcode not provided" } });
-        const validatedZipcode = zipcodeSchema.parse(zipcode);
+        const validatedZipcode = await zipcodeSchema.validate(zipcode);
 
         const locationsCollection = await locations();
         const location = await locationsCollection.findOne({ zipcode: validatedZipcode });
         if (!location) throw new Error("Location not found", { cause: { zipcode: "No location found with the provided zipcode" } });
 
         return location;
+    },
+
+    async findLocationsInRadius(latitude, longitude, radiusMiles, limit = 100, skip = 0) {
+        if (latitude === undefined || latitude === null) throw new Error("Latitude must be provided");
+        if (longitude === undefined || longitude === null) throw new Error("Longitude must be provided");
+        if (!radiusMiles) throw new Error("Radius must be provided");
+
+        const radiusMeters = radiusMiles * 1609.34; // Convert miles to meters
+        const locationsCollection = await locations();
+
+        const locationsList = await locationsCollection
+            .find({
+                loc: {
+                    $near: {
+                        $geometry: {
+                            type: "Point",
+                            coordinates: [longitude, latitude]
+                        },
+                        $maxDistance: radiusMeters
+                    }
+                }
+            })
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+
+        return locationsList;
     },
 }
 

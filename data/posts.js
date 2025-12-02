@@ -21,7 +21,6 @@ const Post = Object.freeze(class Post {
         this._id = _id;
         this.title = title;
         this.userId = userId;
-        this.zipcode = ""; // get from user data when creating post
         this.content = content;
         this.type = type;
         this.category = category;
@@ -31,16 +30,26 @@ const Post = Object.freeze(class Post {
         this.createdAt = new Date();
         this.updatedAt = new Date();
         this.comments = [];
-
-        const location = null;
-        location = locationFunctions.getLocationByZipcode(zipcode);
-        this.loc = location.loc; // GeoJSON point from locations collection
+        
+        // zipcode and loc will be set in createPost function
+        this.zipcode = "";
+        this.loc = null;
     }
 });
 
 const postFunctions = {
     async createPost(title, userId, content, type, category, commentsEnabled, tags) {
         const errors = {};
+
+        // Get user's zipcode from database
+        const userFunctions = (await import('./users.js')).default;
+        const { user } = await userFunctions.getUserById(userId);
+        
+        if (!user || !user.zipcode) {
+            throw new Error("User zipcode not found", {
+                cause: { userId: "Cannot create post without user zipcode" }
+            });
+        }
 
         const newPostData = new Post({
             title,
@@ -52,7 +61,19 @@ const postFunctions = {
             tags
         });
 
-        const validatedPost = postSchema.parse(newPostData);
+        // Get location data for the user's zipcode
+        const location = await locationFunctions.getLocationByZipcode(user.zipcode);
+        if (!location || !location.loc) {
+            throw new Error("Location data not found for user's zipcode", {
+                cause: { zipcode: user.zipcode }
+            });
+        }
+
+        // Add location data to post
+        newPostData.zipcode = user.zipcode;
+        newPostData.loc = location.loc;
+
+        const validatedPost = await postSchema.validate(newPostData);
         
         const postCollection = await posts();
         const insertInfo = await postCollection.insertOne(validatedPost);
@@ -143,6 +164,7 @@ const postFunctions = {
         /*
          * filters object can include:
          * - zipcode: string (center zipcode for radius search)
+         * - zipCodes: array of strings (filter by multiple zipcodes)
          * - radius: number (distance in miles for radius search)
          * - category: string (post category)
          * - type: string (offer or request)
@@ -154,6 +176,7 @@ const postFunctions = {
         
         const { 
             zipcode,
+            zipCodes,
             radius,
             category, 
             type, 
@@ -168,7 +191,7 @@ const postFunctions = {
     
         // Handle geospatial filtering if zipcode and radius provided
         if (zipcode && radius) {
-            const location = await locationData.getLocationByZipcode(zipcode);
+            const location = await locationFunctions.getLocationByZipcode(zipcode);
             const radiusMeters = radius * 1609.34; // Convert miles to meters
             
             query.loc = {
@@ -180,6 +203,10 @@ const postFunctions = {
                     $maxDistance: radiusMeters
                 }
             };
+        }
+        // Handle filtering by multiple zipcodes
+        else if (zipCodes && Array.isArray(zipCodes) && zipCodes.length > 0) {
+            query.zipcode = { $in: zipCodes };
         }
     
         if (category) {

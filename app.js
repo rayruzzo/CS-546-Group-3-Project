@@ -20,11 +20,16 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-
-// Middleware to set mock user data in session
+// TODO: Remove this mock middleware once you have proper authentication
+// This is only for testing purposes - in production, users must login
 app.use((req, res, next) => {
   if (!req.session.user) {
-    req.session.user = { zipCode: "07030" }; // setting as a test user with a zip code
+    req.session.user = { 
+      _id: "000000000000000000000000", // mock user ID
+      zipCode: "07030",
+      email: "test@example.com",
+      username: "testuser"
+    }; 
   }
   next();
 });
