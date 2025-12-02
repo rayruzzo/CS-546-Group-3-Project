@@ -165,14 +165,7 @@ export const userSchema = yup.object({
       passwordSchema,
 
    role: 
-      yup.string()
-         .lowercase()
-         .trim()
-         .oneOf(Object.values(userData.server.roles))
-         .default(userData.server.roles.USER)
-         .label("Role")
-         .required(),
-
+      roleSchema,
 
    zipcode:            // TODO: finish zipcode validation
       yup.string()
