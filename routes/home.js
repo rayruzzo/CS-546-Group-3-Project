@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
         res.render('home', { 
             title: 'Home',
             user: req.session.user,
-            posts: posts
+            posts: posts,
         });
     } catch (error) {
         console.error('Error loading home page:', error);
