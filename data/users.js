@@ -342,10 +342,66 @@ const userFunctions = Object.freeze({
          throw new Error("Please provide a validated `User` data object", {cause: validUserData});
 
       const userCollection = await users();
-		const updateInfo = await userCollection.updateOne(
-			{ _id: ObjectId.createFromHexString(userId) }, 
-			{ $set: { ...validUserData }}
-		);
+
+      const { user } = await this.getUserById(userId);
+      
+      // also re-hash password if it is different
+      if (validUserData.password) {
+
+         if (await bcrypt.compare(validUserData.password, user.password)) {
+            delete validUserData.password;   // server already has hashed password if unchanged
+         } else {
+            validUserData.password = await User.hash(validUserData.password);
+         }
+      }
+
+      // set new update time
+      user.lastUpdated = new Date();
+
+      // TODO: preferably get this list dynamically through Yup schemas
+      const nullableKeys = {
+         firstName:      true,
+         lastName:       true,
+         profilePicture: true,
+         bio:            true,
+      }
+
+      // compare both incoming and database objects
+      for (const [key, val] of Object.entries(user)) {
+
+         if (typeof val === 'object' && val?.constructor === Object) {
+
+            // compare single level of nested objects
+            for (const k of Object.keys(val)) {
+
+               if (validUserData[key][k] !== null && validUserData[key][k] !== undefined) {
+
+                  // update with new info
+                  user[key][k] = validUserData[key][k];
+
+               } else if (nullableKeys[k]) {  
+
+                  // if no data provided and key is allowed to be null, set to null
+                  user[key][k] = null;
+               }
+            }
+
+         } else if (validUserData[key] !== null && validUserData[key] !== undefined) {
+
+            // update if top level key
+            user[key] = validUserData[key];
+         }
+      }
+
+      // server already has id
+      delete user._id;
+
+      console.log("UPDATED:\n", user);
+      
+      const updateInfo = await userCollection.updateOne(
+         { _id: ObjectId.createFromHexString(userId) }, 
+         { $set: { ...user }}
+      );
 
 		if (updateInfo.matchedCount === 0)
 			throw new Error(`Cannot find user to update with id ${userId}`, {
