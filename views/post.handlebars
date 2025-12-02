@@ -1,12 +1,47 @@
 <article>
     <h1>{{post.title}}</h1>
-    <div class="author">{{user.username}}</div>
-    <div class="date">  
-        <time datetime="{{post.date}}">{{post.date}}</time>  
-    </div> 
+    
+    <div class="post-meta">
+        <span class="author">Posted by <strong>{{post.username}}</strong></span>
+        <span class="location">📍 {{post.city}}, {{post.state}}</span>
+        <span class="date">
+            <time datetime="{{post.createdAt}}">{{post.datePosted}}</time>
+        </span>
+    </div>
+
+    <div class="post-details">
+        <span class="type {{post.type}}">{{post.type}}</span>
+        <span class="category">{{post.category}}</span>
+        {{#if post.tags}}
+        <div class="tags">
+            {{#each post.tags}}
+            <span class="tag">{{this}}</span>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+
     <div class="content">{{post.content}}</div>
 
+    {{#if post.commentsEnabled}}
     <div class="comments">
-        <!-- Comments will be displayed here -->
+        <h2>Comments</h2>
+        {{#if post.comments.length}}
+        {{#each post.comments}}
+        <div class="comment">
+            <div class="comment-author">{{this.author}}</div>
+            <div class="comment-content">{{this.content}}</div>
+            <div class="comment-date">{{this.createdAt}}</div>
+        </div>
+        {{/each}}
+        {{else}}
+        <p>No comments yet. Be the first to comment!</p>
+        {{/if}}
+        
+        <form id="comment-form" method="POST" action="/posts/{{post._id}}/comments">
+            <textarea name="content" placeholder="Add a comment..." required></textarea>
+            <button type="submit">Post Comment</button>
+        </form>
     </div>
+    {{/if}}
 </article>

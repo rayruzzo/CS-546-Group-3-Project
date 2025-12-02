@@ -1,5 +1,5 @@
 import Router from 'express';
-import postData from '../data/index.js'
+import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
 
 const router = Router();
@@ -50,7 +50,7 @@ router.get('/filter', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const post = await postData.getPostById(req.params.id);
+        const { post } = await postData.getPostById(req.params.id);
         // we will need to fetch the user data as well
         res.render('post', { title: post.title, post: post, user: post.user });
     } catch (error) {
@@ -87,7 +87,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        const deletedPost = await postData.removePost(req.params.id);
+        const deletedPost = await postData.deletePost(req.params.id);
         res.json(deletedPost);
     } catch (error) {
         res.status(404).json({ error: error.toString() });

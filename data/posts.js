@@ -98,7 +98,10 @@ const postFunctions = {
         const post = await postCollection.findOne({ _id: ObjectId.createFromHexString(id) });
         if (!post) throw new Error("Post not found", { cause: { id: "No post found with the provided ID" } });
 
-        return { post: post, success: true };
+        // Enrich post with user and location info
+        const enrichedPost = await this.enrichPostWithUserAndLocation(post);
+
+        return { post: enrichedPost, success: true };
     },
 
     async updatePost(postId, validPostData) {
@@ -233,7 +236,57 @@ const postFunctions = {
             .toArray();
     
         return postsList;
-    }   
+    },
+
+    async enrichPostWithUserAndLocation(post) {
+        const userFunctions = (await import('./users.js')).default;
+        
+        try {
+            // Get user info
+            const { user } = await userFunctions.getUserById(post.userId);
+            
+            // Get location info for the post's zipcode
+            const postLocation = await locationFunctions.getLocationByZipcode(post.zipcode);
+            
+            // Format the date
+            const datePosted = new Date(post.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            return {
+                ...post,
+                _id: post._id.toString(),
+                username: user.profile?.username || 'Anonymous',
+                city: postLocation.city,
+                state: postLocation.state_code,
+                datePosted: datePosted
+            };
+        } catch (error) {
+            console.error(`Error enriching post ${post._id}:`, error.message);
+            // Return post with fallback values if enrichment fails
+            return {
+                ...post,
+                _id: post._id.toString(),
+                username: 'Unknown',
+                city: 'Unknown',
+                state: 'Unknown',
+                datePosted: new Date(post.createdAt).toLocaleDateString()
+            };
+        }
+    },
+
+    async enrichPostsWithUserAndLocation(postsList) {
+        const enrichedPosts = [];
+        
+        for (const post of postsList) {
+            const enrichedPost = await this.enrichPostWithUserAndLocation(post);
+            enrichedPosts.push(enrichedPost);
+        }
+        
+        return enrichedPosts;
+    }
 
 };
 

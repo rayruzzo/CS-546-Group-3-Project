@@ -50,9 +50,10 @@
             {{#each posts}}
                 <li>
                 <h3>{{this.title}}</h3>
-                <p>{{this.category}}{{this.type}} in {{this.town_name}}</p>
-                <p>{{this.userName}} Posted on: {{this.datePosted}}</p>
-                <p>{{this.content}}</p>
+                <p class="post-meta">{{this.category}} • {{this.type}} • {{this.city}}, {{this.state}}</p>
+                <p class="posted-by">Posted by {{this.username}} on {{this.datePosted}}</p>
+                <p class="post-preview">{{this.content}}</p>
+                <a href="/posts/{{this._id}}">Read more</a>
                 </li>
             {{/each}}
             </ul>
