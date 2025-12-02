@@ -5,11 +5,13 @@ import session from 'express-session';
 import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
 import checkAndSeedLocations from './scripts/checkAndSeed.js';
+import seedUsersAndPosts from './scripts/seedUsersAndPosts.js';
 
 const app = express();
 
-// Check and seed locations if needed (runs once on startup)
+// Check and seed database
 await checkAndSeedLocations();
+await seedUsersAndPosts();
 
 const { PORT } = process.env;
 
