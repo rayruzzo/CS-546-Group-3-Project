@@ -1,0 +1,76 @@
+<!-- if authenticated user, show welcome message -->
+{{#if user}}
+  <h2>Welcome back, {{user.username}}!</h2>
+  <p>Here are the latest posts in your area ({{user.zipCode}}):</p>
+
+  <div class="filters">
+        <form id="filter-form">
+            <div class="filter-group">
+                <label for="distance">Distance:</label>
+                <select name="distance" id="distance">
+                    <option value="5">5 miles</option>
+                    <option value="10" selected>10 miles</option>
+                    <option value="25">25 miles</option>
+                    <option value="50">50 miles</option>
+                    <option value="100">100 miles</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="category">Category:</label>
+                <select name="category" id="category">
+                    <option value="">All Categories</option>
+                    {{#each categories}}
+                        <option value="{{this.value}}">{{this.label}}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="type">Type:</label>
+                <select name="type" id="type">
+                    <option value="">All Types</option>
+                    <option value="offer">Offer</option>
+                    <option value="request">Request</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="tags">Tags (comma-separated):</label>
+                <input type="text" name="tags" id="tags" placeholder="e.g. urgent, local">
+            </div>
+
+            <button type="submit">Apply Filters</button>
+        </form>
+    </div>
+
+    <div class="posts-list">
+        {{#if posts.length}}
+            <ul>
+            {{#each posts}}
+                <li>
+                <h3>{{this.title}}</h3>
+                <p>{{this.category}}{{this.type}} in {{this.town_name}}</p>
+                <p>{{this.userName}} Posted on: {{this.datePosted}}</p>
+                <p>{{this.content}}</p>
+                </li>
+            {{/each}}
+            </ul>
+        {{else}}
+            <p>No posts available in your area at the moment. Please check back later!</p>
+        {{/if}}
+    </div>
+
+
+
+
+
+{{else}}
+  <h2>Welcome to Our Community!</h2>
+  <p>Please log in or sign up to see posts in your area.</p>
+{{/if}}
+
+{{#if user}}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script src="/public/js/loadPosts.js"></script>
+{{/if}}

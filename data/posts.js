@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import db from "../config/mongoCollections.js"
 import validators from "../validation.js"
+import locationData from "./locations.js"
 
 const postTypes = {
     OFFER: "offer",
@@ -65,6 +66,7 @@ const _validatePost = (title, userId, content, type, category, commentsEnabled, 
 const createPost = async (
     title,
     userId, 
+    zipcode,
     content,
     type,
     category,
@@ -74,9 +76,13 @@ const createPost = async (
 
     const validatedPost = _validatePost(title, userId, content, type, category, commentsEnabled, tags);
 
+    // Get location data for the zipcode - it already has the loc field
+    const location = await locationData.getLocationByZipcode(zipcode);
+    
     const newPost = {
         title: validatedPost.title,
         userId: validatedPost.userId,
+        zipcode: zipcode,
         content: validatedPost.content,
         type: validatedPost.type,
         category: validatedPost.category,
@@ -85,7 +91,7 @@ const createPost = async (
         createdAt: new Date(),
         updatedAt: new Date(),
         comments: [],
-        //zipcode: user.getZipCode(userId)
+        loc: location.loc  // Use the loc field directly from locations collection
     }
 
 
@@ -154,12 +160,123 @@ const updatePost = async (id, title, userId, content, type, category, commentsEn
     return await getPostById(id);
 }
 
+const getPostsNearZipcode = async (zipcode, radiusMiles = 5, limit = 10, skip = 0) => {
+    const location = null;
+    try {
+        location = await locationData.getLocationByZipcode(zipcode);
+    } catch (err) {
+        throw err;
+    }
+    
+    limit = validateWholeNumber(limit, "Limit");
+    skip = validateWholeNumber(skip, "Skip");
+    radiusMiles = validateWholeNumber(radiusMiles, "Radius");
+
+    const radiusMeters = radiusMiles * 1609.34;
+
+    const postCollection = await db.posts();
+    
+    // Use $near for geospatial query - automatically sorts by distance
+    if (!location || !location.loc) {
+        throw "Location data not found for the given zipcode";
+    }
+    
+    const posts = await postCollection
+        .find({
+            loc: {
+                $near: {
+                    $geometry: location,
+                    $maxDistance: radiusMeters
+                }
+            }
+        })
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+    return posts;
+}
+
+const filterPosts = async (filters = {}) => {
+    /*
+     * filters object can include:
+     * - zipcode: string (center zipcode for radius search)
+     * - radius: number (distance in miles for radius search)
+     * - category: string (post category)
+     * - type: string (offer or request)
+     * - tags: array of tags (matches any)
+     * - userId: string (posts by specific user)
+     * - limit: number (default 10)
+     * - skip: number (default 0)
+     */
+    
+    const { 
+        zipcode,
+        radius,
+        category, 
+        type, 
+        tags, 
+        userId,
+        limit = 10, 
+        skip = 0 
+    } = filters;
+
+    // Build MongoDB query dynamically
+    const query = {};
+
+    // Handle geospatial filtering if zipcode and radius provided
+    if (zipcode && radius) {
+        const location = await locationData.getLocationByZipcode(zipcode);
+        const radiusMeters = radius * 1609.34; // Convert miles to meters
+        
+        query.loc = {
+            $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: [location.longitude, location.latitude]
+                },
+                $maxDistance: radiusMeters
+            }
+        };
+    }
+
+    if (category) {
+        query.category = _validateCategory(category);
+    }
+
+    if (type) {
+        query.type = _validateType(type);
+    }
+
+    if (tags && Array.isArray(tags) && tags.length > 0) {
+        query.tags = { $in: tags };
+    }
+
+    if (userId) {
+        query.userId = validators.validateId(userId, "User ID");
+    }
+
+    const postCollection = await db.posts();
+    
+    // Note: When using $near, results are automatically sorted by distance
+    // Cannot use .sort() with $near
+    const posts = await postCollection
+        .find(query)
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+    return posts;
+}
+
 const postFunctions = {
     createPost,
     getPostById,
     getNPosts,
     removePost,
-    updatePost
+    updatePost,
+    filterPosts,
+    getPostsNearZipcode
 };
 
 export default postFunctions;

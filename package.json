@@ -21,9 +21,13 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "csv-parse": "^6.1.0",
+    "dompurify": "^3.3.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
+    "express-session": "^1.18.2",
     "mongodb": "^7.0.0",
     "yup": "^1.7.1"
   }
