@@ -77,6 +77,17 @@ export const usernameSchema = yup
    ]);
 
 
+// TODO: require admin privileges to change role
+export const roleSchema = yup
+   .string()
+   .lowercase()
+   .trim()
+   .oneOf(Object.values(userData.server.roles))
+   .default(userData.server.roles.USER)
+   .label("Role")
+   .required();
+
+
 export const nameSchemaBase = yup
    .string()
    .min(2)
