@@ -28,12 +28,12 @@ export const emailSchema = yup
    .transform(function (value, originalValue) {
       return this.isType(originalValue) ? originalValue.trim().toLowerCase() : originalValue;
    })
+   .requiredIfNotLoggedIn("Email")
    // `sequence()` custom yup method - avoid trips to the server for data obviously invalid
    .sequence([
       () => yup.string()
                .typeError(({ label, type }) => `${label} must be a ${type}`)
                .email()
-               .required()
                .label("Email"),
 
       () => yup.string().uniqueEmail(null, users),
@@ -55,12 +55,13 @@ export const passwordSchema = yup
       /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/gmu,
       ({ path }) => `${path} must have at least one lowercase letter, uppercase letter, one number, and one special character`
    )
-   .required()
+   .requiredIfNotLoggedIn()
    .label("Password");
 
 
 export const usernameSchema = yup
    .string()
+   .requiredIfNotLoggedIn("Username")
    .sequence([
       () => yup.string()
                .min(4)
@@ -69,7 +70,6 @@ export const usernameSchema = yup
                   /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/gm,
                   ({ label }) => `${label} must be 4 to 50 basic latin characters composed of letters, numbers, or non-consecutive dashes, but no dashes at the beginning or end`
                )
-               .required()
                .label("Username"),
 
       () => yup.string().lowercase().trim(),
@@ -111,7 +111,7 @@ export const profileSchema = yup.object({
          .typeError(({ label, type }) => `${label} must be a ${type}`)
          .min(new Date().getFullYear() - 150, "Impossible. You are not this old")
          .max(new Date().getFullYear() - 18,  "You must be 18 years or older")
-         .required()
+         .requiredIfNotLoggedIn("Date of Birth")
          .label("Date of Birth"),
 
    bio:                    // OPTIONAL    
@@ -132,7 +132,7 @@ export const profileSchema = yup.object({
 })
 .label("User Profile")
 .exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
-.required();
+.requiredIfNotLoggedIn("User Profile");
 
 
 export const settingsSchema = yup.object({
@@ -146,7 +146,7 @@ export const settingsSchema = yup.object({
 })
 .label("Settings")
 .exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
-.required();
+.requiredIfNotLoggedIn("Settings");
 
 
 // ========================== //
@@ -180,14 +180,14 @@ export const userSchema = yup.object({
 
    zipcode:            // TODO: finish zipcode validation
       yup.string()
-         .required()
+         .requiredIfNotLoggedIn("ZIP Code")
          .trim()
          .length(5)
          .matches(
             /^[0-9]{5}$/gm,
             ({ label }) => `${label} must be 5 digits long`)
          // TODO: <----- LOOKUP ZIPCODE HERE
-         .label("Zipcode"),
+         .label("ZIP Code"),
 
    profile: 
       profileSchema,
@@ -197,4 +197,4 @@ export const userSchema = yup.object({
 })
 .label("User")
 .exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
-.required();
+.requiredIfNotLoggedIn("User");
