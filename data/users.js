@@ -133,7 +133,7 @@ const User = Object.freeze(class User {
     * Calculates optimal salt rounds which scales to computing power.
     * Modified from: https://stackoverflow.com/a/61304956
     * 
-    * @returns {void}
+    * @returns {Promise<void>}
     */
    static async calculateOptimalSaltRounds() {
 
@@ -234,6 +234,7 @@ const userFunctions = Object.freeze({
     */
    get server() {
       return {
+         init:                       User.init,
          roles:                      User.roles,
          getTotalUserCount:          User.getTotalUserCount,
          getTotalBannedUserCount:    User.getTotalBannedUserCount,
