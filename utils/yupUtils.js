@@ -29,6 +29,24 @@ export function loadYupCustomMethods() {
       });
    });
 
+
+   /**
+    * Adds a method to ALL Yup schema types that makes a schema required only if you are NOT logged in
+    */
+   yup.addMethod(Schema, "requiredIfNotLoggedIn", function requiredIfNotLoggedIn(label, message) {
+      
+      // "$session" - a special variable passed in from `<schema>.validate(val, {context: session })`
+      return  this.label(label || "This")
+                  .when("$session", {      
+                     is: (session) => session.user,
+                     then: (schema) => schema,
+                     otherwise: (schema) => {
+                        return schema.required(({label}) => message || `${label} is a required field`)
+                     }
+                  });
+   })
+
+
    /**
     * Adds a method to Yup that Hits up MongoDB and checks if the `email` is unique
     */
