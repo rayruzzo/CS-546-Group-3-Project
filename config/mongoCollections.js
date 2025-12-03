@@ -18,11 +18,13 @@ const posts = getCollectionFn('posts');
 const comments = getCollectionFn('comments');
 const data = getCollectionFn('data');
 const dmthreads = getCollectionFn('dmthreads');
+const locations = getCollectionFn('locations');
 
 export default {  
   users,  
   posts,  
   comments,  
   data,
-  dmthreads
+  dmthreads,
+  locations  
 };  

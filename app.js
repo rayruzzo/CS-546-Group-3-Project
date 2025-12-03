@@ -1,11 +1,33 @@
 import 'dotenv/config';
 import express from 'express';
 import exphbs from 'express-handlebars';
+import session from 'express-session';
 import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
+import checkAndSeedLocations from './scripts/checkAndSeed.js';
 
 const app = express();
+
+// Check and seed locations if needed (runs once on startup)
+await checkAndSeedLocations();
+
 const { PORT } = process.env;
+
+// setup middleware
+app.use(session({
+  name: 'TestSessionCookie',
+  secret: 'your-session-secret', // replace with a secure secret in production
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Middleware to set mock user data in session
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    req.session.user = { zipCode: "07030" }; // setting as a test user with a zip code
+  }
+  next();
+});
 
 // setup middleware
 app.use('/public', express.static('public'));
@@ -29,10 +51,11 @@ const server = app.listen(PORT);
 // only display success log if listening
 server.on('listening', () => {
    console.log(`Server up and running at http://localhost:${PORT}`);
-})
+});
 
 
 // handle EADDRINUSE (port already in use) error
+// Slightly modified from: https://nodejs.org/docs/latest/api/net.html#serverlisten
 server.on('error', (e) => {
    const timeoutSeconds = 2;
 
@@ -46,8 +69,7 @@ server.on('error', (e) => {
    } else {
       console.error(e);
    }
-})
-
+});
 
 // `process` is this Node process
 // debugging graceful shutdown from 
