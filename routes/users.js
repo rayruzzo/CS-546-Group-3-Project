@@ -2,6 +2,7 @@ import Router from 'express';
 import { validateSchema } from '../middleware/validation.mw.js';
 import userData from '../data/users.js';
 import { getResourceByIdSchema, userSchema } from "../models/users.js";
+import { renderErrorPage } from '../utils/errorUtils.js';
 
 const router = Router();
 
@@ -47,7 +48,7 @@ router.patch("/:id",
 );
 
 router.get("/:id", 
-   // FIXME: authenticate user
+   // FIXME: authenticate user, if no session respond with 401 Unauthorized
    validateSchema(
       [getResourceByIdSchema("User"), "params"],
    ), 
@@ -61,7 +62,7 @@ router.get("/:id",
          
       } catch (e) {
          console.error(e);
-         res.status(404).json({ error: e.message });
+         return renderErrorPage(res, 404, e.message);
 
          // TODO: `return next(e)` instead and create a catch-all 500 err handler as the last `app.use(...)`
       }
