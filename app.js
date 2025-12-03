@@ -55,6 +55,7 @@ server.on('listening', () => {
 
 
 // handle EADDRINUSE (port already in use) error
+// Slightly modified from: https://nodejs.org/docs/latest/api/net.html#serverlisten
 server.on('error', (e) => {
    const timeoutSeconds = 2;
 
