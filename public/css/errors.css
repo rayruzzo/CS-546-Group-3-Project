@@ -1,0 +1,247 @@
+:root {
+   /* ~~~~~~ */
+   /* TOKENS */
+   /* ~~~~~~ */
+   /* COLOR */
+   --color-base-light: hsl(300, 20%, 98%);
+   --color-base-dark: hsl(300, 5%, 10%);
+   
+   --color-secondary-light: hsl(300, 100%, 99%);
+   --color-secondary-dark: hsl(271, 31%, 21%);
+
+   --color-tertiary-light: hsl(300, 10%, 50%);
+   --color-tertiary-dark: hsl(271, 10%, 85%);
+
+   --color-accent-light: hsl(43, 100%, 72%);
+   --color-accent-dark: hsl(43, 100%, 81%);
+
+   --color-translucent-1-light: hsla(300, 100%, 50%, 0.4);
+   --color-translucent-1-dark: hsla(300, 100%, 60%, 0.4);
+
+   --color-translucent-2-light: hsla(197, 100%, 60%, 0.4);
+   --color-translucent-2-dark: hsla(197, 100%, 70%, 0.4);
+
+   --color-translucent-3-light: hsla(60, 100%, 50%, 0.8);
+   --color-translucent-3-dark: hsla(60, 100%, 60%, 0.8);
+
+   /* FONT WEIGHT */
+   --font-weight-base: 400;
+   --font-weight-light: 100;
+   --font-weight-bold: 500;
+   --font-weight-bolder: 600;
+
+   /* LINE HEIGHT */
+   --line-height-base: 1.5;
+   --line-height-tight: 1.1;
+   --line-height-loose: 1.25;
+   --line-height-looser: 1.3;
+   --line-height-loosest: 1.4;
+
+   /* FONT SIZE */
+   --size-step--1: clamp(0.85rem, calc(1vw * 2), 0.9rem);
+   --size-step-0: clamp(0.9rem, calc(1vw * 2), 1rem);
+   --size-step-1: clamp(1.15rem, calc(1vw * 4), 1.33rem);
+   --size-step-2: clamp(1.5rem, calc(1vw * 5), 2rem);
+   --size-step-3: clamp(2.33rem, calc(1vw * 8), 3rem);
+   --size-step-4: clamp(3rem, calc(1vw * 7), 3.5rem);
+
+   /* ~~~~~~~~~~~~~~~~~~~~~~ */
+   /* SEMANTIC REASSIGNMENTS */
+   /* ~~~~~~~~~~~~~~~~~~~~~~ */
+   --bg-color: var(--color-base-light);
+   --fg-color: var(--color-base-dark);
+
+   --bg-secondary-color: var(--color-secondary-light);
+   --fg-secondary-color: var(--color-secondary-dark);
+
+   --bg-tertiary-color: var(--color-tertiary-light);
+   --fg-tertiary-color: var(--color-tertiary-dark);
+
+   --accent-color: var(--color-accent-light);
+
+   --translucent-color-1: var(--color-translucent-1-light);
+   --translucent-color-2: var(--color-translucent-2-light);
+   --translucent-color-3: var(--color-translucent-3-light);
+
+   /* ~~~~~~~~ */
+   /* COMPOUND */
+   /* ~~~~~~~~ */
+   /* BORDER */
+   --border-primary: 1px solid var(--bg-tertiary-color);
+}
+
+@media (prefers-color-scheme: dark) {
+
+   /* DARK MODE JUST INVERTS VALUES */
+   :root:not([data-theme]) {
+      --bg-color: var(--color-base-dark);
+      --fg-color: var(--color-base-light);
+
+      --bg-secondary-color: var(--color-secondary-dark);
+      --fg-secondary-color: var(--color-secondary-light);
+
+      --bg-tertiary-color: var(--color-tertiary-dark);
+      --fg-tertiary-color: var(--color-tertiary-light);
+
+      --accent-color: var(--color-accent-dark);
+
+      --translucent-color-1: var(--color-translucent-1-dark);
+      --translucent-color-2: var(--color-translucent-2-dark);
+      --translucent-color-3: var(--color-translucent-3-dark);
+   }
+}
+
+.dark {
+   --bg-color: var(--color-base-dark);
+   --fg-color: var(--color-base-light);
+
+   --bg-secondary-color: var(--color-secondary-dark);
+   --fg-secondary-color: var(--color-secondary-light);
+
+   --bg-tertiary-color: var(--color-tertiary-dark);
+   --fg-tertiary-color: var(--color-tertiary-light);
+
+   --accent-color: var(--color-accent-dark);
+
+   --translucent-color-1: var(--color-translucent-1-dark);
+   --translucent-color-2: var(--color-translucent-2-dark);
+   --translucent-color-3: var(--color-translucent-3-dark);
+}
+
+@keyframes animate-blur {
+   0% {
+      filter: hue-rotate(0deg) contrast(120%) blur(20px);
+   }
+   50% {
+      filter: hue-rotate(360deg) contrast(250%) blur(40px);
+   }
+   100% {
+      filter: hue-rotate(720deg) contrast(120%) blur(20px);
+   }
+}
+
+
+
+
+body {
+   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+   color: var(--fg-color);
+}
+
+/* UTILITY */
+.relative {
+   position: relative;
+}
+
+.colorful-blur-ring {
+   position: absolute;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   border-radius: 20px;
+   filter: contrast(120%) blur(20px);
+   animation: 30s animate-blur infinite linear;
+   box-shadow: 
+      12px 3px 15px 12px var(--translucent-color-1),
+      -12px -3px 15px 12px var(--translucent-color-2),
+      12px -3px 15px 12px var(--translucent-color-3);
+}
+
+/* ERRORS */
+.error-container {
+   position: relative;
+   max-width: 40rem;
+   margin: 10rem auto;
+}
+
+.error-contents {
+   position: relative;
+   max-width: inherit;
+   min-height: 20rem;
+   padding: 2rem 0.8rem;
+   margin: 1.5rem;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   background-color: var(--bg-secondary-color);
+   border: var(--border-primary);
+   border-radius: 20px;
+}
+
+.error-contents > * {
+   text-align: center;
+}
+
+.error-contents :last-child {
+   margin-top: auto;
+}
+
+.error-contents h1 {
+   font-size: var(--size-step-3);
+   font-weight: var(--font-weight-bolder);
+   line-height: var(--line-height-tight);
+}
+
+.error-contents h2 {
+   font-size: var(--size-step-2);
+   font-weight: var(--font-weight-bolder);
+   line-height: var(--line-height-loose);
+}
+
+.error-contents > .error-code {
+   position: absolute;
+   left: -20px;
+   top: -20px;
+   padding: 0.5rem 0.8rem;
+   margin: 0;
+   background-color: inherit;
+   border: var(--border-primary);
+   border-radius: 20px;
+   font-size: 2em;
+   font-weight: 100;
+}
+
+.error-contents > .error-message-extended {
+   margin-bottom: 3rem;
+   word-break: break-word;
+}
+
+/* OTHER */
+.button-medium {
+   display: inline-block;
+   padding: 1rem 1.4rem;
+   background-color: var(--accent-color);
+   color: var(--fg-color);
+   border: var(--border-primary);
+   border-radius: 20px;
+   text-decoration: none;
+}
+
+.button-medium:hover {
+   transition: 0.1s all;
+   background-color: var(--accent-color);
+   filter: contrast(0.85);
+}
+
+
+
+/* AT-RULES */
+@supports (hyphens: auto) {
+   h1 {
+      hyphens: auto;
+   }
+}
+
+@supports (color: hsl(from var(--accent-color) h s 40%)) {
+   .button-medium:hover {
+      background-color: hsl(from var(--accent-color) h s 50%);
+      filter: none;
+   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .colorful-blur-ring {
+      animation: none;
+   }
+}
