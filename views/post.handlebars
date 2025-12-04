@@ -3,10 +3,9 @@
 
     {{#if isPostOwner}}
     <div class="post-actions">
-        <a href="/posts/edit/{{post._id}}" class="button-primary">Edit Post</a>
-        <form id="delete-post-form" method="POST" action="/posts/delete/{{post._id}}" onsubmit="return confirm('Are you sure you want to delete this post?');" style="display:inline;">
-            <button type="submit" class="button-danger">Delete Post</button>
-        </form>
+        <button onclick="window.location.href='/posts/update/{{post._id}}'" class="button-primary">Update Post</button>
+        <button onclick="if(confirm('Are you sure you want to delete this post?')) { document.getElementById('delete-post-form').submit(); }" class="button-danger">Delete Post</button>
+        <form id="delete-post-form" method="POST" action="/posts/delete/{{post._id}}" style="display:none;"></form>
     </div>
     {{/if}}
     

@@ -63,8 +63,10 @@ router.post('/update/:id', async (req, res) => {
         const expiresAtDate = expiresAt ? new Date(expiresAt) : null;
         
         const updatedPostData = {
-            ...post,
             title,
+            userId: post.userId,
+            zipcode: post.zipcode,
+            loc: post.loc,
             content,
             type,
             category,
@@ -85,8 +87,7 @@ router.post('/update/:id', async (req, res) => {
 // GET /posts/:id - View a single post
 router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
     try {
-        const { post } = await postData.getPostById(req.params.id);
-        res.render('post', { post: post });
+        res.render('post', { post: req.post });
     } catch (error) {
         res.status(404).json({ error: error.toString() });
     }

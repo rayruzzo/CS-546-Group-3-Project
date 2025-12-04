@@ -1,19 +1,30 @@
 import {postTypeSchema, postCategorySchema, tagsSchema, prioritySchema} from '../models/posts.js';
+import postData from '../data/posts.js';
 
-const isPostOwnerAction = (req, res, next) => {
-    const userId = req.session.user._id;
-    const postId = req.params.post.userId;
-    if (userId !== postId) {
-        return res.status(403).redirect(`/posts/${postId}`);
+const isPostOwnerAction = async (req, res, next) => {
+    try {
+        const userId = req.session.user._id;
+        const { post } = await postData.getPostById(req.params.id);
+        if (userId !== post.userId.toString()) {
+            return res.status(403).redirect(`/posts/${req.params.id}`);
+        }
+        req.post = post;
+        next();
+    } catch (error) {
+        return res.status(404).json({ error: 'Post not found' });
     }
-    next();
 };
 
-const isPostOwnerDisplay = (req, res, next) => {
-    const userId = req.session.user._id;
-    const postId = req.post.userId;
-    res.locals.isPostOwner = (userId === postId);
-    next();
+const isPostOwnerDisplay = async (req, res, next) => {
+    try {
+        const userId = req.session.user._id;
+        const { post } = await postData.getPostById(req.params.id);
+        res.locals.isPostOwner = (userId === post.userId.toString());
+        req.post = post;
+        next();
+    } catch (error) {
+        return res.status(404).json({ error: 'Post not found' });
+    }
 };
 
 const requireAuthentication = (req, res, next) => {

@@ -140,7 +140,7 @@
 
     async function loadFilteredPosts(replaceAll = false) {
         try {
-            const postsListContainer = document.querySelector('.posts-list');
+            const postsListContainer = document.querySelector('#posts-container');
             postsListContainer.innerHTML = '<p>Loading posts...</p>';
 
             const params = buildQueryParams();

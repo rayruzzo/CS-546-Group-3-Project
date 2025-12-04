@@ -30,10 +30,10 @@ app.use(session({
 app.use((req, res, next) => {
   if (!req.session.user) {
     req.session.user = { 
-      _id: "000000000000000000000000", // mock user ID
+      _id: "6931f64c7c05d6abb9507104", // testing kamala's login
       zipcode: "07030",
-      email: "test@example.com",
-      username: "testuser"
+      email: "kamala.khan@gmail.com",
+      username: "msmarvel-jc"
     }; 
   }
   next();
