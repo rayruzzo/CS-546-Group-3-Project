@@ -1,7 +1,15 @@
 <!-- if authenticated user, show welcome message -->
 {{#if user}}
   <h1>Welcome back, {{user.username}}!</h1>
+
+
   <p>Here are the latest posts in your area ({{user.zipcode}}):</p>
+
+  <div class="create-post-banner">
+    <p>Have something to add?</p>
+    <button onclick="window.location.href='/posts/create'" class="button-primary">Create New Post</button>
+  </div>
+
 
   <div class="filters">
         <form id="filter-form">
@@ -102,7 +110,7 @@
 
 
 {{else}}
-  <h2>Welcome to Our Community!</h2>
+  <h1>Welcome to Our Community!</h1>
   <p>Please log in or sign up to see posts in your area.</p>
 {{/if}}
 
