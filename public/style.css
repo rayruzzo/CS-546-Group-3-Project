@@ -60,3 +60,9 @@ body {
   color: #244dcf;
   text-decoration: underline;
 }
+
+.page-content {
+    max-width: 900px;  
+    margin: 100px auto;
+    padding: 20px;
+}

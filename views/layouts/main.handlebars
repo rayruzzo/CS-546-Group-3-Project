@@ -1,33 +1,47 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{{title}}</title>
+
     <link rel="stylesheet" href="/public/style.css">
     <link rel="stylesheet" href="/public/css/dm.css">
+    <link rel="stylesheet" href="/public/css/nav.css">
 </head>
-<body>
-    {{{body}}}
-=======
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}}</title>
-</head>
-<body>
-    <header>
-    </header>
 
-    <main>
-        <!-- Content goes here -->
+<body>
+
+    {{!-- GLOBAL NAVBAR --}}
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">Community App</a>
+        </div>
+
+        <div class="nav-right">
+
+            {{#if user}}
+                <a href="/">Home</a>
+                {{#if user}}
+                    <a href="/dmthreads/user/{{user.username}}">DMs</a>
+                {{else}}
+                    <a href="/login">DMs</a>
+                {{/if}}
+                <a href="/posts/new">New Post</a>
+                <span class="nav-user">Hi, {{user.username}}</span>
+                <a href="/logout" class="logout-btn">Logout</a>
+
+            {{else}}
+                <a href="/">Home</a>
+                <a href="/login">Login</a>
+                <a href="/signup">Sign Up</a>
+            {{/if}}
+
+        </div>
+    </nav>
+
+    <main class="page-content">
         {{{body}}}
     </main>
-    
-    <footer>
-    </footer>
->>>>>>> 9a446a2b70b456d17472dc9c74696a1e8ca834dc
+
 </body>
 </html>

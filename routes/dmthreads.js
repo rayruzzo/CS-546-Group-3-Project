@@ -12,11 +12,11 @@ import {
     fetchThreadById,
     fetchThreadsForUser
 } from "../data/dmthreads.js";  
-import {users as usersCollection} from "../config/mongoCollections.js"; // Only for accessing Banlist Table.
 
 const {dmthreads} = mongoCollections;
 const router = Router();
 const lastMessageTimestamps = {}; // In Mem Rate Limiter, mapped to username -> timestamp of last message sent.
+const {users: usersCollection} = mongoCollections; // Only for accessing Banlist Table.
 
 /****************************************************************************
  * Function getUserByUsername(username)
@@ -43,7 +43,7 @@ router.get("/create", async (req, res) => {
 /****************************************************************************
  * POST .../dmthreads/create
  * The logged in user fills in which user they want to meesage.
- * NICK TO DO: Check if DMenabled for user2, check if user banned both ways.
+ * NICK TO DO: Check if DMenabled 
  ****************************************************************************/
 router.post("/create", async (req, res) => {
 
