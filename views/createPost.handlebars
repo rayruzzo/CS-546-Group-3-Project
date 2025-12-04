@@ -1,0 +1,55 @@
+<h1>Create a New Post</h1>
+
+<form id="create-post-form" method="POST" action="/posts/create">
+    <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" name="title" id="title" required>
+    </div>
+    <div class="form-group">
+        <label for="content">Content:</label>
+        <textarea name="content" id="content" rows="5" required></textarea>
+    </div>
+    <div class="form-group">
+        <label for="type">Type:</label>
+        <select name="type" id="type" required>
+            {{#each postTypes}}
+                <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="category">Category:</label>
+        <select name="category" id="category" required>
+        {{#each categories}}
+            <option value="{{this.value}}">{{this.label}}</option>
+        {{/each}}
+    </div>
+    <div class="form-group">
+        <label for="tags">Tags (comma-separated):</label>
+        <input type="text" name="tags" id="tags" placeholder="e.g. urgent, local">
+    </div>
+    <div class="form-group">
+        <label for="expiresAt">Expiration Date:</label>
+        <input type="date" name="expiresAt" id="expiresAt">
+    </div>
+    <div>
+        <label for="priority">Priority:</label>
+        <select name="priority" id="priority" required>
+            {{#each priorityValues}}
+                <option value="{{this.value}}">{{this.label}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="commentsEnabled">Enable Comments:</label>
+        <input type="checkbox" name="commentsEnabled" id="commentsEnabled" checked>
+    </div>
+    {{#if error}}
+        <div class="form-error">
+            <p>{{error}}</p>
+        </div>
+    {{/if}}
+    <button type="submit">Create Post</button>
+</form>
+
+<script type="module" src="/public/js/createPostValidation.js"></script>

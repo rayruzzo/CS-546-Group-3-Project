@@ -1,8 +1,9 @@
 import { ObjectId } from "mongodb";
 import db from "../config/mongoCollections.js"
-import { postSchema } from "../models/posts.js";
+import { postSchema, priorityValues } from "../models/posts.js";
 import validators from "../validation.js"
 import locationFunctions from "./locations.js";
+import userFunctions from "./users.js";
 
 const { posts } = db;
 
@@ -14,10 +15,12 @@ const Post = Object.freeze(class Post {
     type;
     category;
     commentsEnabled;
-    tags;
+    tags=[];
+    priority = priorityValues.NORMAL;
+    expiresAt = null;
 
 
-    constructor({ _id, title, userId,  content, type, category, commentsEnabled, tags }) {
+    constructor({ _id, title, userId, content, type, category, commentsEnabled, tags, priority, expiresAt }) {
         this._id = _id;
         this.title = title;
         this.userId = userId;
@@ -26,6 +29,8 @@ const Post = Object.freeze(class Post {
         this.category = category;
         this.commentsEnabled = commentsEnabled;
         this.tags = tags;
+        this.priority = priority || priorityValues.NORMAL;
+        this.expiresAt = expiresAt || null;
 
         this.createdAt = new Date();
         this.updatedAt = new Date();
@@ -38,12 +43,11 @@ const Post = Object.freeze(class Post {
 });
 
 const postFunctions = {
-    async createPost(title, userId, content, type, category, commentsEnabled, tags) {
+    async createPost(title, userId, content, type, category, commentsEnabled, tags, priority, expiresAt) {
         const errors = {};
 
         // Get user's zipcode from database
-        const userFunctions = (await import('./users.js')).default;
-        const { user } = await userFunctions.getUserById(userId);
+        const user = await userFunctions.getUserById(userId);
         
         if (!user || !user.zipcode) {
             throw new Error("User zipcode not found", {
@@ -58,7 +62,9 @@ const postFunctions = {
             type,
             category,
             commentsEnabled,
-            tags
+            tags,
+            priority,
+            expiresAt
         });
 
         // Get location data for the user's zipcode
@@ -98,20 +104,21 @@ const postFunctions = {
         const post = await postCollection.findOne({ _id: ObjectId.createFromHexString(id) });
         if (!post) throw new Error("Post not found", { cause: { id: "No post found with the provided ID" } });
 
-        // Enrich post with user and location info
         const enrichedPost = await this.enrichPostWithUserAndLocation(post);
 
         return { post: enrichedPost, success: true };
     },
 
-    async updatePost(postId, validPostData) {
+    async updatePost(postId, postData) {
         if (!postId) throw new Error("Post ID must be provided", { cause: { postId: "Post ID not provided" } });
-        if (!validPostData || Object(validPostData) !== validPostData) throw new Error("Post data must be provided", { cause: { validPostData: "Post data not provided" } });
+        if (!postData || Object(postData) !== postData) throw new Error("Post data must be provided", { cause: { postData: "Post data not provided" } });
+
+        postData = postSchema.validate(postData);
 
         const postCollection = await posts();
         const updateInfo = await postCollection.updateOne(
             { _id: ObjectId.createFromHexString(postId) },
-            { $set: {...validPostData }}
+            { $set: {...postData }}
         );
 
         if (updateInfo.matchedCount === 0) { throw new Error("Post not found", { cause: { postId: "No post found with the provided ID" } }); }
@@ -123,7 +130,7 @@ const postFunctions = {
 
     async deletePost(postId) {
         if (!postId) throw new Error("Post ID must be provided", { cause: { postId: "Post ID not provided" } });
-
+        
         const postCollection = await posts();
         const deletionInfo = await postCollection.deleteOne({ _id: ObjectId.createFromHexString(postId) });
 
@@ -172,7 +179,10 @@ const postFunctions = {
          * - category: string (post category)
          * - type: string (offer or request)
          * - tags: array of tags (matches any)
+         * - priority: string (low, normal, high, urgent)
+         * - expiring: string (24h, 3d, 7d - posts expiring within timeframe)
          * - userId: string (posts by specific user)
+         * - sortBy: string (distance, newest, oldest, expiration, priority)
          * - limit: number (default 10)
          * - skip: number (default 0)
          */
@@ -183,8 +193,11 @@ const postFunctions = {
             radius,
             category, 
             type, 
-            tags, 
+            tags,
+            priority,
+            expiring,
             userId,
+            sortBy = 'newest',
             limit = 10, 
             skip = 0 
         } = filters;
@@ -224,13 +237,55 @@ const postFunctions = {
             query.tags = { $in: tags };
         }
     
+        if (priority) {
+            query.priority = priority;
+        }
+    
+        if (expiring) {
+            const now = new Date();
+            let expirationDate;
+            
+            if (expiring === '24h') {
+                expirationDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            } else if (expiring === '3d') {
+                expirationDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+            } else if (expiring === '7d') {
+                expirationDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            }
+            
+            if (expirationDate) {
+                query.expiresAt = {
+                    $ne: null,
+                    $gte: now,
+                    $lte: expirationDate
+                };
+            }
+        }
+    
         if (userId) {
             query.userId = userId;
+        }
+    
+        // Build sort options
+        let sortOptions = {};
+        
+        if (sortBy === 'newest') {
+            sortOptions = { createdAt: -1 };
+        } else if (sortBy === 'oldest') {
+            sortOptions = { createdAt: 1 };
+        } else if (sortBy === 'expiration') {
+            sortOptions = { expiresAt: 1 };
+        } else if (sortBy === 'priority') {
+            sortOptions = { priority: -1, createdAt: -1 }; // Sort by priority desc, then newest
+        } else if (sortBy === 'distance') {
+            // Distance sorting is already handled by $near query
+            sortOptions = { createdAt: -1 }; // Secondary sort by newest
         }
     
         const postCollection = await posts();
         const postsList = await postCollection
             .find(query)
+            .sort(sortOptions)
             .skip(skip)
             .limit(limit)
             .toArray();
@@ -239,29 +294,19 @@ const postFunctions = {
     },
 
     async enrichPostWithUserAndLocation(post) {
-        const userFunctions = (await import('./users.js')).default;
-        
         try {
-            // Get user info
-            const { user } = await userFunctions.getUserById(post.userId);
+            // Get user info for the post's userId
+            const user = await userFunctions.getUserById(post.userId);
             
             // Get location info for the post's zipcode
             const postLocation = await locationFunctions.getLocationByZipcode(post.zipcode);
-            
-            // Format the date
-            const datePosted = new Date(post.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
             
             return {
                 ...post,
                 _id: post._id.toString(),
                 username: user.profile?.username || 'Anonymous',
                 city: postLocation.city,
-                state: postLocation.state_code,
-                datePosted: datePosted
+                state: postLocation.state_code
             };
         } catch (error) {
             console.error(`Error enriching post ${post._id}:`, error.message);
@@ -271,8 +316,7 @@ const postFunctions = {
                 _id: post._id.toString(),
                 username: 'Unknown',
                 city: 'Unknown',
-                state: 'Unknown',
-                datePosted: new Date(post.createdAt).toLocaleDateString()
+                state: 'Unknown'
             };
         }
     },

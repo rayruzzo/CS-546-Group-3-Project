@@ -1,6 +1,6 @@
 <!-- if authenticated user, show welcome message -->
 {{#if user}}
-  <h2>Welcome back, {{user.username}}!</h2>
+  <h1>Welcome back, {{user.username}}!</h1>
   <p>Here are the latest posts in your area ({{user.zipCode}}):</p>
 
   <div class="filters">
@@ -30,8 +30,9 @@
                 <label for="type">Type:</label>
                 <select name="type" id="type">
                     <option value="">All Types</option>
-                    <option value="offer">Offer</option>
-                    <option value="request">Request</option>
+                    {{#each postTypes}}
+                        <option value="{{this}}">{{this}}</option>
+                    {{/each}}
                 </select>
             </div>
 
@@ -40,29 +41,63 @@
                 <input type="text" name="tags" id="tags" placeholder="e.g. urgent, local">
             </div>
 
+            <div class="filter-group">
+                <label for="priority">Priority:</label>
+                <select name="priority" id="priority">
+                    <option value="">All Priorities</option>
+                    {{#each priorityValues}}
+                        <option value="{{this.value}}">{{this.label}}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="expiring">Expiration:</label>
+                <select name="expiring" id="expiring">
+                    <option value="">All Posts</option>
+                    <option value="24h">Expiring in 24 hours</option>
+                    <option value="3d">Expiring in 3 days</option>
+                    <option value="7d">Expiring in 7 days</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="sortBy">Sort by:</label>
+                <select name="sortBy" id="sortBy">
+                    <option value="distance">Distance</option>
+                    <option value="newest" selected>Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="expiration">Expiration Date</option>
+                    <option value="priority">Priority</option>
+                </select>
+            </div>
+
             <button type="submit">Apply Filters</button>
         </form>
     </div>
 
-    <div class="posts-list">
-        {{#if posts.length}}
-            <ul>
-            {{#each posts}}
-                <li>
+    {{#if posts.length}}
+        <ul id="posts-container">
+        {{#each posts}}
+            <li>
+                <article class="post-item">
                 <h3>{{this.title}}</h3>
                 <p class="post-meta">{{this.category}} • {{this.type}} • {{this.city}}, {{this.state}}</p>
                 <p class="posted-by">Posted by {{this.username}} on {{this.datePosted}}</p>
                 <p class="post-preview">{{this.content}}</p>
                 <a href="/posts/{{this._id}}">Read more</a>
-                </li>
-            {{/each}}
-            </ul>
-        {{else}}
-            <p>No posts available in your area at the moment. Please check back later!</p>
-        {{/if}}
-    </div>
-
-
+                </article>
+            </li>
+        {{/each}}
+        </ul>
+        <div class="load-more-container">
+            <button id="load-more-btn" class="load-more-btn">Load More Posts</button>
+            <p id="loading-message" style="display: none;">Loading...</p>
+            <p id="no-more-posts" style="display: none;">No more posts to load</p>
+        </div>
+    {{else}}
+        <p>No posts available in your area at the moment. Please check back later!</p>
+    {{/if}}
 
 
 

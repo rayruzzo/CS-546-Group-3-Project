@@ -6,6 +6,9 @@ import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
 import checkAndSeedLocations from './scripts/checkAndSeed.js';
 import seedUsersAndPosts from './scripts/seedUsersAndPosts.js';
+import postMiddleware from './middleware/posts.mw.js';
+import handlebarsHelpers from './middleware/handlebarsHelpers.js';
+import { postCategories, postTypes, priorityValues } from './models/posts.js';
 
 const app = express();
 
@@ -41,16 +44,28 @@ app.use('/public', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+// Set local variables available to all templates
+app.use((req, res, next) => {
+  res.locals.postCategories = Object.values(postCategories);
+  res.locals.postTypes = Object.values(postTypes);
+  res.locals.priorityValues = priorityValues;
+  next();
+});
+
 // handlebars
 const handlebarsInstance = exphbs.create({
 	defaultLayout: "main",
-   
-   // ...further config
+	helpers: handlebarsHelpers
 });
 app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
 
-// config routes
+app.use('/posts', postMiddleware.requireAuthentication);
+app.use('/posts/filter', postMiddleware.parseFilterParams);
+app.use('/posts/edit/:id', postMiddleware.isPostOwnerAction);
+app.use('/posts/delete/:id', postMiddleware.isPostOwnerAction);
+app.use('/posts/:id', postMiddleware.isPostOwnerDisplay);
+
 configRoutes(app);
 
 const server = app.listen(PORT);

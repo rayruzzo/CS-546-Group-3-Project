@@ -43,7 +43,7 @@ const seedUsersAndPosts = async () => {
                 password: 'Password123!',
                 zipcode: '07305', // Jersey City
                 profile: {
-                    username: 'msmarvel_jc',
+                    username: 'msmarvel-jc',
                     firstName: 'Kamala',
                     lastName: 'Khan',
                     dob: new Date('2000-08-15'),
@@ -75,7 +75,7 @@ const seedUsersAndPosts = async () => {
                 password: 'Password123!',
                 zipcode: '90028', // Los Angeles
                 profile: {
-                    username: 'superhero_at_law',
+                    username: 'superhero-at-law',
                     firstName: 'Jennifer',
                     lastName: 'Walters',
                     dob: new Date('1980-05-12'),
@@ -91,7 +91,7 @@ const seedUsersAndPosts = async () => {
                 password: 'Password123!',
                 zipcode: '10036', // Hell\'s Kitchen, Manhattan
                 profile: {
-                    username: 'devils_advocate',
+                    username: 'devils-advocate',
                     firstName: 'Matt',
                     lastName: 'Murdock',
                     dob: new Date('1982-10-16'),
@@ -107,7 +107,7 @@ const seedUsersAndPosts = async () => {
                 password: 'Password123!',
                 zipcode: '11375', // Forest Hills, Queens
                 profile: {
-                    username: 'friendly_neighbor',
+                    username: 'friendly-neighbor',
                     firstName: 'Peter',
                     lastName: 'Parker',
                     dob: new Date('2001-08-10'),
@@ -123,15 +123,19 @@ const seedUsersAndPosts = async () => {
         console.log('Creating users...');
         const createdUsers = [];
         
-        for (const user of testUsers) {
-            try {
-                const result = await userData.createUser(user);
-                createdUsers.push({ ...result.user, zipcode: user.zipcode });
-                console.log(`Created user: ${user.profile.username}`);
-            } catch (error) {
-                console.error(`Error creating user ${user.profile.username}:`, error.message);
-            }
-        }
+        await userData.server.calculateOptimalSaltRounds();  
+        
+        await Promise.all(  
+            testUsers.map(async (user) => {  
+                try {  
+                    const result = await userData.createUser(user);  
+                    createdUsers.push({ ...result.user, zipcode: user.zipcode });  
+                    console.log(`Created user: ${user.profile.username}`);  
+                } catch (error) {  
+                    console.error(`Error creating user ${user.profile.username}:`, error.message);  
+                }  
+            })  
+        )  
 
         console.log(`\nCreated ${createdUsers.length} users`);
 
@@ -159,7 +163,7 @@ const seedUsersAndPosts = async () => {
                     tags: ['history', 'art', 'education', 'community']
                 }
             ],
-            'msmarvel_jc': [
+            'msmarvel-jc': [
                 {
                     title: 'Gaming night organizer needed!',
                     content: 'Want to start a weekly gaming group for teens in Jersey City. Looking for someone to help organize and maybe host. Thinking board games, video games, all the good stuff!',
@@ -205,7 +209,7 @@ const seedUsersAndPosts = async () => {
                     tags: ['fitness', 'workout', 'bootcamp', 'free']
                 }
             ],
-            'superhero_at_law': [ // Jennifer Walters
+            'superhero-at-law': [ // Jennifer Walters
                 {
                     title: 'Free legal clinic for small claims',
                     content: 'Offering pro bono legal advice for small claims court cases. LA residents dealing with landlord disputes, contract issues, etc. Let\'s get you justice!',
@@ -228,7 +232,7 @@ const seedUsersAndPosts = async () => {
                     tags: ['law', 'mentorship', 'women', 'career']
                 }
             ],
-            'devils_advocate': [ // Matt Murdock
+            'devils-advocate': [ // Matt Murdock
                 {
                     title: 'Free legal services for Hell\'s Kitchen residents',
                     content: 'Nelson & Murdock offering pro bono legal representation for Hell\'s Kitchen residents. Criminal defense, housing issues, civil rights cases. Justice for all.',
@@ -251,7 +255,7 @@ const seedUsersAndPosts = async () => {
                     tags: ['boxing', 'self-defense', 'fitness', 'gym']
                 }
             ],
-            'friendly_neighbor': [ // Peter Parker
+            'friendly-neighbor': [ // Peter Parker
                 {
                     title: 'Science tutoring for middle/high schoolers',
                     content: 'Physics and chemistry tutor available! I\'m a science nerd and love helping students understand complex concepts. Queens students get priority. Very reasonable rates!',

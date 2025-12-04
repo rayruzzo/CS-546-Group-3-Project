@@ -1,5 +1,14 @@
 <article>
     <h1>{{post.title}}</h1>
+
+    {{#if isPostOwner}}
+    <div class="post-actions">
+        <a href="/posts/edit/{{post._id}}" class="button-primary">Edit Post</a>
+        <form id="delete-post-form" method="POST" action="/posts/delete/{{post._id}}" onsubmit="return confirm('Are you sure you want to delete this post?');" style="display:inline;">
+            <button type="submit" class="button-danger">Delete Post</button>
+        </form>
+    </div>
+    {{/if}}
     
     <div class="post-meta">
         <span class="author">Posted by <strong>{{post.username}}</strong></span>
@@ -12,6 +21,18 @@
     <div class="post-details">
         <span class="type {{post.type}}">{{post.type}}</span>
         <span class="category">{{post.category}}</span>
+        <span class="priority priority-{{post.priority}}">
+            {{#if (eq post.priority 4)}}🔴 Urgent
+            {{else if (eq post.priority 3)}}🟠 High Priority
+            {{else if (eq post.priority 2)}}🟡 Normal
+            {{else}}🟢 Low Priority
+            {{/if}}
+        </span>
+        {{#if post.expiresAt}}
+        <span class="expiration">
+            Expires: <time datetime="{{post.expiresAt}}">{{formatDate post.expiresAt}}</time>
+        </span>
+        {{/if}}
         {{#if post.tags}}
         <div class="tags">
             {{#each post.tags}}

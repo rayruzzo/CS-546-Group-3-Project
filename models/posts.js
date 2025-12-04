@@ -23,35 +23,44 @@ const postCategories = {
     OTHER: "other"
 }
 
-export const titleSchema = yup
+const priorityValues = {
+    LOW: 1,
+    NORMAL: 2,
+    HIGH: 3,
+    URGENT: 4
+}
+
+const titleSchema = yup
   .string()
   .trim()
   .min(5, "Title must be at least 5 characters long")
   .max(100, "Title cannot exceed 100 characters")
   .required("Title is required");
 
-export const contentSchema = yup
+const contentSchema = yup
   .string()
   .trim()
   .min(10, "Content must be at least 10 characters long")
   .max(5000, "Content cannot exceed 5000 characters")
   .required("Content is required");
 
-export const postTypeSchema = yup
+const postTypeSchema = yup
   .string()
+  .trim()
   .oneOf(Object.values(postTypes), "Invalid post type")
   .required("Post type is required");
 
-export const postCategorySchema = yup
+const postCategorySchema = yup
   .string()
+  .trim()
   .oneOf(Object.values(postCategories), "Invalid post category")
   .required("Post category is required");
 
-export const commentsEnabledSchema = yup
-  .boolean()
+const commentsEnabledSchema = yup
+  .boolean().default(true)
   .required("Comments enabled flag is required");
 
-export const tagsSchema = yup
+const tagsSchema = yup
   .array()
   .of(
     yup
@@ -62,16 +71,45 @@ export const tagsSchema = yup
   )
   .max(20, "Cannot have more than 20 tags");
 
-export const postSchema = yup.object().shape({
+const prioritySchema = yup
+  .number()
+  .oneOf(Object.values(priorityValues), "Invalid priority level")
+  .default(priorityValues.NORMAL);
+
+const expiresAtSchema = yup
+  .date()
+  .min(new Date(), "Expiration date cannot be in the past")
+  .nullable()
+  .default(null);
+
+const postSchema = yup.object().shape({
     title: titleSchema,
-    userId: yup.string().required("User ID is required"), //TODO: further validate userId once Users is merged
+    userId: yup.string().required("User ID is required"),
     content: contentSchema,
     type: postTypeSchema,
     category: postCategorySchema,
     commentsEnabled: commentsEnabledSchema,
     tags: tagsSchema,
     comments: yup.array().of(yup.string()), // Array of comment IDs
-    created_at: yup.date().default(() => new Date()),
-    updated_at: yup.date().default(() => new Date()),
+    createdAt: yup.date().default(() => new Date()),
+    updatedAt: yup.date().default(() => new Date()),
+    priority: prioritySchema,
+    expiresAt: expiresAtSchema,
+    zipcode: yup.string().required("Zipcode is required"),
     loc: locSchema
 });
+
+export default {
+    postTypes,
+    postCategories,
+    priorityValues,
+    postSchema,
+    titleSchema,
+    contentSchema,
+    postTypeSchema,
+    postCategorySchema,
+    commentsEnabledSchema,
+    tagsSchema,
+    prioritySchema,
+    expiresAtSchema
+};
