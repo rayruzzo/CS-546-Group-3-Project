@@ -16,7 +16,7 @@ const Post = Object.freeze(class Post {
     category;
     commentsEnabled;
     tags=[];
-    priority = priorityValues.NORMAL;
+    priority = postModels.priorityValues.NORMAL;
     expiresAt = null;
 
 
@@ -79,7 +79,7 @@ const postFunctions = {
         newPostData.zipcode = user.zipcode;
         newPostData.loc = location.loc;
 
-        const validatedPost = await postSchema.validate(newPostData);
+        const validatedPost = await postModels.postSchema.validate(newPostData);
         
         const postCollection = await posts();
         const insertInfo = await postCollection.insertOne(validatedPost);
@@ -113,7 +113,7 @@ const postFunctions = {
         if (!postId) throw new Error("Post ID must be provided", { cause: { postId: "Post ID not provided" } });
         if (!postData || Object(postData) !== postData) throw new Error("Post data must be provided", { cause: { postData: "Post data not provided" } });
 
-        postData = postSchema.validate(postData);
+        postData = await postModels.postSchema.validate(postData);
 
         const postCollection = await posts();
         const updateInfo = await postCollection.updateOne(
