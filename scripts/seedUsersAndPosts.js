@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import db from '../config/mongoCollections.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
@@ -24,6 +25,40 @@ const seedUsersAndPosts = async () => {
 
         // Create test users with Marvel characters
         const testUsers = [
+            {
+                email: 'nick.fury@shield.gov',
+                password: 'Password123!',
+                role: 'admin',
+                zipcode: '10001', // NYC - Midtown
+                profile: {
+                    username: 'director-fury',
+                    firstName: 'Nick',
+                    lastName: 'Fury',
+                    dob: new Date('1950-12-21'),
+                    bio: 'Director of S.H.I.E.L.D. Keeping an eye on everything. (Admin account)',
+                    profilePicture: null
+                },
+                settings: {
+                    dmsEnabled: true
+                }
+            },
+            {
+                email: 'maria.hill@shield.gov',
+                password: 'Password123!',
+                role: 'moderator',
+                zipcode: '10001', // NYC - Midtown
+                profile: {
+                    username: 'agent-hill',
+                    firstName: 'Maria',
+                    lastName: 'Hill',
+                    dob: new Date('1982-04-04'),
+                    bio: 'Deputy Director of S.H.I.E.L.D. Here to help moderate and keep things running smoothly. (Moderator account)',
+                    profilePicture: null
+                },
+                settings: {
+                    dmsEnabled: true
+                }
+            },
             {
                 email: 'steve.rogers@avengers.com',
                 password: 'Password123!',
@@ -156,6 +191,74 @@ const seedUsersAndPosts = async () => {
         console.log(`\nCreated ${createdUsers.length} users`);
 
         const seedPosts = {
+            'director-fury': [
+                {
+                    title: 'Community Guidelines Reminder',
+                    content: 'As your admin, I want to remind everyone to keep posts respectful and helpful. This platform is about neighbors helping neighbors. Report any suspicious activity or rule violations.',
+                    type: 'offer',
+                    category: 'other',
+                    tags: ['community', 'guidelines', 'admin', 'announcement'],
+                    priority: 4 // Urgent
+                },
+                {
+                    title: 'Platform Feature Feedback Needed',
+                    content: 'We\'re always looking to improve. What features would make this community platform more useful for you? Drop your suggestions here or send a DM.',
+                    type: 'request',
+                    category: 'other',
+                    tags: ['feedback', 'suggestions', 'community', 'platform'],
+                    priority: 2
+                },
+                {
+                    title: 'Need tech support volunteers',
+                    content: 'Looking for tech-savvy folks to help seniors in the area with their devices and online safety. Basic troubleshooting, setting up email, that sort of thing.',
+                    type: 'request',
+                    category: 'services',
+                    tags: ['volunteer', 'tech', 'seniors', 'help-wanted'],
+                    priority: 3
+                },
+                {
+                    title: 'Organizing neighborhood watch program',
+                    content: 'Starting a neighborhood watch initiative. First meeting next Monday at the community center. All residents welcome. Let\'s keep our streets safe together.',
+                    type: 'offer',
+                    category: 'event',
+                    tags: ['safety', 'neighborhood-watch', 'community', 'meeting'],
+                    priority: 4
+                }
+            ],
+            'agent-hill': [
+                {
+                    title: 'Moderator Office Hours',
+                    content: 'I\'m available every Tuesday and Thursday evening to help with any issues, answer questions about the platform, or discuss concerns. Feel free to reach out!',
+                    type: 'offer',
+                    category: 'services',
+                    tags: ['moderator', 'help', 'support', 'community'],
+                    priority: 3
+                },
+                {
+                    title: 'Looking for Community Volunteers',
+                    content: 'We need volunteers to help organize neighborhood events and initiatives. If you\'re interested in making our community better, let me know!',
+                    type: 'request',
+                    category: 'event',
+                    tags: ['volunteer', 'community', 'events', 'help-wanted'],
+                    priority: 2
+                },
+                {
+                    title: 'Free resume writing workshop',
+                    content: 'Hosting a career development workshop this Saturday. I\'ll help you polish your resume, practice interviews, and network. Midtown location, free coffee provided!',
+                    type: 'offer',
+                    category: 'education',
+                    tags: ['career', 'workshop', 'resume', 'free'],
+                    priority: 2
+                },
+                {
+                    title: 'Community garden plot available',
+                    content: 'We have one plot available in the community garden. Great for growing vegetables or flowers. First come, first serve. Contact me for details.',
+                    type: 'offer',
+                    category: 'landcare',
+                    tags: ['garden', 'community', 'outdoors', 'plants'],
+                    priority: 2
+                }
+            ],
             'starspangledman': [
                 {
                     title: 'Offering self-defense training for seniors',
@@ -181,6 +284,14 @@ const seedUsersAndPosts = async () => {
                     tags: ['history', 'art', 'education', 'community'],
                     priority: 2, // Normal priority
                     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Expires in 30 days
+                },
+                {
+                    title: 'Looking for running partner',
+                    content: 'I run Prospect Park every morning at 6 AM. Would love a running buddy! All paces welcome, it\'s about staying healthy and enjoying the morning.',
+                    type: 'request',
+                    category: 'services',
+                    tags: ['fitness', 'running', 'morning', 'park'],
+                    priority: 1
                 }
             ],
             'msmarvel-jc': [
@@ -289,6 +400,22 @@ const seedUsersAndPosts = async () => {
                     tags: ['boxing', 'self-defense', 'fitness', 'gym'],
                     priority: 3,
                     expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // Expires in 14 days
+                },
+                {
+                    title: 'Community legal education workshop',
+                    content: 'Free workshop on tenant rights and housing law. Every Wednesday evening at the local library. Know your rights, protect yourself and your neighbors.',
+                    type: 'offer',
+                    category: 'education',
+                    tags: ['legal', 'education', 'rights', 'workshop'],
+                    priority: 3
+                },
+                {
+                    title: 'Need someone to read legal documents aloud',
+                    content: 'Looking for someone with clear speech to read through some legal documents with me. Will pay $20/hour. Flexible schedule, usually evening hours work best.',
+                    type: 'request',
+                    category: 'services',
+                    tags: ['reading', 'legal', 'part-time', 'flexible'],
+                    priority: 2
                 }
             ],
             'friendly-neighbor': [ // Peter Parker
@@ -315,6 +442,14 @@ const seedUsersAndPosts = async () => {
                     type: 'offer',
                     category: 'services',
                     tags: ['web-design', 'business', 'technology', 'affordable'],
+                    priority: 2
+                },
+                {
+                    title: 'Computer repair services - cheap!',
+                    content: 'Good with tech and happy to help fix computers, phones, tablets. Student rates, just covering parts cost basically. Queens area, can come to you!',
+                    type: 'offer',
+                    category: 'repair',
+                    tags: ['computer', 'repair', 'tech', 'affordable'],
                     priority: 2
                 }
             ]
@@ -357,7 +492,11 @@ const seedUsersAndPosts = async () => {
         console.log(`\n✅ Seed complete!`);
         console.log(`Created ${createdUsers.length} users and ${postsCreated} posts`);
         console.log('\nTest user credentials (all use password: Password123!):');
-        testUsers.forEach(u => console.log(`  - ${u.email} (${u.zipcode})`));
+        console.log('  ADMIN & MODERATOR ACCOUNTS:');
+        console.log(`  - ${testUsers[0].email} (${testUsers[0].zipcode}) - ADMIN`);
+        console.log(`  - ${testUsers[1].email} (${testUsers[1].zipcode}) - MODERATOR`);
+        console.log('\n  REGULAR USER ACCOUNTS:');
+        testUsers.slice(2).forEach(u => console.log(`  - ${u.email} (${u.zipcode})`));
 
     } catch (error) {
         console.error('Error seeding users and posts:', error);

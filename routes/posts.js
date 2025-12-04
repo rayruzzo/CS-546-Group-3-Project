@@ -1,6 +1,7 @@
 import Router from 'express';
 import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
+import postMiddleware from '../middleware/posts.mw.js';
 
 const router = Router();
 
@@ -82,7 +83,7 @@ router.post('/update/:id', async (req, res) => {
 });
 
 // GET /posts/:id - View a single post
-router.get('/:id', async (req, res) => {
+router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
     try {
         const { post } = await postData.getPostById(req.params.id);
         res.render('post', { post: post });

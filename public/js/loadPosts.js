@@ -182,7 +182,7 @@
                     </div>
                 `;
                 
-                currentSkip = 20;
+                currentSkip = 10;
                 
                 // Re-attach load more button listener
                 const newLoadMoreBtn = document.getElementById('load-more-btn');

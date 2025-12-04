@@ -31,7 +31,7 @@ app.use((req, res, next) => {
   if (!req.session.user) {
     req.session.user = { 
       _id: "000000000000000000000000", // mock user ID
-      zipCode: "07030",
+      zipcode: "07030",
       email: "test@example.com",
       username: "testuser"
     }; 
@@ -60,11 +60,10 @@ const handlebarsInstance = exphbs.create({
 app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
 
-app.use('/posts', postMiddleware.requireAuthentication);
 app.use('/posts/filter', postMiddleware.parseFilterParams);
 app.use('/posts/edit/:id', postMiddleware.isPostOwnerAction);
 app.use('/posts/delete/:id', postMiddleware.isPostOwnerAction);
-app.use('/posts/:id', postMiddleware.isPostOwnerDisplay);
+app.use('/posts', postMiddleware.requireAuthentication);
 
 configRoutes(app);
 

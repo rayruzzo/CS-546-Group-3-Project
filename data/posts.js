@@ -16,7 +16,7 @@ const Post = Object.freeze(class Post {
     category;
     commentsEnabled;
     tags=[];
-    priority = postModels.priorityValues.NORMAL;
+    priority = priorityValues.NORMAL;
     expiresAt = null;
 
 
@@ -47,7 +47,8 @@ const postFunctions = {
         const errors = {};
 
         // Get user's zipcode from database
-        const user = await userFunctions.getUserById(userId);
+        const userResult = await userFunctions.getUserById(userId);
+        const user = userResult.user;
         
         if (!user || !user.zipcode) {
             throw new Error("User zipcode not found", {
@@ -79,7 +80,7 @@ const postFunctions = {
         newPostData.zipcode = user.zipcode;
         newPostData.loc = location.loc;
 
-        const validatedPost = await postModels.postSchema.validate(newPostData);
+        const validatedPost = await postSchema.validate(newPostData);
         
         const postCollection = await posts();
         const insertInfo = await postCollection.insertOne(validatedPost);
@@ -113,7 +114,7 @@ const postFunctions = {
         if (!postId) throw new Error("Post ID must be provided", { cause: { postId: "Post ID not provided" } });
         if (!postData || Object(postData) !== postData) throw new Error("Post data must be provided", { cause: { postData: "Post data not provided" } });
 
-        postData = await postModels.postSchema.validate(postData);
+        postData = await postSchema.validate(postData);
 
         const postCollection = await posts();
         const updateInfo = await postCollection.updateOne(
@@ -296,17 +297,22 @@ const postFunctions = {
     async enrichPostWithUserAndLocation(post) {
         try {
             // Get user info for the post's userId
-            const user = await userFunctions.getUserById(post.userId);
+            const userResult = await userFunctions.getUserById(post.userId);
+            const user = userResult.user;
             
             // Get location info for the post's zipcode
             const postLocation = await locationFunctions.getLocationByZipcode(post.zipcode);
+            
+            // Format date
+            const datePosted = post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Unknown';
             
             return {
                 ...post,
                 _id: post._id.toString(),
                 username: user.profile?.username || 'Anonymous',
                 city: postLocation.city,
-                state: postLocation.state_code
+                state: postLocation.state_code,
+                datePosted: datePosted
             };
         } catch (error) {
             console.error(`Error enriching post ${post._id}:`, error.message);
@@ -316,7 +322,8 @@ const postFunctions = {
                 _id: post._id.toString(),
                 username: 'Unknown',
                 city: 'Unknown',
-                state: 'Unknown'
+                state: 'Unknown',
+                datePosted: 'Unknown'
             };
         }
     },
