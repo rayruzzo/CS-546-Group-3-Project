@@ -324,6 +324,30 @@ const userFunctions = Object.freeze({
       return { user: user, success: true };
    },
 
+   /**
+    * Retrieves a `User` by `username` in MongoDB.
+    * 
+    * **WARNING**: For use with 100% validated data.
+    * 
+    * @param {string} username - 100% valid username to search a User by
+    * @returns {Promise<Object>} an object with the User data and a success message
+    */
+   async getUserByUsername(username) {
+
+      if (!username) throw new Error("Please provide a validated username", {cause: username});
+
+      const userCollection = await users();
+      const user = await userCollection.findOne({ "profile.username": username });
+
+      if (!user) {
+         throw new Error(`User with username "${username}" does not exist`, {
+            cause: {value: username}
+         });
+      }
+
+      return { user: user, success: true };
+   },
+
    // TODO: check if we have the necessary permission to update a user :D !!
    /**
     * Updates a `User` by `_id` in MongoDB.
