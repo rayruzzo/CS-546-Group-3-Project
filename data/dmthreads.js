@@ -14,8 +14,12 @@ async function createThread(user1, user2) {
     };
 
     const newThread = {
+        initiator: user1,
         participants: [user1, user2],
-        messages: []
+        messages: [],
+        created_at: new Date(),
+        last_message_sent: new Date()
+
     };
 
     const dmCollection = await dmthreads();
