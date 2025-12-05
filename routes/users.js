@@ -1,7 +1,7 @@
 import Router from 'express';
 import { validateSchema } from '../middleware/validation.mw.js';
 import userData from '../data/users.js';
-import { getResourceByIdSchema, userSchema } from "../models/users.js";
+import { getResourceByIdSchema, usernameParamSchema, userSchema } from "../models/users.js";
 import { renderErrorPage } from '../utils/errorUtils.js';
 
 const router = Router();
@@ -17,7 +17,7 @@ router.post("/",
          
       } catch (e) {
          console.error(e);
-         res.status(500).json({ error: e.message });
+         return renderErrorPage(res, 500, e.message);
 
          // TODO: `return next(e)` instead and create a catch-all 500 err handler as the last `app.use(...)`
       }
@@ -40,24 +40,22 @@ router.patch("/:id",
          
       } catch (e) {
          console.error(e);
-         res.status(404).json({ error: e.message });
+         return renderErrorPage(res, 404, e.message);
 
          // TODO: `return next(e)` instead and create a catch-all 500 err handler as the last `app.use(...)`
       }
    }
 );
 
-router.get("/:id", 
+router.get("/:username", 
    // FIXME: authenticate user, if no session respond with 401 Unauthorized
-   validateSchema(
-      [getResourceByIdSchema("User"), "params"],
-   ), 
+   validateSchema(usernameParamSchema, "params"), 
    async (req, res, next) => {
    
-      const { id } = req.params;
+      const { username } = req.params;
 
       try {
-         const user = await userData.getUserById(id);
+         const user = await userData.getUserByUsername(username.toLowerCase());
          return res.json({ ...user });
          
       } catch (e) {
