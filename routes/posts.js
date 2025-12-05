@@ -97,7 +97,7 @@ router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const deletedPost = await postData.deletePost(req.params.id);
-        res.json(deletedPost);
+        return res.render('/');
     } catch (error) {
         res.status(404).json({ error: error.toString() });
     }
