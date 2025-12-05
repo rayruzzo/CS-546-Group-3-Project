@@ -255,4 +255,13 @@ body {
    .colorful-blur-ring {
       animation: none;
    }
+
+   .link-medium {
+      transition: none;
+   }
+
+   .link-medium:hover::after {
+      transition: none;
+      transform: none;
+   }
 }
