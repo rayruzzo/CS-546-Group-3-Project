@@ -1,90 +1,102 @@
 import Router from 'express';
-import postData from '../data/index.js'
+import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
+import postMiddleware from '../middleware/posts.mw.js';
 
 const router = Router();
 
+// GET /posts/filter - Filter posts (API endpoint for AJAX)
 router.get('/filter', async (req, res) => {
     try {
-        if (!req.session.user) {
-            return res.status(401).json({ error: 'Not authenticated' });
-        }
-
-        // Extract all possible filter parameters
-        // Validate and clamp numeric parameters
-        const rawDistance = parseInt(req.query.distance, 10);
-        const distance = (!isNaN(rawDistance)) ? Math.max(1, Math.min(100, rawDistance)) : 10;
-        const rawLimit = parseInt(req.query.limit, 10);
-        const limit = (!isNaN(rawLimit)) ? Math.max(1, Math.min(100, rawLimit)) : 10;
-        const rawSkip = parseInt(req.query.skip, 10);
-        const skip = (!isNaN(rawSkip)) ? Math.max(0, Math.min(10000, rawSkip)) : 0;
-        const filters = {
-            distance: distance,
-            category: req.query.category,
-            type: req.query.type,
-            tags: req.query.tags
-                ? req.query.tags
-                    .split(',')
-                    .map(t => t.trim())
-                    .filter(t => t.length > 0)
-                    .slice(0, 10)
-                    .map(t => t.substring(0, 50))
-                : undefined,
-            limit: limit,
-            skip: skip
-        };
-        
-        const filteredPosts = await loadPosts(req.session.user.zipCode, filters);
-        
+        const filteredPosts = await loadPosts(req.session.user.zipcode, req.filters);
         res.json({ posts: filteredPosts });
     } catch (error) {
         console.error('Error filtering posts:', error);
-        res.status(500).json({ error: 'Failed to filter posts' });
+        res.status(500).json({ error: error.message || 'Failed to filter posts' });
     }
 });
 
-router.get('/', async (req, res) => {
+// GET /posts/create - Show create post page
+router.get('/create', async (req, res) => {
     try {
-        res.end()
-    } 
-    catch (error) {
-        res.end()
+        res.render('createPost');
+    } catch (error) {
+        res.status(500).json({ error: error.toString() });
     }
 });
 
-router.get('/:id', async (req, res) => {
+// POST /posts/create - Create a new post and redirect to it
+router.post('/create', async (req, res) => {
     try {
-        const post = await postData.getPostById(req.params.id);
-        // we will need to fetch the user data as well
-        res.render('post', { title: post.title, post: post, user: post.user });
+        const { title, content, type, category, commentsEnabled, tags, priority, expiresAt } = req.body;
+        const userId = req.session.user._id;
+        
+        const tagsArray = tags ? tags.split(',').map(tag => tag.trim()) : [];
+        const priorityNum = priority ? parseInt(priority, 10) : undefined;
+        const expiresAtDate = expiresAt ? new Date(expiresAt) : null;
+        
+        const { post } = await postData.createPost(title, userId, content, type, category, commentsEnabled, tagsArray, priorityNum, expiresAtDate);
+        res.redirect(`/posts/${post._id}`);
+    } catch (error) {
+        res.status(400).render('createPost', { error: error.message });
+    }
+});
+
+// GET /posts/update/:id - Show update post page
+router.get('/update/:id', async (req, res) => {
+    try {
+        const { post } = await postData.getPostById(req.params.id);
+        res.render('updatePost', { post: post });
     } catch (error) {
         res.status(404).json({ error: error.toString() });
     }
 });
 
-router.post('/', async (req, res) => {
+// POST /posts/update/:id - Update post and redirect to it
+router.post('/update/:id', async (req, res) => {
     try {
-        const { title, userId, content, type, category, commentsEnabled, tags } = req.body;
-        const newPost = await postData.createPost(title, userId, content, type, category, commentsEnabled, tags);
-        res.json(newPost);
+        const { title, content, type, category, commentsEnabled, tags, priority, expiresAt } = req.body;
+        const { post } = await postData.getPostById(req.params.id);
+        
+        const tagsArray = tags ? tags.split(',').map(tag => tag.trim()) : [];
+        const priorityNum = priority ? parseInt(priority, 10) : post.priority;
+        const expiresAtDate = expiresAt ? new Date(expiresAt) : null;
+        
+        const updatedPostData = {
+            title,
+            userId: post.userId,
+            zipcode: post.zipcode,
+            loc: post.loc,
+            content,
+            type,
+            category,
+            commentsEnabled: commentsEnabled === 'on' || commentsEnabled === true,
+            tags: tagsArray,
+            priority: priorityNum,
+            expiresAt: expiresAtDate,
+            updatedAt: new Date()
+        };
+        
+        await postData.updatePost(req.params.id, updatedPostData);
+        res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
-        res.status(400).json({ error: error.toString() });
+        res.status(400).render('updatePost', { post: await postData.getPostById(req.params.id).then(p => p.post), error: error.message });
     }
 });
 
-router.put('/:id', async (req, res) => {
+// GET /posts/:id - View a single post
+router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
     try {
-        const { title, userId, content, type, category, commentsEnabled, tags } = req.body;
-        const updatedPost = await postData.updatePost(req.params.id, title, userId, content, type, category, commentsEnabled, tags);
-        res.json(updatedPost);
+        res.render('post', { post: req.post });
     } catch (error) {
         res.status(404).json({ error: error.toString() });
     }
 });
 
+// DELETE /posts/:id - Delete a post
 router.delete('/:id', async (req, res) => {
     try {
-        const deletedPost = await postData.removePost(req.params.id);
+        const deletedPost = await postData.deletePost(req.params.id);
         res.json(deletedPost);
     } catch (error) {
         res.status(404).json({ error: error.toString() });

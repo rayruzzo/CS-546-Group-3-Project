@@ -1,12 +1,49 @@
 <article>
     <h1>{{post.title}}</h1>
-    <div class="author">{{user.username}}</div>
-    <div class="date">  
-        <time datetime="{{post.date}}">{{post.date}}</time>  
-    </div> 
+
+    {{#if isPostOwner}}
+    <div class="post-actions">
+        <button onclick="window.location.href='/posts/update/{{post._id}}'" class="button-primary">Update Post</button>
+        <button onclick="if(confirm('Are you sure you want to delete this post?')) { document.getElementById('delete-post-form').submit(); }" class="button-danger">Delete Post</button>
+        <form id="delete-post-form" method="POST" action="/posts/delete/{{post._id}}" style="display:none;"></form>
+    </div>
+    {{/if}}
+    
+    <div class="post-meta">
+        <span class="author">Posted by <strong>{{post.username}}</strong></span>
+        <span class="location">📍 {{post.city}}, {{post.state}}</span>
+        <span class="date">
+            <time datetime="{{post.createdAt}}">{{post.datePosted}}</time>
+        </span>
+    </div>
+
+    <div class="post-details">
+        <span class="type {{post.type}}">{{post.type}}</span>
+        <span class="category">{{post.category}}</span>
+        <span class="priority priority-{{post.priority}}">
+            {{#if (eq post.priority 4)}}🔴 Urgent
+            {{else if (eq post.priority 3)}}🟠 High Priority
+            {{else if (eq post.priority 2)}}🟡 Normal
+            {{else}}🟢 Low Priority
+            {{/if}}
+        </span>
+        {{#if post.expiresAt}}
+        <span class="expiration">
+            Expires: <time datetime="{{post.expiresAt}}">{{formatDate post.expiresAt}}</time>
+        </span>
+        {{/if}}
+        {{#if post.tags}}
+        <div class="tags">
+            {{#each post.tags}}
+            <span class="tag">{{this}}</span>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+
     <div class="content">{{post.content}}</div>
 
-    <div class="comments">
-        <!-- Comments will be displayed here -->
-    </div>
+    {{#if post.commentsEnabled}}
+<!-- Comments Section Placeholder -->
+    {{/if}}
 </article>

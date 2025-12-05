@@ -62,10 +62,9 @@ const checkAndSeedLocations = async () => {
 
         for (const location of locations) {
             try {
-                await locationData.create_location(
+                await locationData.createLocation(
                     location.zipcode,
                     location.city,
-                    location.state,
                     location.state_code,
                     location.latitude,
                     location.longitude
