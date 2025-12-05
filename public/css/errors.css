@@ -24,6 +24,8 @@
    --color-translucent-3-light: hsla(60, 100%, 50%, 0.8);
    --color-translucent-3-dark: hsla(60, 100%, 60%, 0.8);
 
+   --color-clear: hsl(0, 0%, 0%, 0);
+
    /* FONT WEIGHT */
    --font-weight-base: 400;
    --font-weight-light: 100;
@@ -207,21 +209,30 @@ body {
    word-break: break-word;
 }
 
-/* OTHER */
-.button-medium {
+/* LINKS */
+.link-medium {
    display: inline-block;
-   padding: 1rem 1.4rem;
-   background-color: var(--accent-color);
+   padding: 0.2rem 0.5rem;
+   font-size: 1.3rem;
    color: var(--fg-color);
-   border: var(--border-primary);
-   border-radius: 20px;
-   text-decoration: none;
+   text-decoration: solid var(--color-clear) 2px underline;
+   text-underline-offset: 5px;
+   transition: 0.1s text-decoration ease-in-out;
 }
 
-.button-medium:hover {
-   transition: 0.1s all;
-   background-color: var(--accent-color);
-   filter: contrast(0.85);
+.link-medium::after {
+   content: "↺";
+   display: inline-block;
+   margin-left: 0.5rem;
+   transition: 0.1s transform ease-in-out;
+}
+
+.link-medium:hover {
+   text-decoration: solid var(--fg-color) 2px underline;
+}
+
+.link-medium:hover::after {
+   transform: rotate(-20deg);
 }
 
 
