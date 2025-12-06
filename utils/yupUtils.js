@@ -49,7 +49,7 @@ export function loadYupCustomMethods() {
       // "$session" - a special variable passed in from `<schema>.validate(val, {context: session })`
       return  this.label(label || "This")
                   .when("$session", {      
-                     is: (session) => session.user,
+                     is: (session) => session && session.user,
                      then: (schema) => schema,
                      otherwise: (schema) => {
                         return schema.required(({label}) => message || `${label} is a required field`)
