@@ -71,7 +71,7 @@ const locationFunctions = {
         const updatedLocationData = await locationSchema.validate(validLocationData);
 
         const updateInfo = await locationsCollection.updateOne(
-            { _id: updatedLocationData._id },
+            { _id: ObjectId.createFromHexString(locationId) },
             { $set: {...validLocationData} }
         );
 
