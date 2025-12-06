@@ -1,0 +1,43 @@
+<div class="dm-page">
+  <div class="dm-container">
+
+    <div class="dm-card">
+      <h2 class="dm-heading">Start a New Conversation</h2>
+
+      <form method="POST" action="/dmthreads/create" class="dm-form">
+
+        <div class="dm-field">
+          <label for="recipient">Recipient Username</label>
+          <input 
+            type="text" 
+            id="recipient" 
+            name="recipient" 
+            placeholder="e.g. starspangledman"
+            required
+          >
+        </div>
+
+        <div class="dm-field">
+          <label for="message">Initial Message</label>
+          <textarea 
+            id="message" 
+            name="message" 
+            rows="4"
+            placeholder="Say something friendly…"
+            required
+          ></textarea>
+        </div>
+
+        {{#if error}}
+          <p class="dm-error">{{error}}</p>
+        {{/if}}
+
+        <button class="dm-submit-btn" type="submit">
+          Start Conversation →
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+</div>

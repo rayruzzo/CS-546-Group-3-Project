@@ -1,0 +1,58 @@
+<h1>Update Post</h1>
+
+<form id="update-post-form" method="POST" action="/posts/update/{{post._id}}">
+    <div class="form-group">
+        <label for="title">Title:</label>
+        <input type="text" name="title" id="title" value="{{post.title}}" required>
+    </div>
+    <div class="form-group">
+        <label for="content">Content:</label>
+        <textarea name="content" id="content" rows="5" required>{{post.content}}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="type">Type:</label>
+        <select name="type" id="type" required>
+            {{#each postTypes}}
+                <option value="{{this}}" {{#if (eq this ../post.type)}}selected{{/if}}>{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="category">Category:</label>
+        <select name="category" id="category" required>
+            {{#each postCategories}}
+                <option value="{{this}}" {{#if (eq this ../post.category)}}selected{{/if}}>{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tags">Tags (comma-separated):</label>
+        <input type="text" name="tags" id="tags" value="{{#if post.tags}}{{join post.tags ", "}}{{/if}}" placeholder="e.g. urgent, local">
+    </div>
+    <div class="form-group">
+        <label for="expiresAt">Expiration Date:</label>
+        <input type="date" name="expiresAt" id="expiresAt" value="{{#if post.expiresAt}}{{formatDate post.expiresAt 'YYYY-MM-DD'}}{{/if}}">
+    </div>
+    <div class="form-group">
+        <label for="priority">Priority:</label>
+        <select name="priority" id="priority" required>
+            <option value="1" {{#if (eq post.priority 1)}}selected{{/if}}>Low</option>
+            <option value="2" {{#if (eq post.priority 2)}}selected{{/if}}>Normal</option>
+            <option value="3" {{#if (eq post.priority 3)}}selected{{/if}}>High</option>
+            <option value="4" {{#if (eq post.priority 4)}}selected{{/if}}>Urgent</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="commentsEnabled">Enable Comments:</label>
+        <input type="checkbox" name="commentsEnabled" id="commentsEnabled" {{#if post.commentsEnabled}}checked{{/if}}>
+    </div>
+    {{#if error}}
+        <div class="form-error">
+            <p>{{error}}</p>
+        </div>
+    {{/if}}
+    <button type="submit">Update Post</button>
+    <a href="/posts/{{post._id}}" class="button-secondary">Cancel</a>
+</form>
+
+<script type="module" src="/public/js/updatePostValidation.js"></script>

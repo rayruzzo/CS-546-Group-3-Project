@@ -1,0 +1,75 @@
+<div class="dm-page">
+  <div class="dm-container">
+
+    <div class="dm-header">
+      <h2 class="dm-heading">Your Messages</h2>
+    </div>
+
+    {{#if threads.length}}
+      <ul class="dm-thread-list">
+        {{#each threads}}
+          <li class="dm-thread-item">
+            <a href="/dmthreads/thread/{{this._id}}" class="dm-thread-link">
+
+              <div class="dm-thread-row">
+
+                <div class="dm-thread-left">
+                  <div class="dm-thread-username">{{otherUsername}}</div>
+
+                  <div class="dm-thread-preview">
+                    {{#with (last this.messages) as |msg|}}
+                      {{truncate msg.content 45}}
+                    {{else}}
+                      <em>No messages yet</em>
+                    {{/with}}
+                  </div>
+                </div>
+
+                <div class="dm-thread-right">
+                  {{#with (last this.messages) as |msg|}}
+                    <div class="dm-thread-time">
+                      {{formatDate msg.timestamp}}
+                    </div>
+                  {{/with}}
+                </div>
+
+              </div>
+
+            </a>
+          </li>
+        {{/each}}
+      </ul>
+
+      <div class="dm-bottom-btn-wrapper">
+        <a href="/dmthreads/create" class="dm-new-btn-large">
+          + Start New Conversation
+        </a>
+      </div>
+
+    {{else}}
+
+      <div class="dm-empty-wrapper">
+
+        <div class="dm-empty-icon">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
+            <path d="M4 4h16v12H5.17L4 17.17V4z"
+              stroke="#8b88f7" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 9h8M8 13h5"
+              stroke="#8b88f7" stroke-width="1.6"
+              stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <p class="dm-empty-title">You have no conversations yet.</p>
+        <p class="dm-empty-sub">Start a new conversation to begin messaging.</p>
+
+        <a href="/dmthreads/create" class="dm-empty-btn">
+          + Start New Conversation
+        </a>
+      </div>
+
+    {{/if}}
+
+  </div>
+</div>
