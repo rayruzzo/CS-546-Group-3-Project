@@ -55,9 +55,9 @@ app.use((req, res, next) => {
 
 // handlebars
 const handlebarsInstance = exphbs.create({
-    defaultLayout: "main",
-    partialsDir: ['views/partials/'],
-    helpers: handlebarsHelpers
+	defaultLayout: "main",
+   partialsDir: ['views/partials/']
+   // ...further config
 });
 
 app.engine('handlebars', handlebarsInstance.engine);
