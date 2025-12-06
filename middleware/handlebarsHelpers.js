@@ -23,8 +23,29 @@ export const join = (array, separator) => {
     return array.join(separator);
 };
 
+// Return the last element of an array
+export const last = (array) => {
+    if (!array || !Array.isArray(array) || array.length === 0) return null;
+    return array[array.length - 1];
+};
+
+// Truncate long text for previews in DM
+export const truncate = (str, len) => {
+    if (!str || typeof str !== "string") return "";
+    if (str.length <= len) return str;
+    return str.substring(0, len) + "...";
+};
+
+export const set = function (name, value, options) {
+    if (!options.data.root) options.data.root = {};
+    options.data.root[name] = value;
+};
+
 export default {
     eq,
     formatDate,
-    join
+    join,
+    last,
+    truncate,
+    set
 };

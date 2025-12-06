@@ -1,91 +1,277 @@
-.dm-page {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding-top: 40px;
-}
-
+/* -------------------------------------------------------
+   SHARED CONTAINER STYLES
+------------------------------------------------------- */
 .dm-container {
   max-width: 700px;
-  width: 100%;
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
+  margin: 50px auto;
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-.dm-section + .dm-section {
-  margin-top: 30px;
-}
-
-.field {
-  margin-bottom: 15px;
+/* -------------------------------------------------------
+   INBOX PAGE
+------------------------------------------------------- */
+.dm-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
 }
 
-.field label {
-  font-weight: bold;
-  margin-bottom: 6px;
+.dm-header h2 {
+  font-size: 26px;
+  font-weight: 700;
 }
 
-input[type="text"], textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  padding: 8px 18px;
-  border: none;
-  background: #4a6fa5;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #3b5a85;
-}
-
-.message-item {
-  padding: 10px;
-  background: #f3f3f3;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-
-.message-list {
+.dm-thread-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.timestamp {
-  font-size: 0.75rem;
-  margin-top: 2px;
-  color: #666;
+.dm-thread-item {
+  margin-bottom: 12px;
 }
 
-.message-item {
+.dm-thread-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* --- INBOX THREAD ROW MODERNIZED (Fixed for bugs that came through) --- */
+
+.dm-thread-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-radius: 10px;
+  background: #f4f1ff;
+  transition: 0.2s ease;
+}
+
+.dm-thread-left {
+  max-width: 75%;
+}
+
+.dm-thread-username {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #3c2f7a;
+}
+
+.dm-thread-preview {
+  color: #555;
+  font-size: 14px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.dm-thread-time {
+  font-size: 12px;
+  color: #777;
+  white-space: nowrap;
+  margin-left: 10px;
+}
+
+.dm-thread-right {
+  font-size: 0.75rem;
+  color: #777;
+  white-space: nowrap;
+}
+
+/* Bottom button wrapper under the threads list */
+.dm-bottom-btn-wrapper {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Big “Start New Conversation” button */
+.dm-new-btn-large {
+  display: inline-block;
+  padding: 10px 22px;
+  background: #8b88f7;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0px 3px 8px rgba(139, 136, 247, 0.4);
+  transition: 0.2s ease;
+}
+
+.dm-new-btn-large:hover {
+  background: #726ff1;
+  transform: translateY(-1px);
+}
+
+/* EMPTY STATE */
+.dm-empty-wrapper {
+  text-align: center;
+  padding: 45px;
+  background: #fafaff;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  max-width: 480px;
+  margin: 40px auto 0;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+}
+
+.dm-empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.dm-empty-sub {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.dm-empty-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #786bff, #a28bff);
+  color: white !important;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+.dm-empty-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* -------------------------------------------------------
+   CREATE NEW THREAD PAGE
+------------------------------------------------------- */
+.dm-card {
+  width: 480px;
+  margin: 60px auto;
+  padding: 32px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.dm-heading {
+  font-size: 1.6rem;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+
+/* FORM LAYOUT — FIXED */
+.dm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dm-field label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.dm-field input,
+.dm-field textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  font-size: 0.95rem;
+}
+
+.dm-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #7b61ff, #9d80ff);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------
+   THREAD VIEW PAGE (messages)
+------------------------------------------------------- */
+.dm-thread-page {
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+.dm-thread-container {
+  width: 750px;
+  background: white;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.dm-thread-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+.dm-messages-box {
+  max-height: 450px;
+  overflow-y: auto;
+  margin-bottom: 25px;
+}
+
+.dm-message-wrapper {
   margin-bottom: 18px;
-  background: #f3f3f3;
+  display: flex;
+  flex-direction: column;
+}
+
+.dm-message-self {
+  align-items: flex-end;
+}
+
+.dm-message-other {
+  align-items: flex-start;
+}
+
+.dm-message-bubble {
   padding: 12px 16px;
   border-radius: 10px;
+  max-width: 75%;
 }
 
-.dm-back-btn {
-  display: inline-block;
-  margin-bottom: 15px;
-  padding: 6px 12px;
-  background: #eaeaea;
-  border-radius: 6px;
-  color: #333;
-  text-decoration: none;
-  font-size: 0.9rem;
+.dm-message-self .dm-message-bubble {
+  background: #a88df7;
+  color: white;
 }
 
-.dm-back-btn:hover {
-  background: #d5d5d5;
+.dm-message-other .dm-message-bubble {
+  background: #f1f1f5;
+}
+
+.dm-message-time {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.dm-form textarea {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.dm-send-btn {
+  padding: 12px 20px;
+  background: #7d5fff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
 }

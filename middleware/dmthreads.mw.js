@@ -1,4 +1,3 @@
-import { validateSchema } from "./validation.mw.js";
 import { threadIdParamSchema } from "../models/dmthreads.js";
 import { renderErrorPage } from "../utils/errorUtils.js";
 import { fetchThreadById } from "../data/dmthreads.js";
@@ -15,7 +14,8 @@ const lastMessageTimestamps = {};
  ****************************************************************************/
 const requireThreadAuthorization = async (req, res, next) => {
     try {
-        await validateSchema([threadIdParamSchema, "params"], req.params);
+        // Validate thread ID format directly with Yup
+        await threadIdParamSchema.validate(req.params, { abortEarly: false });
 
         const threadId = req.params.id;
         const userId = req.session.user._id.toString();

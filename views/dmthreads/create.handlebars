@@ -1,38 +1,43 @@
 <div class="dm-page">
   <div class="dm-container">
 
-    <h2>Start a New Direct Message Thread</h2>
+    <div class="dm-card">
+      <h2 class="dm-heading">Start a New Conversation</h2>
 
-    <form method="POST" action="/dmthreads/create">
+      <form method="POST" action="/dmthreads/create" class="dm-form">
 
-      <div class="field">
-        <label for="recipient">Recipient Username:</label>
-        <input 
-          type="text" 
-          id="recipient" 
-          name="recipient" 
-          required
-          placeholder="please enter the respective username.."
-        >
-      </div>
+        <div class="dm-field">
+          <label for="recipient">Recipient Username</label>
+          <input 
+            type="text" 
+            id="recipient" 
+            name="recipient" 
+            placeholder="e.g. starspangledman"
+            required
+          >
+        </div>
 
-      <div class="field">
-        <label for="message">Initial Message:</label>
-        <textarea 
-          id="message" 
-          name="message" 
-          required 
-          placeholder="Enter message here.."
-        ></textarea>
-      </div>
+        <div class="dm-field">
+          <label for="message">Initial Message</label>
+          <textarea 
+            id="message" 
+            name="message" 
+            rows="4"
+            placeholder="Say something friendly…"
+            required
+          ></textarea>
+        </div>
 
-      {{#if error}}
-        <p class="error">{{error}}</p>
-      {{/if}}
+        {{#if error}}
+          <p class="dm-error">{{error}}</p>
+        {{/if}}
 
-      <button type="submit">Start Thread</button>
+        <button class="dm-submit-btn" type="submit">
+          Start Conversation →
+        </button>
 
-    </form>
+      </form>
+    </div>
 
   </div>
 </div>

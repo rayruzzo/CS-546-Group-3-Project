@@ -16,7 +16,8 @@ import {
 } from "../data/dmthreads.js";
 
 // Users data functions
-import * as userData from "../data/users.js";
+import userData from "../data/users.js"; // Note: getUserByUsername returns { user, success } 
+import { unwrapUser } from "../utils/userUtils.js"; // Destructure util just to get the wiring working correctly
 
 // Error rendering
 import { renderErrorPage } from "../utils/errorUtils.js";
@@ -28,29 +29,51 @@ const router = Router();
  * GET /dmthreads
  * Shows all DM threads for the logged-in user. (Inbox)
  ****************************************************************************/
-router.get(
-    "/", 
-    async (req, res) => {
-        try {
-            const loggedInUser = req.session.user;
-            const userId = loggedInUser._id.toString();
+router.get("/", async (req, res) => {
+    try {
+        const loggedInUser = req.session.user;
+        const userId = loggedInUser._id.toString();
 
-            // Fetch all threads where the user participates
-            const threads = await fetchThreadsForUser(userId);
+        // Fetch all threads where the user participates
+        const threads = await fetchThreadsForUser(userId);
 
-            return res.render("dmthreads/index", {
-                title: "Your Messages",
-                user: loggedInUser,
-                threads
-            });
+        // Attach other participant's username to each thread for the inbox view
+        for (const thread of threads) {
+            const otherUserId = thread.participants.find(id => id !== userId);
 
-        } catch (error) {
-            console.error("Error fetching DM threads:", error);
-            // TODO: Modal page for these types of errors.
-            return renderErrorPage(res, 500, "We couldn't load your messages right now.");
+            if (!otherUserId) {
+                thread.otherUsername = "Unknown User";
+                continue;
+            }
+
+            try {
+                const otherUser = unwrapUser(await userData.getUserById(otherUserId));
+
+                if (!otherUser || !otherUser.profile) {
+                    thread.otherUsername = "Unknown User";
+                    continue;
+                }
+
+                thread.otherUsername = otherUser.profile.username;
+            } catch (e) {
+                console.warn("Could not resolve user in inbox for thread", thread._id?.toString(), e?.message);
+                thread.otherUsername = "Unknown User";
+            }
         }
+
+        return res.render("dmthreads/inbox", {
+            title: "Your Messages",
+            user: loggedInUser,
+            threads,
+            currentUser: userId
+        });
+
+    } catch (error) {
+        console.error("Error fetching DM threads:", error);
+        //TODO: Modal.
+        return renderErrorPage(res, 500, "We couldn't load your messages right now.");
     }
-);
+});
 
 /****************************************************************************
  * GET /dmthreads/thread/:id
@@ -59,25 +82,62 @@ router.get(
  *   - validates the thread ID, fetches the thread
  *   - checks user participation, attaches req.thread
  ****************************************************************************/
-router.get(
-    "/thread/:id",
-    async (req, res) => {
-        try {
-            const loggedInUser = req.session.user;
-            const thread = req.thread;  // already loaded by middleware
+router.get("/thread/:id", async (req, res) => {
+    try {
+        const loggedInUser = req.session.user;
+        const thread = req.thread; // set by dmthreads middleware
 
-            return res.render("dmthreads/thread", {
-                title: "Conversation",
-                thread,
-                currentUserId: loggedInUser._id.toString()
-            });
+        const currentUserId = loggedInUser._id.toString();
+        const otherUserId = thread.participants.find(id => id !== currentUserId);
 
-        } catch (error) {
-            console.error("Error loading DM thread:", error);
-            return renderErrorPage(res, 500, "Unable to load this conversation.");
+        if (!otherUserId) {
+            return renderErrorPage(res, 400, "Invalid thread participants.");
         }
+
+        let chatPartner = "Unknown User";
+
+        try {
+            const otherUser = unwrapUser(await userData.getUserById(otherUserId));
+
+            if (otherUser && otherUser.profile && otherUser.profile.username) {
+                chatPartner = otherUser.profile.username;
+            }
+        } catch (e) {
+            console.warn("Could not resolve chat partner for thread", thread._id?.toString(), e?.message);
+        }
+
+        return res.render("dmthreads/thread", {
+            title: "Conversation",
+            user: loggedInUser,
+            thread,
+            currentUserId,
+            chatPartner
+        });
+
+    } catch (error) {
+        console.error("Error loading DM thread:", error);
+        return renderErrorPage(res, 500, "Unable to load this conversation.");
     }
-);
+});
+
+/****************************************************************************
+ * GET /dmthreads/create
+ * Renders the Start New Conversation form
+ ****************************************************************************/
+router.get("/create", async (req, res) => {
+    try {
+        const loggedInUser = req.session.user;
+
+        return res.render("dmthreads/create", {
+            title: "Start New Conversation",
+            user: loggedInUser
+        });
+
+    } catch (error) {
+        console.error("Error loading create page:", error);
+        return renderErrorPage(res, 500, "Unable to load new conversation page.");
+    }
+});
 
 /****************************************************************************
  * POST /dmthreads/thread/:id/message
@@ -85,39 +145,34 @@ router.get(
  * NOTE: Middleware:
  *   - validates thread ID, loads the thread
  *   - checks participation,enforces rate limit
+ *   - validates message body with Yup
  ****************************************************************************/
 router.post(
     "/thread/:id/message",
+    validateSchema([messageContentSchema, "body"]),
     async (req, res) => {
         try {
             const loggedInUser = req.session.user;
-            const thread = req.thread;  
+            const thread = req.thread;
             const threadId = thread._id.toString();
 
-            // Validate message content with Yup schema
-            await validateSchema([messageContentSchema, "body"], req.body);
             const content = req.body.message.trim();
 
-            // Determine recipient
-            const from = loggedInUser._id.toString(); // Note the from here is just keep a record of whos sending, it wont go through front-end.
-            const to = thread.participants.find(id => id !== from); // two-person dm system, logic is we know the person logged in, so the other is the recipient.
+            const from = loggedInUser._id.toString();
+            const to = thread.participants.find(id => id !== from);
 
             if (!to) {
                 return renderErrorPage(res, 500, "Unable to determine message recipient.");
             }
 
-            // Build message object
             const newMessage = createMessage(from, to, content);
-
-            // Insert message into thread
             await addMessageToThread(threadId, newMessage);
 
-            // Redirect to thread view
             return res.redirect(`/dmthreads/thread/${threadId}`);
 
         } catch (error) {
             console.error("Error sending message:", error);
-            return renderErrorPage(res, 400, error.message || "Unable to send message."); // Simple fallback.
+            return renderErrorPage(res, 400, error.message || "Unable to send message.");
         }
     }
 );
@@ -131,20 +186,21 @@ router.post(
  ****************************************************************************/
 router.post(
     "/create",
+    validateSchema(
+        [recipientUsernameSchema, "body"],
+        [messageContentSchema, "body"]
+    ),                                              
     async (req, res) => {
         try {
             const loggedInUser = req.session.user;
             const senderId = loggedInUser._id.toString();
 
-            // Validate recipient + message using Yup schemas
-            await validateSchema([recipientUsernameSchema, "body"], req.body);
-            await validateSchema([messageContentSchema, "body"], req.body);
-
+            // Body is already validated by validateSchema
             const recipientUsername = req.body.recipient.trim().toLowerCase();
             const initialMessageContent = req.body.message.trim();
 
             // Lookup recipient
-            const recipientUser = await userData.getUserByUsername(recipientUsername);
+            const recipientUser = unwrapUser(await userData.getUserByUsername(recipientUsername));
 
             if (!recipientUser) {
                 return renderErrorPage(res, 404, "Recipient user does not exist.");
@@ -168,7 +224,7 @@ router.post(
 
             // Check if a thread already exists
             const existingThreads = await fetchThreadsForUser(senderId);
-            const existingThread = existingThreads.find(t =>
+            const existingThread = existingThreads.find((t) =>
                 t.participants.includes(recipientId)
             );
 
@@ -180,7 +236,11 @@ router.post(
             const newThread = await createThread(senderId, recipientId);
 
             // Build first message
-            const initialMessage = createMessage(senderId, recipientId, initialMessageContent);
+            const initialMessage = createMessage(
+                senderId,
+                recipientId,
+                initialMessageContent
+            );
 
             // Insert message into thread
             await addMessageToThread(newThread._id.toString(), initialMessage);

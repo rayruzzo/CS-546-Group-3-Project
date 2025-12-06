@@ -15,10 +15,17 @@ const seedUsersAndPosts = async () => {
         const userCount = await usersCollection.countDocuments();
         const postCount = await postsCollection.countDocuments();
         
-        if (userCount > 0 || postCount > 0) {
+       if (!process.env.RESET_SEED && (userCount > 0 || postCount > 0)) {
             console.log(`Database already has ${userCount} users and ${postCount} posts`);
-            console.log('Skipping seed. Delete collections to re-seed.');
+            console.log('Skipping seed. Set RESET_SEED=true to force reseed.');
             return;
+        }
+
+        // Force delete if RESET_SEED=true
+        if (process.env.RESET_SEED) {
+            console.log("RESET_SEED=true → Removing existing data...");
+            await usersCollection.deleteMany({});
+            await postsCollection.deleteMany({});
         }
 
         console.log('Starting user and post seed...');

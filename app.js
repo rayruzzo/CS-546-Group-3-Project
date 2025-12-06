@@ -56,7 +56,8 @@ app.use((req, res, next) => {
 // handlebars
 const handlebarsInstance = exphbs.create({
 	defaultLayout: "main",
-   partialsDir: ['views/partials/']
+   partialsDir: ['views/partials/'],
+   helpers: handlebarsHelpers
    // ...further config
 });
 
@@ -70,9 +71,9 @@ app.use('/posts/delete/:id', postMiddleware.isPostOwnerAction);
 app.use('/posts', postMiddleware.requireAuthentication);
 
 // DM Middleware
-app.use("/dmthreads", dmMiddleware.requireAuthentication);
 app.use("/dmthreads/thread/:id", dmMiddleware.requireThreadAuthorization);
 app.use("/dmthreads/thread/:id/message", dmMiddleware.enforceMessageRateLimit);
+app.use("/dmthreads", dmMiddleware.requireAuthentication);
 
 configRoutes(app);
 

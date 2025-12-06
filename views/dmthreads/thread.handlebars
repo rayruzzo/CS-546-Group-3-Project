@@ -1,47 +1,40 @@
-<div class="dm-page">
-  <div class="dm-container">
-    <a href="/dmthreads" class="dm-back-btn">← Back to Threads</a>
+<div class="dm-thread-page">
+  <div class="dm-thread-container">
 
-    <h2>Conversation</h2>
+    <a href="/dmthreads" class="dm-back-link">← Back to Messages</a>
 
-    <div class="dm-participants">
-      <strong>Participants:</strong> {{thread.participants}}
-    </div>
+    <h2 class="dm-thread-title">
+      Conversation with {{chatPartner}}
+    </h2>
 
-    <hr>
+    <div class="dm-messages-box">
 
-    <div class="dm-layout">
+      {{#each thread.messages}}
+        <div class="dm-message-wrapper 
+          {{#if (eq this.from ../currentUserId)}}dm-message-self{{else}}dm-message-other{{/if}}">
 
-      <div class="dm-messages">
-        <h3>Messages:</h3>
+          <div class="dm-message-bubble">
+            {{this.content}}
+          </div>
 
-        {{#if thread.messages.length}}
-          <ul class="message-list">
-            {{#each thread.messages}}
-              <li class="message-item">
-                <strong>{{this.from}}:</strong> {{this.content}}
-                <div class="timestamp">{{this.timestamp}}</div>
-              </li>
-            {{/each}}
-          </ul>
-        {{else}}
-          <p>No messages yet.</p>
-        {{/if}}
-      </div>
+          <div class="dm-message-time">
+            {{formatDate this.timestamp}}
+          </div>
 
-      <div class="dm-form">
-        <h3>Send a message</h3>
-        <form method="POST" action="/dmthreads/{{thread._id}}/message" class="dm-form">
-
-        <div class="field">
-        <label for="content">Message:</label>
-        <textarea id="content" name="content" rows="3" required></textarea>
         </div>
-
-        <button type="submit">Send</button>
-        </form>
-      </div>
+      {{/each}}
 
     </div>
+
+    <form method="POST" action="/dmthreads/thread/{{thread._id}}/message" class="dm-form">
+      <textarea 
+        name="message"
+        class="dm-input"
+        placeholder="Type your message..."
+        required></textarea>
+
+      <button type="submit" class="dm-send-btn">Send</button>
+    </form>
+
   </div>
 </div>
