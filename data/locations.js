@@ -48,8 +48,6 @@ const locationFunctions = {
          });
       }
 
-      console.log("NEW LOCATION CREATED");
-
       return { location: newLocationData, success: true };
     },
 
