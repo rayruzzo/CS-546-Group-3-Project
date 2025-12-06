@@ -85,19 +85,17 @@
     </div>
 
     {{#if posts.length}}
-        <ul id="posts-container">
+        <div id="posts-container">
         {{#each posts}}
-            <li>
-                <article class="post-item">
-                <h3>{{this.title}}</h3>
-                <p class="post-meta">{{this.category}} • {{this.type}} • {{this.city}}, {{this.state}}</p>
-                <p class="posted-by">Posted by {{this.username}} on {{this.datePosted}}</p>
-                <p class="post-preview">{{this.content}}</p>
-                <a href="/posts/{{this._id}}">Read more</a>
-                </article>
-            </li>
+            <article class="post-item">
+            <h3>{{this.title}}</h3>
+            <p class="post-meta">{{this.category}} • {{this.type}} • {{this.city}}, {{this.state}}</p>
+            <p class="posted-by">Posted by {{this.username}} on {{this.datePosted}}</p>
+            <p class="post-preview">{{this.content}}</p>
+            <a href="/posts/{{this._id}}">Read more</a>
+            </article>
         {{/each}}
-        </ul>
+        </div>
         <div class="load-more-container">
             <button id="load-more-btn" class="load-more-btn">Load More Posts</button>
             <p id="loading-message" style="display: none;">Loading...</p>
