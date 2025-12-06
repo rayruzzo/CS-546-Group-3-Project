@@ -1,6 +1,7 @@
 import Router from 'express';
 import loadPosts from '../scripts/loadPosts.js';
 import { postTypes, postCategories, priorityValues } from '../models/posts.js';
+import { renderErrorPage } from '../utils/errorUtils.js';
 
 const router = Router();
 
@@ -42,13 +43,7 @@ router.get('/', async (req, res) => {
             priorityValues: priorities
         });
     } catch (error) {
-        console.error('Error loading home page:', error);
-        res.status(500).render('home', {
-            title: 'Home',
-            user: req.session.user || null,
-            posts: [],
-            error: 'Failed to load posts'
-        });
+        renderErrorPage(res, 500, error.toString());
     }
 });
 

@@ -2,6 +2,7 @@ import Router from 'express';
 import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
 import postMiddleware from '../middleware/posts.mw.js';
+import { renderErrorPage } from '../utils/errorUtils.js';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ router.get('/filter', async (req, res) => {
         res.json({ posts: filteredPosts });
     } catch (error) {
         console.error('Error filtering posts:', error);
-        res.status(500).json({ error: error.message || 'Failed to filter posts' });
+        renderErrorPage(res, 500, error.message || 'Failed to filter posts');
     }
 });
 
@@ -21,7 +22,7 @@ router.get('/create', async (req, res) => {
     try {
         res.render('createPost');
     } catch (error) {
-        res.status(500).json({ error: error.toString() });
+        renderErrorPage(res, 500, error.toString());
     }
 });
 
@@ -38,7 +39,7 @@ router.post('/create', async (req, res) => {
         const { post } = await postData.createPost(title, userId, content, type, category, commentsEnabled, tagsArray, priorityNum, expiresAtDate);
         res.redirect(`/posts/${post._id}`);
     } catch (error) {
-        res.status(400).render('createPost', { error: error.message });
+        renderErrorPage(res, 400, error.message);
     }
 });
 
@@ -48,7 +49,7 @@ router.get('/update/:id', async (req, res) => {
         const { post } = await postData.getPostById(req.params.id);
         res.render('updatePost', { post: post });
     } catch (error) {
-        res.status(404).json({ error: error.toString() });
+        renderErrorPage(res, 404, error.toString());
     }
 });
 
@@ -80,7 +81,7 @@ router.post('/update/:id', async (req, res) => {
         await postData.updatePost(req.params.id, updatedPostData);
         res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
-        res.status(400).render('updatePost', { post: await postData.getPostById(req.params.id).then(p => p.post), error: error.message });
+        renderErrorPage(res, 400, error.message);
     }
 });
 
@@ -89,7 +90,7 @@ router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
     try {
         res.render('post', { post: req.post });
     } catch (error) {
-        res.status(404).json({ error: error.toString() });
+        renderErrorPage(res, 404, error.toString());
     }
 });
 
@@ -99,7 +100,7 @@ router.delete('/:id', async (req, res) => {
         const deletedPost = await postData.deletePost(req.params.id);
         return res.render('/');
     } catch (error) {
-        res.status(404).json({ error: error.toString() });
+        renderErrorPage(res, 404, error.toString());
     }
 });
 
