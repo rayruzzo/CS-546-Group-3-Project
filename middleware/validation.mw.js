@@ -1,4 +1,5 @@
 import { Schema } from "yup";
+import { renderErrorPage } from "../utils/errorUtils.js";
 
 /** 
  * @import { MixedSchema, ArraySchema, DateSchema, NumberSchema, ObjectSchema, StringSchema, TupleSchema } from "yup"
@@ -99,7 +100,12 @@ export function validateSchema(...schemaTuples) {
    
             // send correct error to client
             console.error(e);
-            return res.status(400).json(e);
+
+            // TODO: get back to this to make sure this is fine
+            if (requestProperty === "params")
+               return renderErrorPage(res, 400, e.message);
+            else
+               return res.status(400).json(e);
          }
       }
 
