@@ -1,0 +1,22 @@
+<div class="error-container">
+   {{!-- 'colorful-blur-ring' must be a direct child of a sized element --}}
+   <div class="colorful-blur-ring"></div> 
+   <div class="error-contents">
+      <p class="error-code">
+         {{status.code}}
+      </p>
+      <h1>{{status.message}}</h1>
+      <h2>{{status.description}}</h2>
+
+      {{#with errorMessage}}
+      <p class="error-message-extended">
+         {{this}}
+      </p>
+      {{/with}}
+      
+      <div>
+         <a class="link-medium" href="/">Go Home</a>
+      </div>
+
+   </div>
+</div>
