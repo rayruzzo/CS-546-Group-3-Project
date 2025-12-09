@@ -2,7 +2,6 @@ import 'dotenv/config';
 import db from '../config/mongoCollections.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
-import locationData from '../data/locations.js';
 import { userSchema } from '../models/users.js';
 import { postSchema } from '../models/posts.js';
 
@@ -186,7 +185,7 @@ const seedUsersAndPosts = async () => {
                     console.error('  Full error:', error);
                 }  
             })  
-        )  
+        );
 
         console.log(`\nCreated ${createdUsers.length} users`);
 
