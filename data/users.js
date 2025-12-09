@@ -26,6 +26,21 @@ const User = Object.freeze(class User {
    static #targetHashTimeSeconds = 3;  // hash time will at least be this value
    static #optimalSaltRounds;
 
+   // additional config
+   static #avatarMaxOriginalSizeMB = 30;
+   static #avatarMaxResizedSizeMB  = 0.3;
+   static #avatarAllowedMIMETypes  = new Map([
+      ["image/apng",    "PNG"], 
+      ["image/avif",    "AVIF"], 
+      ["image/gif",     "GIF"], 
+      ["image/jpeg",    "JPG"], 
+      ["image/png",     "PNG"], 
+      ["image/svg+xml", "SVG"], 
+      ["image/webp",    "WEBP"]
+   ]);
+   static #avatarAllowedTypesStr         = ""; // created at runtime
+   static #avatarAllowedTypesFriendlyStr = ""; // created at runtime
+
    // default props for each user instance
    _id;         // note: `insertOne()` actually mutates this class instance and adds `_id`
    email;
@@ -88,6 +103,28 @@ const User = Object.freeze(class User {
       return User.#optimalSaltRounds;
    }
 
+   static getAvatarMaxOriginalSizeMB() {
+      return User.#avatarMaxOriginalSizeMB;
+   }
+
+   static getAvatarMaxResizedSizeMB() {
+      return User.#avatarMaxResizedSizeMB;
+   }
+
+   static getAvatarAllowedMIMETypes() {
+      // luckily our Map is shallow, so this creates
+      // a fresh copy, to help against modification
+      return new Map(User.#avatarAllowedMIMETypes);
+   }
+
+   static getAvatarAllowedTypesStr() {
+      return User.#avatarAllowedTypesStr;
+   }
+
+   static getAvatarAllowedTypesFriendlyStr() {
+      return User.#avatarAllowedTypesFriendlyStr;
+   }
+
 
    // ############## //
    // PRIVATE STATIC //
@@ -121,6 +158,21 @@ const User = Object.freeze(class User {
 
    static #setOptimalSaltRounds(optimalSaltRounds) {
       User.#optimalSaltRounds = optimalSaltRounds;
+      return;
+   }
+
+   // for caching human or machine-readable allowed `avatar` MIME types at runtime
+   static #setAvatarAllowedTypesStrings() {
+      const strArr = [];
+      const friendlyStrArr = [];
+
+      User.#avatarAllowedMIMETypes.forEach((value, key) => {
+         strArr.push(key);
+         friendlyStrArr.push(value);
+      });
+
+      User.#avatarAllowedTypesStr = strArr.toString();
+      User.#avatarAllowedTypesFriendlyStr = friendlyStrArr.join(", ");
       return;
    }
 
@@ -216,8 +268,12 @@ const User = Object.freeze(class User {
          { unique: true, name: "uniqueUsername"}
       )
       console.log("Index created:", uniqueUsernameIndex);
+      console.log("------------------------------------------");
+
+      User.#setAvatarAllowedTypesStrings();
+      console.log(`Supported avatar image types:\n${User.#avatarAllowedTypesStr}`);
+
       console.log("------------------------------------------\n")
-      
       return;
    }
 })
@@ -236,6 +292,11 @@ const userFunctions = Object.freeze({
       return {
          init:                       User.init,
          roles:                      User.roles,
+         getAvatarMaxOriginalSizeMB:       User.getAvatarMaxOriginalSizeMB,
+         getAvatarMaxResizedSizeMB:        User.getAvatarMaxResizedSizeMB,
+         getAvatarAllowedMIMETypes:        User.getAvatarAllowedMIMETypes,
+         getAvatarAllowedTypesStr:         User.getAvatarAllowedTypesStr,
+         getAvatarAllowedTypesFriendlyStr: User.getAvatarAllowedTypesFriendlyStr,
          getTotalUserCount:          User.getTotalUserCount,
          getTotalBannedUserCount:    User.getTotalBannedUserCount,
          getTotalLegitUserCount:     User.getTotalLegitUserCount,
@@ -386,7 +447,7 @@ const userFunctions = Object.freeze({
       const nullableKeys = {
          firstName:      true,
          lastName:       true,
-         profilePicture: true,
+         avatar:         true,
          bio:            true,
       }
 
