@@ -48,7 +48,6 @@ const checkAndSeedLocations = async () => {
                 locations.push({
                     zipcode: row['postal code'],
                     city: row['place name'],
-                    state: row['admin name1'],
                     state_code: row['admin code1'],
                     latitude: parseFloat(row['latitude']),
                     longitude: parseFloat(row['longitude']),

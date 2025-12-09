@@ -29,7 +29,7 @@ const isPostOwnerDisplay = async (req, res, next) => {
 
 const requireAuthentication = (req, res, next) => {
     if (!req.session.user) {
-        return res.status(401).redirect('/login', { error: 'You must be logged in to access this resource' });
+        return res.status(401).render('/login', { error: 'You must be logged in to access this resource' });
     }
     next();
 }

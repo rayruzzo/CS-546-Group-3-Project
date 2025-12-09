@@ -1,4 +1,3 @@
-import { create } from 'express-handlebars';
 import db from '../config/mongoCollections.js';
 import { locationSchema, zipcodeSchema } from '../models/locations.js';
 

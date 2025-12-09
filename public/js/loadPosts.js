@@ -7,7 +7,7 @@
 
     if (!filterForm) return;
 
-    let currentSkip = 20; // Start after initial 20 posts loaded by server
+    let currentSkip = 10; // Start after initial 10 posts loaded by server
     const limit = 10; // Load 10 more posts at a time
 
     // Get all filter elements
@@ -124,7 +124,6 @@
 
     function appendPosts(posts) {
         const postsHTML = posts.map(post => `
-            <li>
                 <article class="post-item">
                 <h3>${DOMPurify.sanitize(post.title)}</h3>
                 <p class="post-meta">${DOMPurify.sanitize(post.category)} • ${DOMPurify.sanitize(post.type)} • ${DOMPurify.sanitize(post.city)}, ${DOMPurify.sanitize(post.state)}</p>
@@ -132,7 +131,6 @@
                 <p class="post-preview">${DOMPurify.sanitize(post.content)}</p>
                 <a href="/posts/${post._id}">Read more</a>
                 </article>
-            </li>
         `).join('');
         
         postsContainer.insertAdjacentHTML('beforeend', postsHTML);
@@ -174,7 +172,7 @@
                 `).join('');
                 
                 postsListContainer.innerHTML = `
-                    <ul id="posts-container">${postsHTML}</ul>
+                    <div id="posts-container">${postsHTML}</div>
                     <div class="load-more-container">
                         <button id="load-more-btn" class="load-more-btn">Load More Posts</button>
                         <p id="loading-message" style="display: none;">Loading...</p>
