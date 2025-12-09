@@ -31,8 +31,8 @@ app.use((req, res, next) => {
 
 // setup middleware
 app.use('/public', express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.json({limit: "300kb"}));
+app.use(express.urlencoded({limit: "300kb", extended: true}));
 
 // handlebars
 const handlebarsInstance = exphbs.create({
