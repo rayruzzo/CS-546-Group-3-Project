@@ -78,3 +78,49 @@
     font-size: 14px;
     text-align: center;
 }
+/* --- NEW RULES FOR SIGN UP SECTION --- */
+
+.signup-prompt {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.signup-button {
+    display: block;
+    width: 95%;
+    
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+
+    background: transparent;
+    color: #4a90e2;
+    border: 2px solid #4a90e2;
+}
+
+.signup-button:hover {
+    background: rgba(74, 144, 226, 0.1);
+    color: #357ABD;
+    border-color: #357ABD;
+}
+
+/* Success Toast Styling */
+.success-toast {
+    background: #e6ffec; /* Light green background */
+    color: #008000;      /* Dark green text */
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #b5f5c5;
+    margin-bottom: 16px;
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+}

@@ -7,8 +7,15 @@ const {users} = db;
 const router = Router();
 
 router.get('/', (req, res) => {
-    return res.render('login/login', {
-        title: "Login"
+   let successMessage = null;
+    
+    // Check if the success query parameter is present
+    if (req.query.signup_success === 'true') {
+        successMessage = "Registration successful! Please log in now.";
+    }
+    res.render("login/login", {
+        title: "Login",
+        success: successMessage // Pass the message to the Handlebars context
     });
 });
 

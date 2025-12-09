@@ -1,6 +1,10 @@
 <div class="login-container">
     <link rel="stylesheet" href="/public/css/login.css">
     <h1>Sign In</h1>
+    
+    {{#if success}}
+    <p class="success-toast">{{success}}</p>
+    {{/if}}
 
     {{#if error}}
     <p class="error">{{error}}</p>
@@ -15,4 +19,6 @@
 
         <button type="submit">Login</button>
     </form>
-</div>
+     <p class="signup-prompt">Don't have an account?</p>
+    <a href="/signup" class="signup-button">Sign Up</a>
+   </div>
