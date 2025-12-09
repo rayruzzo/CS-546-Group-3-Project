@@ -84,7 +84,7 @@ const parseFilterParams = (req, res, next) => {
         distance: distance,
         category: category,
         type: type,
-        tags: tags ? tags.split(',') : undefined,
+        tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t.length > 0) : undefined,
         priority: priority,
         expiring: expiring,
         sortBy: sortBy,

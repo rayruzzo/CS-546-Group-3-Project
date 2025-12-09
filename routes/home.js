@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
         
         const priorities = Object.entries(priorityValues).map(([key, value]) => ({
             value: value,
-            label: key.charAt(0) + key.slice(1).toLowerCase()
+            label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()
         }));
         
         res.render('home', { 

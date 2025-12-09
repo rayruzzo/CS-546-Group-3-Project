@@ -126,7 +126,7 @@ const postFunctions = {
         if (updateInfo.modifiedCount === 0) {
             throw new Error("Could not update post successfully", { cause: { postId: "Post update failed" } });
         }
-        return { post: this.getPostById(postId), success: true };
+        return { post: await this.getPostById(postId), success: true };
     },
 
     async deletePost(postId) {
