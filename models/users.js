@@ -59,19 +59,22 @@ export const passwordSchema = yup
    .label("Password");
 
 
+export const usernameBaseSchema = yup
+   .string()
+   .min(4)
+   .max(50)
+   .matches(
+      /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/gm,
+      ({label}) => `${label} must be 4 to 50 basic latin characters composed of letters, numbers, or non-consecutive dashes, but no dashes at the beginning or end`
+   )
+   .label("Username");
+
+
 export const usernameSchema = yup
    .string()
    .requiredIfNotLoggedIn("Username")
    .sequence([
-      () => yup.string()
-               .min(4)
-               .max(50)
-               .matches(
-                  /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/gm,
-                  ({ label }) => `${label} must be 4 to 50 basic latin characters composed of letters, numbers, or non-consecutive dashes, but no dashes at the beginning or end`
-               )
-               .label("Username"),
-
+      () => usernameBaseSchema,
       () => yup.string().lowercase().trim(),
       () => yup.string().uniqueUsername(null, users),
    ]);
@@ -162,6 +165,18 @@ export const settingsSchema = yup.object({
 export const getResourceByIdSchema = (label) => yup.object({
    id: objectIdSchema.label(label || "id")
 });
+
+/**
+ * Validates a `username` URL param on the surface to not make unnecessary requests to MongoDB.
+ * 
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const usernameParamSchema = yup.object()
+   .test("usernameShape", 
+      ({value}) => `User with username ${value?.username || null} is invalid`, 
+      async (value) => usernameBaseSchema.isValid(value?.username)
+   );
+
 
 
 // ***************** //

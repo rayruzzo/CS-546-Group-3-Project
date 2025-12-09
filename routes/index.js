@@ -1,6 +1,7 @@
 import {default as postRouter} from './posts.js'
 import {default as userRouter} from './users.js'
 import {default as homeRouter} from './home.js'
+import { renderErrorPage } from '../utils/errorUtils.js';
 import {default as loginRoutes} from './login.js'
 import {default as signupRoutes} from './signup.js'
 
@@ -12,7 +13,7 @@ const configRoutes = (app) => {
     app.use('/signup',signupRoutes);
 
     app.use((req, res) => {
-    return res.status(404).json({error: 'Route Not found'});
+      return renderErrorPage(res, 404, null);
   });
 };
 
