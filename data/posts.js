@@ -49,12 +49,6 @@ const postFunctions = {
         // Get user's zipcode from database
         const userResult = await userFunctions.getUserById(userId);
         const user = userResult.user;
-        
-        if (!user || !user.zipcode) {
-            throw new Error("User zipcode not found", {
-                cause: { userId: "Cannot create post without user zipcode" }
-            });
-        }
 
         const newPostData = new Post({
             title,
@@ -84,14 +78,10 @@ const postFunctions = {
         
         const postCollection = await posts();
         const insertInfo = await postCollection.insertOne(validatedPost);
-        if (!insertInfo.insertedId)
-        errors.creationError = "Could not create a new post";
-
-        if (Object.keys(errors).length > 0) {
-        throw new Error("Error creating post", {
-            cause: {errors: errors}
-        });
+        if (!insertInfo.acknowledged) {
+            errors.creationError = "Could not create a new post";
         }
+
 
         console.log("NEW POST CREATED");
 
@@ -152,9 +142,6 @@ const postFunctions = {
         const radiusMeters = radiusMiles * 1609.34;
         const postCollection = await posts();
         
-        if (!location || !location.loc) {
-            throw new Error("Location data not found for the given zipcode");
-        }
         
         const postsList = await postCollection
             .find({
