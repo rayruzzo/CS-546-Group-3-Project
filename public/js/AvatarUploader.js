@@ -241,9 +241,11 @@ export class AvatarUploader {
    }
 
    /**
+    * A handler for when after an image has been resized for the first time and its contents
+    * have been read. This sets the `src` of the avatar preview to the newly resized image.
     * 
-    * @param {*} event 
-    * @returns 
+    * @param {ProgressEvent} event - An event from a `FileReader`, etc.
+    * @returns {void}
     */
    handleImgResizedUpdate(event) {
 
