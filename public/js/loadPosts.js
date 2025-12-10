@@ -31,6 +31,7 @@
         e.preventDefault();
         currentSkip = 0; // Reset skip when filtering
         await loadFilteredPosts(true);
+        updateBrowserURL();
     });
 
     // Add change listeners to all filters that exist
@@ -39,6 +40,7 @@
             filter.addEventListener('change', async () => {
                 currentSkip = 0; // Reset skip when filtering
                 await loadFilteredPosts(true);
+                updateBrowserURL();
             });
         }
     });
@@ -128,6 +130,12 @@
         }
 
         return params;
+    }
+
+    function updateBrowserURL() {
+        const params = buildQueryParams();
+        const newURL = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+        window.history.pushState({ filters: Object.fromEntries(params) }, '', newURL);
     }
 
     function appendPosts(posts) {
