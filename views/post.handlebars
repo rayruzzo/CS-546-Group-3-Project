@@ -17,6 +17,9 @@
         <span class="date">
             <time datetime="{{post.createdAt}}">{{post.datePosted}}</time>
         </span>
+        {{#if (eq post.fulfilledState "fulfilled")}}
+            <span class="status fulfilled">✅ Fulfilled</span>
+        {{/if}}
     </div>
 
     <div class="post-details">

@@ -360,6 +360,22 @@ const postFunctions = {
         }
         
         return enrichedPosts;
+    },
+
+    async markPostAsFulfilled(postId) {
+        if (!postId) throw new Error("Post ID must be provided", { cause: { postId: "Post ID not provided" } });
+
+        const postCollection = await posts();
+        const updateInfo = await postCollection.updateOne(
+            { _id: ObjectId.createFromHexString(postId) },
+            { $set: { fulfilledState: 'fulfilled', updatedAt: new Date() } }
+        );
+
+        if (updateInfo.matchedCount === 0) { throw new Error("Post not found", { cause: { postId: "No post found with the provided ID" } }); }
+        if (updateInfo.modifiedCount === 0) {
+            throw new Error("Could not mark post as fulfilled", { cause: { postId: "Post update failed" } });
+        }
+        return { postId: postId, fulfilled: true, success: true };
     }
 
 };
