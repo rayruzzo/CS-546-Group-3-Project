@@ -2,6 +2,7 @@ import Router from 'express';
 import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
 import { renderErrorPage } from '../utils/errorUtils.js';
+import { isPostOwnerDisplay } from '../middleware/posts.mw.js';
 
 const router = Router();
 
@@ -77,16 +78,16 @@ router.post('/edit/:id', async (req, res) => {
 });
 
 // GET /posts/:id - View a single post
-router.get('/:id', async (req, res) => {
+router.get('/:id', isPostOwnerDisplay, async (req, res) => {
     try {
-        res.render('post', { post: req.post });
+        res.render('post', { post: req.post});
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
 });
 
 // DELETE /posts/:id - Delete a post
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
     try {
         await postData.deletePost(req.params.id);
         return res.status(200).json({ success: true, message: 'Post deleted' });  

@@ -63,8 +63,8 @@ app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
 
 app.use('/posts/filter', postMiddleware.parseFilterParams);
-app.use('/posts/edit/:id', postMiddleware.isPostOwner);
-app.use('/posts/:id', postMiddleware.isPostOwner);
+app.use('/posts/edit/:id', postMiddleware.isPostOwnerAction);
+app.use('/posts/delete/:id', postMiddleware.isPostOwnerAction);
 app.use('/posts', postMiddleware.requireAuthentication);
 
 configRoutes(app);

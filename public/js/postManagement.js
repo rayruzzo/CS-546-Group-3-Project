@@ -13,7 +13,7 @@
             if (!confirm('Are you sure you want to delete this post?')) return;
 
             try {
-                const response = await fetch(`/posts/${postId}`, {
+                const response = await fetch(`/posts/delete/${postId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
