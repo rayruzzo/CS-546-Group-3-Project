@@ -125,7 +125,7 @@ export const profileSchema = yup.object({
          .trim()
          .label("Bio"),
 
-   profilePicture:         // OPTIONAL
+   avatar:         // OPTIONAL
       yup.string()
          .url()
          .nullable()

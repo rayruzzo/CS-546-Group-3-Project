@@ -48,7 +48,6 @@ const checkAndSeedLocations = async () => {
                 locations.push({
                     zipcode: row['postal code'],
                     city: row['place name'],
-                    state: row['admin name1'],
                     state_code: row['admin code1'],
                     latitude: parseFloat(row['latitude']),
                     longitude: parseFloat(row['longitude']),
@@ -62,10 +61,9 @@ const checkAndSeedLocations = async () => {
 
         for (const location of locations) {
             try {
-                await locationData.create_location(
+                await locationData.createLocation(
                     location.zipcode,
                     location.city,
-                    location.state,
                     location.state_code,
                     location.latitude,
                     location.longitude

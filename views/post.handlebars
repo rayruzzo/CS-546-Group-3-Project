@@ -1,12 +1,56 @@
-<article>
+<article id="{{post._id}}">
     <h1>{{post.title}}</h1>
-    <div class="author">{{user.username}}</div>
-    <div class="date">  
-        <time datetime="{{post.date}}">{{post.date}}</time>  
-    </div> 
+
+    {{#if isPostOwner}}
+    <div class="post-actions">
+        <a href="/posts/edit/{{post._id}}" class="button-primary">Update Post</a>
+        <button class="button-danger">Delete Post</button>
+        {{#if (eq post.fulfilledState "open")}}
+            <button id="fulfill-post-btn" class="button-secondary">Mark as Fulfilled</button>
+        {{/if}}
+    </div>
+{{/if}}
+    
+    <div class="post-meta">
+        <span class="author">Posted by <strong>{{post.username}}</strong></span>
+        <span class="location">📍 {{post.city}}, {{post.state}}</span>
+        <span class="date">
+            <time datetime="{{post.createdAt}}">{{post.datePosted}}</time>
+        </span>
+        {{#if (eq post.fulfilledState "fulfilled")}}
+            <span class="status fulfilled">✅ Fulfilled</span>
+        {{/if}}
+    </div>
+
+    <div class="post-details">
+        <span class="type {{post.type}}">{{post.type}}</span>
+        <span class="category">{{post.category}}</span>
+        <span class="priority priority-{{post.priority}}">
+            {{#if (eq post.priority 4)}}🔴 Urgent
+            {{else if (eq post.priority 3)}}🟠 High Priority
+            {{else if (eq post.priority 2)}}🟡 Normal
+            {{else}}🟢 Low Priority
+            {{/if}}
+        </span>
+        {{#if post.expiresAt}}
+        <span class="expiration">
+            Expires: <time datetime="{{post.expiresAt}}">{{formatDate post.expiresAt}}</time>
+        </span>
+        {{/if}}
+        {{#if post.tags}}
+        <div class="tags">
+            {{#each post.tags}}
+            <span class="tag">{{this}}</span>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
+
     <div class="content">{{post.content}}</div>
 
-    <div class="comments">
-        <!-- Comments will be displayed here -->
-    </div>
+    {{#if post.commentsEnabled}}
+<!-- Comments Section Placeholder -->
+    {{/if}}
 </article>
+
+<script src="/public/js/postManagement.js"></script>

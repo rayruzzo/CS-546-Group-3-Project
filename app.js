@@ -5,11 +5,16 @@ import session from 'express-session';
 import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
 import checkAndSeedLocations from './scripts/checkAndSeed.js';
+import seedUsersAndPosts from './scripts/seedUsersAndPosts.js';
+import postMiddleware from './middleware/posts.mw.js';
+import handlebarsHelpers from './middleware/handlebarsHelpers.js';
+import { postCategories, postTypes, priorityValues } from './models/posts.js';
 
 const app = express();
 
-// Check and seed locations if needed (runs once on startup)
+// Check and seed database
 await checkAndSeedLocations();
+await seedUsersAndPosts();
 
 const { PORT } = process.env;
 
@@ -20,11 +25,16 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-
-// Middleware to set mock user data in session
+// TODO: Remove this mock middleware once you have proper authentication
+// This is only for testing purposes - in production, users must login
 app.use((req, res, next) => {
   if (!req.session.user) {
-    req.session.user = { zipCode: "07030" }; // setting as a test user with a zip code
+    req.session.user = { 
+      _id: "6931f64c7c05d6abb9507104", // testing kamala's login
+      zipcode: "07030",
+      email: "kamala.khan@gmail.com",
+      username: "msmarvel-jc"
+    }; 
   }
   next();
 });
@@ -34,16 +44,27 @@ app.use('/public', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+// Set local variables available to all templates
+app.use((req, res, next) => {
+  res.locals.postCategories = Object.values(postCategories);
+  res.locals.postTypes = Object.values(postTypes);
+  res.locals.priorityValues = priorityValues;
+  next();
+});
+
 // handlebars
 const handlebarsInstance = exphbs.create({
 	defaultLayout: "main",
+	helpers: handlebarsHelpers,
    partialsDir: ['views/partials/']
    // ...further config
 });
 app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
 
-// config routes
+app.use('/posts/filter', postMiddleware.parseFilterParams);
+app.use('/posts', postMiddleware.requireAuthentication);
+
 configRoutes(app);
 
 const server = app.listen(PORT);
