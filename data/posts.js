@@ -83,6 +83,7 @@ const postFunctions = {
         }
 
 
+
         console.log("NEW POST CREATED");
 
         return { post: newPostData, success: true };

@@ -152,13 +152,13 @@
         postsContainer.insertAdjacentHTML('beforeend', postsHTML);
     }
 
-    async function loadFilteredPosts(replaceAll = false) {
+    async function loadFilteredPosts() {
         try {
             const postsListContainer = document.querySelector('#posts-container');
             postsListContainer.innerHTML = '<p>Loading posts...</p>';
 
             const params = buildQueryParams();
-            params.append('limit', 20);
+            params.append('limit', 10);
 
             const response = await fetch(`/posts/filter?${params.toString()}`, {
                 method: 'GET',
@@ -187,7 +187,7 @@
                 
                 postsListContainer.innerHTML = postsHTML;
 
-                currentSkip = 10;
+                currentSkip = data.posts.length;
                 
             } else {
                 postsListContainer.innerHTML = '<p>No posts available in your area at the moment. Please check back later!</p>';
