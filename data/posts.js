@@ -43,6 +43,34 @@ const Post = Object.freeze(class Post {
 });
 
 const postFunctions = {
+    // Helper function to check and update expired posts
+    async checkAndUpdateExpiredPost(post) {
+        // Set default fulfilledState if missing
+        if (!post.fulfilledState) {
+            const postCollection = await posts();
+            await postCollection.updateOne(
+                { _id: post._id },
+                { $set: { fulfilledState: 'open' } }
+            );
+            post.fulfilledState = 'open';
+        }
+        
+        // Check if post has expired
+        if (post.expiresAt && post.fulfilledState === 'open') {
+            const now = new Date();
+            if (new Date(post.expiresAt) < now) {
+                // Post has expired, update it
+                const postCollection = await posts();
+                await postCollection.updateOne(
+                    { _id: post._id },
+                    { $set: { fulfilledState: 'expired' } }
+                );
+                post.fulfilledState = 'expired';
+            }
+        }
+        return post;
+    },
+
     async createPost(title, userId, content, type, category, commentsEnabled, tags, priority, expiresAt) {
         const errors = {};
 
@@ -73,6 +101,7 @@ const postFunctions = {
         // Add location data to post
         newPostData.zipcode = user.zipcode;
         newPostData.loc = location.loc;
+        newPostData.fulfilledState = 'open';
 
         const validatedPost = await postSchema.validate(newPostData);
         
@@ -93,8 +122,11 @@ const postFunctions = {
         if (!id) throw new Error("Post ID must be provided", { cause: { id: "Post ID not provided" } });
         
         const postCollection = await posts();
-        const post = await postCollection.findOne({ _id: ObjectId.createFromHexString(id) });
+        let post = await postCollection.findOne({ _id: ObjectId.createFromHexString(id) });
         if (!post) throw new Error("Post not found", { cause: { id: "No post found with the provided ID" } });
+
+        // Check and update if expired
+        post = await this.checkAndUpdateExpiredPost(post);
 
         const enrichedPost = await this.enrichPostWithUserAndLocation(post);
 
@@ -284,6 +316,9 @@ const postFunctions = {
 
     async enrichPostWithUserAndLocation(post) {
         try {
+            // Check and update if expired
+            post = await this.checkAndUpdateExpiredPost(post);
+
             // Get user info for the post's userId
             const userResult = await userFunctions.getUserById(post.userId);
             const user = userResult.user;

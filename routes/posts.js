@@ -2,7 +2,7 @@ import Router from 'express';
 import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
 import { renderErrorPage } from '../utils/errorUtils.js';
-import { isPostOwnerDisplay } from '../middleware/posts.mw.js';
+import postMiddleware from '../middleware/posts.mw.js';
 
 const router = Router();
 
@@ -40,20 +40,19 @@ router.post('/create', async (req, res) => {
 });
 
 // GET /posts/edit/:id - Show edit post page
-router.get('/edit/:id', async (req, res) => {
+router.get('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
-        const { post } = await postData.getPostById(req.params.id);
-        res.render('editPost', { post: post });
+        res.render('editPost', { post: req.post });
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
 });
 
 // POST /posts/edit/:id - edit post and redirect to it
-router.post('/edit/:id', async (req, res) => {
+router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
         const { title, content, type, category, commentsEnabled, tags, priority, expiresAt } = req.body;
-        const { post } = await postData.getPostById(req.params.id);
+        const post = req.post;
         
         const editedPostData = {
             title,
@@ -78,7 +77,7 @@ router.post('/edit/:id', async (req, res) => {
 });
 
 // GET /posts/:id - View a single post
-router.get('/:id', isPostOwnerDisplay, async (req, res) => {
+router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
     try {
         res.render('post', { post: req.post});
     } catch (error) {
@@ -87,7 +86,7 @@ router.get('/:id', isPostOwnerDisplay, async (req, res) => {
 });
 
 // DELETE /posts/:id - Delete a post
-router.delete('/delete/:id', async (req, res) => {
+router.post('/delete/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
         await postData.deletePost(req.params.id);
         return res.status(200).json({ success: true, message: 'Post deleted' });  
@@ -96,7 +95,7 @@ router.delete('/delete/:id', async (req, res) => {
     }
 });
 
-router.post('/fulfill/:id', async (req, res) => {
+router.post('/fulfill/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
         await postData.markPostAsFulfilled(req.params.id);
         return res.status(200).json({ success: true, message: 'Post marked as fulfilled' });

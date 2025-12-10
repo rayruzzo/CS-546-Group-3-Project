@@ -30,6 +30,18 @@ export const priorityValues = {
     URGENT: 4
 }
 
+export const fulfilledStateValues = {
+    OPEN: "open",
+    EXPIRED: "expired",
+    FULFILLED: "fulfilled"
+}
+
+export const fillfilledStateSchema = yup
+  .string()
+  .trim()
+  .oneOf(Object.values(fulfilledStateValues), "Invalid fulfilled state")
+  .required("Fulfilled state is required");
+
 export const titleSchema = yup
   .string()
   .trim()
@@ -67,7 +79,7 @@ export const commentsEnabledSchema = yup
   .required("Comments enabled flag is required");
 
 export const tagsSchema = yup
-  .mixed()
+  .array()
   .transform((value) => {
     if (typeof value === 'string') {
       return value.trim() === '' ? [] : value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
@@ -75,7 +87,6 @@ export const tagsSchema = yup
     if (Array.isArray(value)) return value;
     return [];
   })
-  .test('is-array', 'Tags must be an array', (value) => Array.isArray(value))
   .of(
     yup
       .string()
@@ -132,6 +143,7 @@ export const postSchema = yup.object().shape({
     updatedAt: yup.date().default(() => new Date()),
     priority: prioritySchema,
     expiresAt: expiresAtSchema,
+    fulfilledState: fillfilledStateSchema,
     zipcode: yup.string().required("Zipcode is required"),
     loc: locSchema
 });
