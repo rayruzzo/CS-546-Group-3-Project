@@ -17,11 +17,8 @@ router.get('/', async (req, res) => {
 
         // Load posts for authenticated user based on their zip code
         let posts = [];
-        try {
-            posts = await loadPosts(req.session.user.zipcode, { limit: 10 });
-        } catch (error) {
-            console.error('Error loading posts:', error.message);
-        }
+        
+        posts = await loadPosts(req.session.user.zipcode, { limit: 10 });
         
         // Format categories and priorities for the template
         const categories = Object.entries(postCategories).map(([key, value]) => ({
@@ -40,7 +37,7 @@ router.get('/', async (req, res) => {
             posts: posts,
             categories: categories,
             postTypes: Object.values(postTypes),
-            priorityValues: priorities
+            priorityValues: priorities,
         });
     } catch (error) {
         renderErrorPage(res, 500, error.toString());

@@ -1,7 +1,7 @@
 import {postTypeSchema, postCategorySchema, tagsSchema, prioritySchema} from '../models/posts.js';
 import postData from '../data/posts.js';
 
-const isPostOwnerAction = async (req, res, next) => {
+const isPostOwner = async (req, res, next) => {
     try {
         const userId = req.session.user._id;
         const { post } = await postData.getPostById(req.params.id);
@@ -9,18 +9,7 @@ const isPostOwnerAction = async (req, res, next) => {
             return res.status(403).redirect(`/posts/${req.params.id}`);
         }
         req.post = post;
-        next();
-    } catch (error) {
-        return res.status(404).json({ error: 'Post not found' });
-    }
-};
-
-const isPostOwnerDisplay = async (req, res, next) => {
-    try {
-        const userId = req.session.user._id;
-        const { post } = await postData.getPostById(req.params.id);
         res.locals.isPostOwner = (userId === post.userId.toString());
-        req.post = post;
         next();
     } catch (error) {
         return res.status(404).json({ error: 'Post not found' });
@@ -29,8 +18,8 @@ const isPostOwnerDisplay = async (req, res, next) => {
 
 const requireAuthentication = (req, res, next) => {
     if (!req.session.user) {
-        return res.status(401).render('/login', { error: 'You must be logged in to access this resource' });
-    }
+        return res.redirect('/login');
+          }
     next();
 }
 
@@ -96,8 +85,7 @@ const parseFilterParams = (req, res, next) => {
 };
 
 export default {
-     isPostOwnerAction, 
-     isPostOwnerDisplay, 
+     isPostOwner,
      requireAuthentication, 
      parseFilterParams 
     };

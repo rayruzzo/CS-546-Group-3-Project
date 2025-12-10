@@ -1,13 +1,15 @@
-<article>
+<article id="{{post._id}}">
     <h1>{{post.title}}</h1>
 
     {{#if isPostOwner}}
     <div class="post-actions">
-        <a href="/posts/update/{{post._id}}"><button class="button-primary">Update Post</button></a>
-        <button onclick="if(confirm('Are you sure you want to delete this post?')) { document.getElementById('delete-post-form').submit(); }" class="button-danger">Delete Post</button>
-        <form id="delete-post-form" method="POST" action="/posts/delete/{{post._id}}" style="display:none;"></form>
+        <a href="/posts/update/{{post._id}}" class="button-primary">Update Post</a>
+        <button class="button-danger">Delete Post</button>
+        {{#if (eq post.fulfilledState "open")}}
+            <button id="fulfill-post-btn" class="button-secondary">Mark as Fulfilled</button>
+        {{/if}}
     </div>
-    {{/if}}
+{{/if}}
     
     <div class="post-meta">
         <span class="author">Posted by <strong>{{post.username}}</strong></span>
@@ -47,3 +49,5 @@
 <!-- Comments Section Placeholder -->
     {{/if}}
 </article>
+
+<script src="/public/js/postManagement.js"></script>

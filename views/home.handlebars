@@ -7,7 +7,7 @@
 
   <div class="create-post-banner">
     <p>Have something to add?</p>
-    <button onclick="window.location.href='/posts/create'" class="button-primary">Create New Post</button>
+    <a href="/posts/create" class="button-primary">Create New Post</a>  
   </div>
 
 
@@ -101,6 +101,7 @@
             <p id="loading-message" style="display: none;">Loading...</p>
             <p id="no-more-posts" style="display: none;">No more posts to load</p>
         </div>
+        <p class="post-error"></p>
     {{else}}
         <p>No posts available in your area at the moment. Please check back later!</p>
     {{/if}}

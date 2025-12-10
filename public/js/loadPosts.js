@@ -84,7 +84,15 @@
             console.error('Error loading more posts:', error);
             loadingMessage.style.display = 'none';
             loadMoreBtn.style.display = 'block';
-            alert('Error loading more posts. Please try again.');
+            const errorElement = document.querySelector('.post-error');
+            if (errorElement) {
+                errorElement.textContent = 'Error loading more posts. Please try again.';
+                errorElement.style.display = 'block';
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                    errorElement.textContent = '';
+                }, 5000);
+            }
         }
     }
 
@@ -160,41 +168,34 @@
             // Update the posts list
             if (data.posts && data.posts.length > 0) {
                 const postsHTML = data.posts.map(post => `
-                    <li>
-                        <article class="post-item">
-                        <h3>${DOMPurify.sanitize(post.title)}</h3>
-                        <p class="post-meta">${DOMPurify.sanitize(post.category)} • ${DOMPurify.sanitize(post.type)} • ${DOMPurify.sanitize(post.city)}, ${DOMPurify.sanitize(post.state)}</p>
-                        <p class="posted-by">Posted by ${DOMPurify.sanitize(post.username || 'Anonymous')} on ${DOMPurify.sanitize(post.datePosted)}</p>
-                        <p class="post-preview">${DOMPurify.sanitize(post.content)}</p>
-                        <a href="/posts/${post._id}">Read more</a>
-                        </article>
-                    </li>
+                    <article class="post-item">
+                    <h3>${DOMPurify.sanitize(post.title)}</h3>
+                    <p class="post-meta">${DOMPurify.sanitize(post.category)} • ${DOMPurify.sanitize(post.type)} • ${DOMPurify.sanitize(post.city)}, ${DOMPurify.sanitize(post.state)}</p>
+                    <p class="posted-by">Posted by ${DOMPurify.sanitize(post.username || 'Anonymous')} on ${DOMPurify.sanitize(post.datePosted)}</p>
+                    <p class="post-preview">${DOMPurify.sanitize(post.content)}</p>
+                    <a href="/posts/${post._id}">Read more</a>
+                    </article>
                 `).join('');
                 
-                postsListContainer.innerHTML = `
-                    <div id="posts-container">${postsHTML}</div>
-                    <div class="load-more-container">
-                        <button id="load-more-btn" class="load-more-btn">Load More Posts</button>
-                        <p id="loading-message" style="display: none;">Loading...</p>
-                        <p id="no-more-posts" style="display: none;">No more posts to load</p>
-                    </div>
-                `;
-                
+                postsListContainer.innerHTML = postsHTML;
+
                 currentSkip = 10;
                 
-                // Re-attach load more button listener
-                const newLoadMoreBtn = document.getElementById('load-more-btn');
-                if (newLoadMoreBtn) {
-                    newLoadMoreBtn.addEventListener('click', async () => {
-                        await loadMorePosts();
-                    });
-                }
             } else {
                 postsListContainer.innerHTML = '<p>No posts available in your area at the moment. Please check back later!</p>';
             }
+            
         } catch (error) {
             console.error('Error loading posts:', error);
-            document.querySelector('#posts-container').innerHTML = '<p>Error loading posts. Please try again.</p>';
+            const errorElement = document.querySelector('.post-error');
+            if (errorElement) {
+                errorElement.textContent = 'Error loading posts. Please try again.';
+                errorElement.style.display = 'block';
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                    errorElement.textContent = '';
+                }, 5000);
+            }
         }
     }
 
