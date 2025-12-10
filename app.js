@@ -5,6 +5,7 @@ import session from 'express-session';
 import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
 import checkAndSeedLocations from './scripts/checkAndSeed.js';
+import { validateLogin } from "./middleware/loginValidation.js";
 
 const app = express();
 
@@ -28,6 +29,9 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.post('/login', validateLogin);
+
 
 // setup middleware
 app.use('/public', express.static('public'));

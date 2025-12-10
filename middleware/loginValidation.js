@@ -1,15 +1,57 @@
-import * as yup from "yup";
+import * as yup from 'yup';
+import bcrypt from "bcrypt";
+import { users } from "../config/mongoCollections.js";
 
-export const loginSchema = yup.object({
-    email: yup
-        .string()
-        .trim()
-        .email("Invalid email format")
-        .required("Email is required"),
-    
-    password: yup
-        .string()
-        .trim()
-        .min(1, "Password is required")
-        .required("Password is required")
+export const loginSchema = yup.object().shape({
+    email: yup.string().required().email(),
+    password: yup.string().required().min(8)
 });
+
+export const validateLogin = async (req, res, next) => {
+    const { email, password } = req.body;
+
+    try {
+        await loginSchema.validate({ email, password }, { abortEarly: false });
+    } catch (validationError) {
+        return res.status(400).render("login/login", {
+            error: "Invalid email or password format.",
+            title: "Login"
+        });
+    }
+
+    const userCollection = await users();
+    const user = await userCollection.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+        return res.status(400).render("login/login", {
+            error: "Incorrect email or password.",
+            title: "Login"
+        });
+    }
+
+    if (user.isBanned) {
+        return res.status(403).render("login/login", {
+            error: "Your account has been banned.",
+            title: "Login"
+        });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+        return res.status(400).render("login/login", {
+            error: "Incorrect email or password.",
+            title: "Login"
+        });
+    }
+
+    req.session.user = {
+        _id: user._id.toString(),
+        email: user.email,
+        zipcode: user.zipcode,
+        role: user.role,
+        username: user.profile?.username || ""
+    };
+    
+    next();
+};
