@@ -1,4 +1,4 @@
-// Client-side validation for update post form
+// Client-side validation for create post form
 // Uses shared validation utilities
 
 import { initializeFormValidation } from './formValidation.js';

@@ -3,7 +3,7 @@
 
     {{#if isPostOwner}}
     <div class="post-actions">
-        <a href="/posts/update/{{post._id}}" class="button-primary">Update Post</a>
+        <a href="/posts/edit/{{post._id}}" class="button-primary">Update Post</a>
         <button class="button-danger">Delete Post</button>
         {{#if (eq post.fulfilledState "open")}}
             <button id="fulfill-post-btn" class="button-secondary">Mark as Fulfilled</button>
