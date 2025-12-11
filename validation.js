@@ -27,9 +27,17 @@ const validateBoolean = (bool, varName) => {
     return bool;
 }
 
+const validateWholeNumber = (num, varName) => {
+    if (typeof num !== "number" || !Number.isInteger(num) || num < 0) {
+        throw `${varName} must be a whole number greater than or equal to 0`;
+    }
+    return num;
+}
+
 export default {
     validateId,
     validateString,
     validateArray,
-    validateBoolean
+    validateBoolean,
+    validateWholeNumber
 };
