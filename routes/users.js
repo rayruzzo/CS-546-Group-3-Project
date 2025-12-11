@@ -1,7 +1,7 @@
 import Router from 'express';
 import { validateSchema } from '../middleware/validation.mw.js';
 import userData from '../data/users.js';
-import { getResourceByIdSchema, usernameParamSchema, userSchema } from "../models/users.js";
+import { avatarSchema, getResourceByIdSchema, usernameParamSchema, userSchema } from "../models/users.js";
 import { renderErrorPage } from '../utils/errorUtils.js';
 
 const router = Router();
@@ -21,7 +21,9 @@ router.get("/avatar", async (req, res, next) => {
 })
 
 // FIXME: THIS IS JUST A DEMO
-router.post("/avatar", async (req, res, next) => {
+router.post("/avatar", 
+   validateSchema(avatarSchema, "body"), 
+   async (req, res, next) => {
 
    const resizedBlobSize       = new Blob([req.body?.resized]).size;
    const resizedSquareBlobSize = new Blob([req.body?.resizedSquare]).size;
