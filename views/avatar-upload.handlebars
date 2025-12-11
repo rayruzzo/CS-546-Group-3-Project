@@ -26,11 +26,13 @@
       </div>
    </div>
 
-   <p id="fileInputMessage" class="input-message visually-hidden"></p>
+   <div class="switcher">
+      <span id="fileInputMessage" class="input-message visually-hidden"></span>
+      <button id="removeAvatar" class="visually-hidden btn-warning" aria-label="Remove Avatar">
+         Remove
+      </button>
+   </div>
 
-   <button id="removeAvatar" class="visually-hidden" aria-label="Remove Avatar">
-      Remove
-   </button>
 
    <form id="avatarForm" action="/user/avatar" method="POST">
       <button id="submitForm" type="submit">Submit</button>
