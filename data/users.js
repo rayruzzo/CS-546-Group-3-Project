@@ -23,13 +23,14 @@ const User = Object.freeze(class User {
    static #totalBannedUserCount;
 
    // password salting config
-   static #targetHashTimeSeconds = 3;  // hash time will at least be this value
+   static targetHashTimeSeconds = 3;  // hash time will at least be this value
    static #optimalSaltRounds;
 
    // additional config
-   static #avatarMaxOriginalSizeMB = 30;
-   static #avatarMaxResizedSizeMB  = 0.3;
-   static #avatarAllowedMIMETypes  = new Map([
+   static avatarDimensions         = 200;
+   static avatarMaxOriginalSizeMB  = 30;
+   static avatarMaxResizedSizeMB   = 0.3;
+   static avatarAllowedMIMETypes   = new Map([
       ["image/apng",    "PNG"], 
       ["image/avif",    "AVIF"], 
       ["image/gif",     "GIF"], 
@@ -103,18 +104,22 @@ const User = Object.freeze(class User {
       return User.#optimalSaltRounds;
    }
 
+   static get avatarDimensions() {
+      return User.avatarDimensions;
+   }
+
    static getAvatarMaxOriginalSizeMB() {
-      return User.#avatarMaxOriginalSizeMB;
+      return User.avatarMaxOriginalSizeMB;
    }
 
    static getAvatarMaxResizedSizeMB() {
-      return User.#avatarMaxResizedSizeMB;
+      return User.avatarMaxResizedSizeMB;
    }
 
    static getAvatarAllowedMIMETypes() {
       // luckily our Map is shallow, so this creates
       // a fresh copy, to help against modification
-      return new Map(User.#avatarAllowedMIMETypes);
+      return new Map(User.avatarAllowedMIMETypes);
    }
 
    static getAvatarAllowedTypesStr() {
@@ -166,7 +171,7 @@ const User = Object.freeze(class User {
       const strArr = [];
       const friendlyStrArr = [];
 
-      User.#avatarAllowedMIMETypes.forEach((value, key) => {
+      User.avatarAllowedMIMETypes.forEach((value, key) => {
          strArr.push(key);
          friendlyStrArr.push(value);
       });
@@ -215,7 +220,7 @@ const User = Object.freeze(class User {
       // calculate optimal salt rounds
       let optimalSaltRounds = minSaltRounds;         // set starting default
 
-      while (secondsElapsed < User.#targetHashTimeSeconds) {
+      while (secondsElapsed < User.targetHashTimeSeconds) {
          ++optimalSaltRounds;
          secondsElapsed *= 2;
       }
@@ -292,6 +297,7 @@ const userFunctions = Object.freeze({
       return {
          init:                       User.init,
          roles:                      User.roles,
+         avatarDimensions:           User.avatarDimensions,
          getAvatarMaxOriginalSizeMB:       User.getAvatarMaxOriginalSizeMB,
          getAvatarMaxResizedSizeMB:        User.getAvatarMaxResizedSizeMB,
          getAvatarAllowedMIMETypes:        User.getAvatarAllowedMIMETypes,
