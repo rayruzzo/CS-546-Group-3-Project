@@ -30,7 +30,7 @@ app.use(session({
 app.use((req, res, next) => {
   if (!req.session.user) {
     req.session.user = { 
-      _id: "6931f64c7c05d6abb9507104", // testing kamala's login
+      _id: "693a6650d10301cab36edb66", // testing kamala's login
       zipcode: "07030",
       email: "kamala.khan@gmail.com",
       username: "msmarvel-jc"

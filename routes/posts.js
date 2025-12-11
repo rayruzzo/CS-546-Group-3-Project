@@ -3,6 +3,7 @@ import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
 import { renderErrorPage } from '../utils/errorUtils.js';
 import postMiddleware from '../middleware/posts.mw.js';
+import commentMiddleware from '../middleware/comments.mw.js';
 
 const router = Router();
 
@@ -77,9 +78,13 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 });
 
 // GET /posts/:id - View a single post
-router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
+router.get('/:id', postMiddleware.isPostOwnerDisplay, commentMiddleware.getCommentsForPostDisplay, async (req, res) => {
     try {
-        res.render('post', { post: req.post});
+        res.render('post', { 
+            post: req.post, 
+            comments: res.locals.comments,
+            userLoggedIn: !!req.session.user
+        });
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }

@@ -1,89 +1,82 @@
 import { ObjectId } from "mongodb";
 import db from "../config/mongoCollections.js"
-import validators from "../validation.js"
-
-const _validateComment = (postId, authorId, content) => {
-    postId = validators.validateId(postId, "Post ID");
-    authorId = validators.validateId(authorId, "Author ID");
-    content = validators.validateString(content, "Comment content");
-    return { postId, authorId, content };
-}
+import { commentSchema, commentContentSchema } from "../models/comments.js";
+import { objectIdSchema } from "../models/users.js";
 
 //Create comment
 const createComment = async (postId,authorId,content) =>{
-    const validated = _validateComment(postId,authorId,content);
-    const post = await postCollection.findOne({ _id: new ObjectId(validated.postId) });
+    const validated = await commentSchema.validate({postId, userId: authorId, content});
+    const postCollection = await db.posts();
+    const post =  await postCollection.findOne({_id: typeof validated.postId === ObjectId ? validated.postId : new ObjectId(validated.postId)});
     if (!post) {
         throw `Cannot create comment: post with ID ${validated.postId} does not exist.`;
     }
+
+    if (!post.commentsEnabled)  {
+        throw `Comments are disabled for this post.`;
+    }
+
     const newComment = {
         postId:validated.postId,
-        authorId:validated.authorId,
+        userId:validated.userId,
         content: validated.content,
         createdAt: new Date(),
         updatedAt: new Date()
     }
+    
     const commentsCollection = await db.comments();
     const insertInfo = await commentsCollection.insertOne(newComment);
-    if (!insertInfo.acknowledged || !insertInfo.insertedId) {
+    if(insertInfo.insertedCount === 0){
         throw "Could not add comment";
     }
-    const newId = insertInfo.insertedId.toString();
-    const postCollection = await db.posts();
-    const updatePost = await postCollection.updateOne(
-        {_id:new ObjectId(postId)},
-        {$push : {comments: newId}}
+    
+    const editPost = await postCollection.updateOne(
+        {_id: typeof validated.postId === ObjectId ? validated.postId : new ObjectId(validated.postId)},
+        {$push : {comments: insertInfo.insertedId.toString()}}
     );
-    if(updatePost.modifiedCount === 0){
+
+    if(editPost.modifiedCount === 0){
         throw "Failed to attach comment to post";
     }
 
-  return await getCommentById(newId);
+  return await getCommentById(insertInfo.insertedId);
 }
 
 
 const getCommentById = async (id)=>{
-    id = validators.validateId(id,"Comment ID");
+    id = typeof id === ObjectId ? id : new ObjectId(id);
     const commentsCollection = await db.comments();
-    const comment = await commentsCollection.findOne({_id:new ObjectId(id)});
+    const comment = await commentsCollection.findOne({_id: id});
+
     if(!comment) throw "Comment not found!";
     return comment;
 }
 
-const getCommentsByPostId = async (postId)=>{
-    postId = validators.validateId(postId,"Post ID");
-
-    const commentsCollection = await db.comments();
-    const comments = await commentsCollection.find({postId}).toArray();
- 
-    return comments;
-}
-
-//Remove Comment
-
 const removeComment = async (id)=>{
-    id = validators.validateId(id,"Comment ID");
+    id = typeof id === ObjectId ? id : new ObjectId(id);
     const commentsCollection = await db.comments();
+    const postInfo = await getCommentById(id);
+
+    if(!postInfo) throw "Comment not found";
+    
+    const postCollection = await db.posts();
+    await postCollection.updateOne(
+        {_id: new ObjectId(postInfo.postId)},
+        {$pull:{comments: id}}
+    );
+
     const deletionInfo = await commentsCollection.deleteOne({_id: new ObjectId(id)});
 
     if(deletionInfo.deletedCount === 0){
         throw `Could not delete comment with id : ${id}`;
     }
-    //Remove comment from the post.comments[]
-    const postCollection = await db.posts();
-    await postCollection.updateMany(
-        {comments : id},
-        {$pull:{comments: id}}
-    );
-
     return {comment : id, deleted : true};
 }
 
 
 const updateComment = async (id,content)=>{
-    id = validators.validateId(id,"Comment ID");
-    comment = validators.validateString(content,"Updated comment content");
-
+    id = typeof id === ObjectId ? id : new ObjectId(id);
+    content = await commentContentSchema.validate(content);
     const commentsCollection = await db.comments();
     const updated ={content,updatedAt:new Date()};
 
@@ -96,12 +89,63 @@ const updateComment = async (id,content)=>{
     return await getCommentById(id);
 }
 
+const flagOwnedComment = (comment, userId) => {
+    comment.isOwner = comment.userId.toString() === userId;
+    return comment;
+};
+
+const getCommentsForPost = async (postId, userId = null, skip = 0, limit = 100) => {
+
+    try {
+
+        postId = typeof postId === ObjectId ? postId : new ObjectId(postId);
+        const postCollection = await db.posts();
+        const post = await postCollection.findOne({ _id: postId });
+        
+        if (!post) {
+            throw new Error('Post not found');
+        }
+        
+        const commentList = post.comments || [];
+        
+        const commentsCollection = await db.comments();
+        const usersCollection = await db.users();
+        const validatedIds = await Promise.all(
+            commentList.slice(skip, skip + limit).map(id => objectIdSchema.validate(id))
+        );
+        const commentIds = validatedIds.map(id => new ObjectId(id));
+        const comments = await commentsCollection.find({ 
+            _id: { $in: commentIds } 
+        }).toArray();
+
+        // Enrich comments with user data and ownership flag
+        for (let comment of comments) {
+            const user = await usersCollection.findOne({ _id: new ObjectId(comment.userId) });
+            if (user) {
+                comment.username = user.profile?.username || 'Unknown User';
+            }
+            comment.datePosted = comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Unknown';
+            
+            if (userId) {
+                flagOwnedComment(comment, userId);
+            }
+        }
+
+        return comments;
+
+    } catch (error) {
+        throw new Error(`Error retrieving comments for post: ${error.message}`);
+    }
+    
+}
+
 const commentFunctions={
     createComment,
     getCommentById,
-    getCommentsByPostId,
     removeComment,
-    updateComment
+    updateComment,
+    flagOwnedComment,
+    getCommentsForPost
 };
 
 export default commentFunctions;

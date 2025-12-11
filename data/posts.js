@@ -133,7 +133,7 @@ const postFunctions = {
         return { post: enrichedPost, success: true };
     },
 
-    async updatePost(postId, postData) {
+    async editPost(postId, postData) {
         if (!postId) throw new Error("Post ID must be provided", { cause: { postId: "Post ID not provided" } });
         if (!postData || Object(postData) !== postData) throw new Error("Post data must be provided", { cause: { postData: "Post data not provided" } });
 
@@ -376,7 +376,7 @@ const postFunctions = {
             throw new Error("Could not mark post as fulfilled", { cause: { postId: "Post update failed" } });
         }
         return { postId: postId, fulfilled: true, success: true };
-    }
+    },
 
 };
 
