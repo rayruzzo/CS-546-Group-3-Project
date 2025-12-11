@@ -2,6 +2,7 @@
   <div class="dm-container">
 
     <div class="dm-card">
+      <a href="/dmthreads" class="dm-back-link">Back to Messages</a>
       <h2 class="dm-heading">Start a New Conversation</h2>
 
       <form method="POST" action="/dmthreads/create" class="dm-form">
@@ -9,12 +10,20 @@
         <div class="dm-field">
           <label for="recipient">Recipient Username</label>
           <input 
-            type="text" 
-            id="recipient" 
-            name="recipient" 
+            type="text"
+            id="recipient"
+            name="recipient"
+            value="{{previousRecipient}}"
             placeholder="e.g. starspangledman"
             required
           >
+
+          {{!-- Shared inline error (server + client) --}}
+          {{#if error}}
+            <div id="username-error-text" class="dm-inline-error">{{error}}</div>
+          {{else}}
+            <div id="username-error-text" class="dm-inline-error" style="display:none;"></div>
+          {{/if}}
         </div>
 
         <div class="dm-field">
@@ -25,12 +34,14 @@
             rows="4"
             placeholder="Say something friendly…"
             required
-          ></textarea>
-        </div>
+          >{{previousMessage}}</textarea>
 
-        {{#if error}}
-          <p class="dm-error">{{error}}</p>
-        {{/if}}
+          {{#if errorMessage}}
+            <div class="dm-inline-error">{{errorMessage}}</div>
+          {{/if}}
+
+          <div id="message-counter" class="dm-char-counter">0 / 2000</div>
+        </div>
 
         <button class="dm-submit-btn" type="submit">
           Start Conversation →
@@ -41,3 +52,5 @@
 
   </div>
 </div>
+
+<script src="/public/js/dmCreateValidation.js"></script>

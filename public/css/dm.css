@@ -213,6 +213,10 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
+.dm-thread-container .dm-form {
+  margin-top: 20px;
+}
+
 .dm-thread-title {
   font-size: 24px;
   font-weight: 700;
@@ -223,6 +227,23 @@
   max-height: 450px;
   overflow-y: auto;
   margin-bottom: 25px;
+}
+
+.dm-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  font-size: 0.95rem;
+  margin-bottom: 12px;   /* 👈 already added, keep this */
+  resize: vertical;
+  min-height: 60px;
+}
+
+.dm-thread-input-label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
 }
 
 .dm-message-wrapper {
@@ -260,12 +281,6 @@
   margin-top: 4px;
 }
 
-.dm-form textarea {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
 .dm-send-btn {
   padding: 12px 20px;
   background: #7d5fff;
@@ -273,5 +288,89 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+}
+
+/* -----------------------------------------------------------
+   Back to Inbox Button
+----------------------------------------------------------- */
+
+.dm-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #6b5bff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  margin-bottom: 18px;
+  margin-left: 4px;
+
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.dm-back-link::before {
+  content: "←";
+  font-size: 1rem;
+  position: relative;
+  top: -0.5px;
+}
+
+.dm-back-link:hover {
+  color: #5848e5;
+  transform: translateX(-2px);
+}
+
+/* -----------------------------------------------------------
+   Inline Error Styling for DM Create Form
+----------------------------------------------------------- */
+
+.dm-inline-error {
+  margin-top: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 80, 80, 0.12);
+  border-left: 4px solid #ff4d4d;
+  color: #b30000;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  line-height: 1.4;
+  animation: fadeSlideIn 0.25s ease-out forwards;
+}
+
+/* Subtle fade + slide animation */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dm-success-check {
+  display: none;
+  background: #e7f8ec;
+  color: #28a745;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+/* Message character counter */
+.dm-char-counter {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #777;
+  text-align: right;
+  opacity: 0.85;
+}
+
+.dm-char-counter.limit-reached {
+  color: #d9534f; /* subtle red */
   font-weight: 600;
 }

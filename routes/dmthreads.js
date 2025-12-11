@@ -2,10 +2,7 @@ import { Router } from "express";
 
 // Validation
 import { validateSchema } from "../middleware/validation.mw.js";
-import {
-    recipientUsernameSchema,
-    messageContentSchema,
-} from "../models/dmthreads.js";
+import { messageContentSchema } from "../models/dmthreads.js";
 
 // Data layer 
 import {
@@ -37,40 +34,57 @@ router.get("/", async (req, res) => {
         // Fetch all threads where the user participates
         const threads = await fetchThreadsForUser(userId);
 
-        // Attach other participant's username to each thread for the inbox view
+        // Small logic for UI cleanup - if user is unknown (corruptedId from reseed), hide thread from UI.
+        // Does not really happen in our production but since it came up during my QA (reseed event), just added for safety.
+        const filteredThreads = [];
+
         for (const thread of threads) {
+            // Identify the OTHER user in the conversation  
             const otherUserId = thread.participants.find(id => id !== userId);
 
             if (!otherUserId) {
-                thread.otherUsername = "Unknown User";
+                // Thread is malformed (should not happen), skip it.
                 continue;
             }
 
             try {
                 const otherUser = unwrapUser(await userData.getUserById(otherUserId));
 
+                // If no user found, skip this thread entirely
                 if (!otherUser || !otherUser.profile) {
-                    thread.otherUsername = "Unknown User";
+                    console.warn(
+                        "Skipping thread (user not found):",
+                        thread._id?.toString()
+                    );
                     continue;
                 }
 
+                // Attach username for rendering
                 thread.otherUsername = otherUser.profile.username;
+
+                // Thread is valid, add it
+                filteredThreads.push(thread);
+
             } catch (e) {
-                console.warn("Could not resolve user in inbox for thread", thread._id?.toString(), e?.message);
-                thread.otherUsername = "Unknown User";
+                console.warn(
+                    "Skipping thread due to unresolved user:",
+                    thread._id?.toString(),
+                    e?.message
+                );
+                continue;
             }
         }
 
+        // Render Inbox
         return res.render("dmthreads/inbox", {
             title: "Your Messages",
             user: loggedInUser,
-            threads,
+            threads: filteredThreads,
             currentUser: userId
         });
 
     } catch (error) {
         console.error("Error fetching DM threads:", error);
-        //TODO: Modal.
         return renderErrorPage(res, 500, "We couldn't load your messages right now.");
     }
 });
@@ -180,80 +194,195 @@ router.post(
 /****************************************************************************
  * POST /dmthreads/create
  * Creates a new DM thread from the logged-in user to a recipient.
- * NOTE:
+ *
+ * NOTES:
  *   - Authentication handled globally in app.js
- *   - Thread checks are NOT needed because no thread exists yet
+ *   - Server-side validation is authoritative
+ *   - Inline rendering used for clean UX error feedback
  ****************************************************************************/
-router.post(
-    "/create",
-    validateSchema(
-        [recipientUsernameSchema, "body"],
-        [messageContentSchema, "body"]
-    ),                                              
-    async (req, res) => {
-        try {
-            const loggedInUser = req.session.user;
-            const senderId = loggedInUser._id.toString();
+router.post("/create", async (req, res) => {
+  try {
+    const loggedInUser = req.session.user;
+    const senderId = loggedInUser._id.toString();
 
-            // Body is already validated by validateSchema
-            const recipientUsername = req.body.recipient.trim().toLowerCase();
-            const initialMessageContent = req.body.message.trim();
+    const recipientUsername = (req.body.recipient || "").trim().toLowerCase();
+    const initialMessageContent = (req.body.message || "").trim();
 
-            // Lookup recipient
-            const recipientUser = unwrapUser(await userData.getUserByUsername(recipientUsername));
+    const usernameRegex = /^(?!-)(?!.*--)[A-Za-z0-9-]{4,50}(?<!-)$/;
 
-            if (!recipientUser) {
-                return renderErrorPage(res, 404, "Recipient user does not exist.");
-            }
+    // Helper to reduce repetition when rendering validation errors
+    const renderCreateError = (errorProps) =>
+      res.render("dmthreads/create", {
+        title: "Start New Conversation",
+        user: loggedInUser,
+        previousRecipient: recipientUsername,
+        previousMessage: initialMessageContent,
+        ...errorProps
+      });
 
-            const recipientId = recipientUser._id.toString();
+    // Username validation 
 
-            // Prevent self-messaging
-            if (recipientId === senderId) {
-                return renderErrorPage(res, 400, "You cannot send a DM to yourself.");
-            }
-
-            // Check DM permissions
-            if (recipientUser.isBanned) {
-                return renderErrorPage(res, 403, "This user cannot receive messages.");
-            }
-
-            if (recipientUser.settings?.dmsEnabled === false) {
-                return renderErrorPage(res, 403, "This user has disabled DMs.");
-            }
-
-            // Check if a thread already exists
-            const existingThreads = await fetchThreadsForUser(senderId);
-            const existingThread = existingThreads.find((t) =>
-                t.participants.includes(recipientId)
-            );
-
-            if (existingThread) {
-                return res.redirect(`/dmthreads/thread/${existingThread._id}`);
-            }
-
-            // Create thread
-            const newThread = await createThread(senderId, recipientId);
-
-            // Build first message
-            const initialMessage = createMessage(
-                senderId,
-                recipientId,
-                initialMessageContent
-            );
-
-            // Insert message into thread
-            await addMessageToThread(newThread._id.toString(), initialMessage);
-
-            // Redirect to new thread view
-            return res.redirect(`/dmthreads/thread/${newThread._id}`);
-
-        } catch (error) {
-            console.error("Error creating DM thread:", error);
-            return renderErrorPage(res, 500, "Unable to create DM thread.");
-        }
+    if (!usernameRegex.test(recipientUsername)) {
+      return renderCreateError({
+        error:
+          "Please enter a valid username (letters, numbers, and hyphens only)."
+      });
     }
-);
+
+    // Message validation
+
+    if (!initialMessageContent) {
+      return renderCreateError({
+        errorMessage: "Your message cannot be empty."
+      });
+    }
+
+    if (initialMessageContent.length > 2000) {
+      return renderCreateError({
+        errorMessage: "Your message must be 2000 characters or fewer."
+      });
+    }
+
+    // Recipient lookup 
+
+    let recipientUser;
+    try {
+      recipientUser = unwrapUser(
+        await userData.getUserByUsername(recipientUsername)
+      );
+    } catch {
+      recipientUser = null;
+    }
+
+    if (!recipientUser) {
+      return renderCreateError({
+        error: "We couldn't find anyone with that username."
+      });
+    }
+
+    const recipientId = recipientUser._id.toString();
+
+    // Permission guards
+
+    if (recipientId === senderId) {
+      return renderCreateError({
+        error: "You can’t send a message to yourself."
+      });
+    }
+
+    if (recipientUser.isBanned) {
+      return renderCreateError({
+        error: "This user cannot receive messages at the moment."
+      });
+    }
+
+    if (recipientUser.settings?.dmsEnabled === false) {
+      return renderCreateError({
+        error: "This user is not accepting messages right now."
+      });
+    }
+
+    // Existing thread reuse redirect
+
+    const existingThreads = await fetchThreadsForUser(senderId);
+    const existingThread = existingThreads.find((t) =>
+      t.participants.includes(recipientId)
+    );
+
+    if (existingThread) {
+      return res.redirect(`/dmthreads/thread/${existingThread._id}`);
+    }
+
+    // Thread creation
+
+    const newThread = await createThread(senderId, recipientId);
+
+    const initialMessage = createMessage(
+      senderId,
+      recipientId,
+      initialMessageContent
+    );
+
+    await addMessageToThread(newThread._id.toString(), initialMessage);
+
+    return res.redirect(`/dmthreads/thread/${newThread._id}`);
+
+  } catch (error) {
+    console.error("Error creating DM thread:", error);
+    return renderErrorPage(res, 500, "Unable to create DM thread.");
+  }
+});
+
+
+/****************************************************************************
+ * GET /dmthreads/check-user
+ * Async validation endpoint used by the DM creation form.
+ * Powers live username validation UX (green check / inline errors)
+ * NOTE:
+ * This is just a security boundary — server-side validation still enforced
+ *
+ * RETURNS:
+ *   {
+ *     exists:      boolean,
+ *     validFormat: boolean,
+ *     banned:      boolean,
+ *     dmsEnabled:  boolean,
+ *     self:        boolean
+ *   }
+ ****************************************************************************/
+router.get("/check-user", async (req, res) => {
+  try {
+    const loggedInUser = req.session.user;
+    const senderId = loggedInUser._id.toString();
+
+    const username = (req.query.u || "").trim().toLowerCase();
+    const usernameRegex = /^(?!-)(?!.*--)[A-Za-z0-9-]{4,50}(?<!-)$/;
+
+    // Form validation
+
+    if (!usernameRegex.test(username)) {
+      return res.json({
+        exists: false,
+        validFormat: false
+      });
+    }
+
+    // User lookup 
+
+    let user;
+    try {
+      user = unwrapUser(await userData.getUserByUsername(username));
+    } catch {
+      user = null;
+    }
+
+    if (!user) {
+      return res.json({
+        exists: false,
+        validFormat: true
+      });
+    }
+
+    const userId = user._id.toString();
+
+    // Return UX flags
+
+    return res.json({
+      exists: true,
+      validFormat: true,
+      banned: Boolean(user.isBanned),
+      dmsEnabled: user.settings?.dmsEnabled !== false,
+      self: userId === senderId
+    });
+
+  } catch (error) {
+    console.error("Async username check failed:", error);
+    return res.json({
+      exists: false,
+      validFormat: false
+    });
+  }
+});
 
 /****************************************************************************
  * EXPORTS
