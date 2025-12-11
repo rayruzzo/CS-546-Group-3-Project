@@ -104,4 +104,13 @@ router.post('/fulfill/:id', postMiddleware.isPostOwnerAction, async (req, res) =
     }
 });
 
+router.get('/report/:id', async (req, res) => {
+    try {
+        await postData.reportPost(req.params.id);
+        res.redirect(`/posts/${req.params.id}`);
+    } catch (error) {
+        renderErrorPage(res, 404, error.toString());
+    }
+});
+
 export default router;

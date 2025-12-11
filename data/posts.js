@@ -102,6 +102,7 @@ const postFunctions = {
         newPostData.zipcode = user.zipcode;
         newPostData.loc = location.loc;
         newPostData.fulfilledState = 'open';
+        newPostData.reported = false;
 
         const validatedPost = await postSchema.validate(newPostData);
         
@@ -376,8 +377,23 @@ const postFunctions = {
             throw new Error("Could not mark post as fulfilled", { cause: { postId: "Post update failed" } });
         }
         return { postId: postId, fulfilled: true, success: true };
-    }
+    },
 
+    async reportPost(postId) {
+        postId = typeof postId === ObjectId ? postId : new ObjectId(postId);
+
+        const postCollection = await posts();
+        const updateInfo = await postCollection.updateOne(
+            { _id: postId },
+            { $set: { reported: true } }
+        );
+
+        if (updateInfo.matchedCount === 0) { throw new Error("Post not found", { cause: { postId: "No post found with the provided ID" } }); }
+        if (updateInfo.modifiedCount === 0) {
+            throw new Error("Could not report post", { cause: { postId: "Post update failed" } });
+        }
+        return { postId: postId, reported: true, success: true };
+    }
 };
 
 export default postFunctions;
