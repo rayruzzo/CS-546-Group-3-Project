@@ -25,7 +25,7 @@ export class AvatarUploader {
    #blob;                   // stores blob temporarily
    
    // image-related
-   #avatarContainer;
+   // #avatarContainer;
    avatarPreview;
    #spinner;
 
@@ -58,7 +58,7 @@ export class AvatarUploader {
       imgResizedInput       = "#imgResized",
       imgResizedSquareInput = "#imgResizedSquare",
 
-      avatarContainer       = "#avatarContainer",
+      // avatarContainer       = "#avatarContainer",
       avatarPreview         = "#avatarPreview",
       spinner               = ".spinner",
 
@@ -74,9 +74,9 @@ export class AvatarUploader {
       this.fileInput              = this.#avatarUploaderRoot.querySelector(fileInput);
       this.#imgResizedInput       = this.#avatarUploaderRoot.querySelector(imgResizedInput);
       this.#imgResizedSquareInput = this.#avatarUploaderRoot.querySelector(imgResizedSquareInput);
-      this.#avatarContainer       = this.#avatarUploaderRoot.querySelector(avatarContainer);
+      // this.#avatarContainer       = this.#avatarUploaderRoot.querySelector(avatarContainer);
       this.avatarPreview          = this.#avatarUploaderRoot.querySelector(avatarPreview);
-      this.#spinner               = this.#avatarContainer.querySelector(spinner);
+      this.#spinner               = this.#avatarUploaderRoot.querySelector(spinner);
       this.#fileMessageContainer  = this.#avatarUploaderRoot.querySelector(fileMessageContainer);
       this.#removeAvatarBtn       = this.#avatarUploaderRoot.querySelector(removeAvatarBtn);
 
