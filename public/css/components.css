@@ -81,6 +81,12 @@
    top: 0;
    height: 100%;
    object-fit: cover;
+   max-width: 100%;     /* stretches to size of parent (keeps aspect ratio) */
+}
+
+/* ^^^ allows repositioning of avatar inside form */
+#avatarUploader #avatarPreview {
+   max-width: none;
 }
 
 .image-square img[src]:not([src=""]) {
