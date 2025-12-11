@@ -6,7 +6,7 @@ import { renderErrorPage } from '../utils/errorUtils.js';
 
 const router = Router();
 
-// FIXME: THIS IS JUST A DEMO
+// FIXME: THIS IS JUST A DEMO, WILL BE INTEGRATED INTO SIGNUP
 router.get("/avatar", async (req, res, next) => {
    res.status(200).render("avatar-upload", {
       avatarDimensions:              userData.server.avatarDimensions,
@@ -20,7 +20,7 @@ router.get("/avatar", async (req, res, next) => {
    });
 })
 
-// FIXME: THIS IS JUST A DEMO
+// FIXME: THIS IS JUST A DEMO, WILL BE INTEGRATED INTO SIGNUP
 router.post("/avatar", 
    validateSchema(avatarSchema, "body"), 
    async (req, res, next) => {
