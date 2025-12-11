@@ -465,7 +465,7 @@ const userFunctions = Object.freeze({
             // compare single level of nested objects
             for (const k of Object.keys(val)) {
 
-               if (validUserData[key][k] !== null && validUserData[key][k] !== undefined) {
+               if (validUserData[key] && validUserData[key][k] !== null && validUserData[key][k] !== undefined) {
 
                   // update with new info
                   user[key][k] = validUserData[key][k];
