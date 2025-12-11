@@ -302,13 +302,13 @@ export class AvatarUploader {
       switch (event.type) {
          case "loadstart":
             this.#spinner.hidden = false;
-            console.log("loadstart:", event); 
+            // console.log("loadstart:", event); 
             break;
          case "load": 
-            console.log("FileReader loaded successfully:", event); 
+            // console.log("FileReader loaded successfully:", event); 
             break;
          case "loadend":
-            console.log("loadend:", event);
+            // console.log("loadend:", event);
             break;
          case "error":
             this.#spinner.hidden = true;
