@@ -19,18 +19,18 @@ const isPostOwnerDisplay = async (req, res, next) => {
     try {
         const userId = req.session.user._id;
         const { post } = await postData.getPostById(req.params.id);
-        res.locals.isPostOwner = (userId === post.userId.toString());
         req.post = post;
+        res.locals.isPostOwner = (userId === post.userId.toString());
         next();
     } catch (error) {
         return res.status(404).json({ error: 'Post not found' });
     }
-};
+}
 
 const requireAuthentication = (req, res, next) => {
     if (!req.session.user) {
-        return res.status(401).redirect('/login', { error: 'You must be logged in to access this resource' });
-    }
+        return res.redirect('/login');
+          }
     next();
 }
 
@@ -84,7 +84,7 @@ const parseFilterParams = (req, res, next) => {
         distance: distance,
         category: category,
         type: type,
-        tags: tags ? tags.split(',') : undefined,
+        tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t.length > 0) : undefined,
         priority: priority,
         expiring: expiring,
         sortBy: sortBy,
@@ -96,8 +96,8 @@ const parseFilterParams = (req, res, next) => {
 };
 
 export default {
-     isPostOwnerAction, 
-     isPostOwnerDisplay, 
+     isPostOwnerAction,
+     isPostOwnerDisplay,
      requireAuthentication, 
      parseFilterParams 
     };

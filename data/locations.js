@@ -1,5 +1,6 @@
 import { create } from 'express-handlebars';
 import db from '../config/mongoCollections.js';
+import { ObjectId } from 'mongodb';
 import { locationSchema, zipcodeSchema } from '../models/locations.js';
 
 const { locations } = db;
@@ -36,10 +37,10 @@ const locationFunctions = {
         });
 
         const validatedLocation = await locationSchema.validate(newLocationData);
-        
+
         const locationsCollection = await locations();
         const insertInfo = await locationsCollection.insertOne(validatedLocation);
-        if (!insertInfo.insertedId)
+        if (!insertInfo.acknowledged)
          errors.creationError = "Could not create a new location";
 
         if (Object.keys(errors).length > 0) {
@@ -48,14 +49,12 @@ const locationFunctions = {
          });
       }
 
-      console.log("NEW LOCATION CREATED");
-
       return { location: newLocationData, success: true };
     },
 
     async getLocationById(id) {
         if (!id) throw new Error("Location ID must be provided", { cause: { id: "Location ID not provided" } });
-        
+
         const locationsCollection = await locations();
         const location = await locationsCollection.findOne({ _id: ObjectId.createFromHexString(id) });
         if (!location) throw new Error("Location not found", { cause: { id: "No location found with the provided ID" } });
@@ -71,13 +70,13 @@ const locationFunctions = {
         const updatedLocationData = await locationSchema.validate(validLocationData);
 
         const updateInfo = await locationsCollection.updateOne(
-            { _id: updatedLocationData._id },
+            { _id: ObjectId.createFromHexString(locationId) },
             { $set: {...validLocationData} }
         );
 
         if (updateInfo.matchedCount === 0) throw new Error("Location not found", { cause: { locationId: "No location found with the provided ID" } });
         if (updateInfo.modifiedCount === 0) throw new Error("Could not update location", { cause: { locationId: "Location update failed" } });
-        return { location: this.getLocationById(updatedLocationData._id), success: true };
+        return { location: await this.getLocationById(updatedLocationData._id), success: true };
     },
 
     async deleteLocation(id) {

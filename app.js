@@ -56,18 +56,15 @@ app.use((req, res, next) => {
 // handlebars
 const handlebarsInstance = exphbs.create({
 	defaultLayout: "main",
-   partialsDir: ['views/partials/'],
-   helpers: handlebarsHelpers
+	helpers: handlebarsHelpers,
+   partialsDir: ['views/partials/']
    // ...further config
 });
 
 app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
 
-// Post Middleware
 app.use('/posts/filter', postMiddleware.parseFilterParams);
-app.use('/posts/edit/:id', postMiddleware.isPostOwnerAction);
-app.use('/posts/delete/:id', postMiddleware.isPostOwnerAction);
 app.use('/posts', postMiddleware.requireAuthentication);
 
 // DM Middleware

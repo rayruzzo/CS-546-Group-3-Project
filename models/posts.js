@@ -30,6 +30,18 @@ export const priorityValues = {
     URGENT: 4
 }
 
+export const fulfilledStateValues = {
+    OPEN: "open",
+    EXPIRED: "expired",
+    FULFILLED: "fulfilled"
+}
+
+export const fillfilledStateSchema = yup
+  .string()
+  .trim()
+  .oneOf(Object.values(fulfilledStateValues), "Invalid fulfilled state")
+  .required("Fulfilled state is required");
+
 export const titleSchema = yup
   .string()
   .trim()
@@ -57,11 +69,24 @@ export const postCategorySchema = yup
   .required("Post category is required");
 
 export const commentsEnabledSchema = yup
-  .boolean().default(true)
+  .mixed()
+  .transform((value) => {
+    if (value === 'on' || value === 'true' || value === true) return true;
+    if (value === 'false' || value === false || value === undefined || value === null) return false;
+    return true;
+  })
+  .default(true)
   .required("Comments enabled flag is required");
 
 export const tagsSchema = yup
   .array()
+  .transform((value) => {
+    if (typeof value === 'string') {
+      return value.trim() === '' ? [] : value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    }
+    if (Array.isArray(value)) return value;
+    return [];
+  })
   .of(
     yup
       .string()
@@ -69,17 +94,40 @@ export const tagsSchema = yup
       .min(1, "Tag must be at least 1 character long")
       .max(30, "Tag cannot exceed 30 characters")
   )
-  .max(20, "Cannot have more than 20 tags");
+  .max(20, "Cannot have more than 20 tags")
+  .default([]);
 
 export const prioritySchema = yup
-  .number()
+  .mixed()
+  .transform((value) => {
+    if (typeof value === 'string' && value.trim() !== '') {
+      const parsed = parseInt(value, 10);
+      return isNaN(parsed) ? priorityValues.NORMAL : parsed;
+    }
+    if (typeof value === 'number') return value;
+    return priorityValues.NORMAL;
+  })
   .oneOf(Object.values(priorityValues), "Invalid priority level")
   .default(priorityValues.NORMAL);
 
 export const expiresAtSchema = yup
-  .date()
-  .min(new Date(), "Expiration date cannot be in the past")
+  .mixed()
+  .transform((value) => {
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
+      return null;
+    }
+    if (typeof value === 'string') {
+      const parsed = new Date(value);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    }
+    if (value instanceof Date) return value;
+    return null;
+  })
   .nullable()
+  .test('is-future-date', 'Expiration date cannot be in the past', function(value) {
+    if (value === null) return true;
+    return value > new Date();
+  })
   .default(null);
 
 export const postSchema = yup.object().shape({
@@ -95,6 +143,7 @@ export const postSchema = yup.object().shape({
     updatedAt: yup.date().default(() => new Date()),
     priority: prioritySchema,
     expiresAt: expiresAtSchema,
+    fulfilledState: fillfilledStateSchema,
     zipcode: yup.string().required("Zipcode is required"),
     loc: locSchema
 });

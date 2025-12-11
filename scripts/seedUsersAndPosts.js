@@ -2,7 +2,6 @@ import 'dotenv/config';
 import db from '../config/mongoCollections.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
-import locationData from '../data/locations.js';
 import { userSchema } from '../models/users.js';
 import { postSchema } from '../models/posts.js';
 
@@ -15,17 +14,10 @@ const seedUsersAndPosts = async () => {
         const userCount = await usersCollection.countDocuments();
         const postCount = await postsCollection.countDocuments();
         
-       if (!process.env.RESET_SEED && (userCount > 0 || postCount > 0)) {
+        if (userCount > 0 || postCount > 0) {
             console.log(`Database already has ${userCount} users and ${postCount} posts`);
-            console.log('Skipping seed. Set RESET_SEED=true to force reseed.');
+            console.log('Skipping seed. Delete collections to re-seed.');
             return;
-        }
-
-        // Force delete if RESET_SEED=true
-        if (process.env.RESET_SEED) {
-            console.log("RESET_SEED=true → Removing existing data...");
-            await usersCollection.deleteMany({});
-            await postsCollection.deleteMany({});
         }
 
         console.log('Starting user and post seed...');
@@ -43,7 +35,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Fury',
                     dob: new Date('1950-12-21'),
                     bio: 'Director of S.H.I.E.L.D. Keeping an eye on everything. (Admin account)',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -60,7 +52,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Hill',
                     dob: new Date('1982-04-04'),
                     bio: 'Deputy Director of S.H.I.E.L.D. Here to help moderate and keep things running smoothly. (Moderator account)',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -76,7 +68,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Rogers',
                     dob: new Date('1918-07-04'),
                     bio: 'I can do this all day. Brooklyn native, always ready to help my neighbors.',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -92,7 +84,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Khan',
                     dob: new Date('2000-08-15'),
                     bio: 'Jersey City represent! Embiggen your life by helping others!',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -108,7 +100,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Danvers',
                     dob: new Date('1968-04-24'),
                     bio: 'Higher, further, faster. Former Air Force pilot, happy to help my community.',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -124,7 +116,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Walters',
                     dob: new Date('1980-05-12'),
                     bio: 'Attorney at law. Strong advocate for my neighbors (literally and figuratively).',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -140,7 +132,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Murdock',
                     dob: new Date('1982-10-16'),
                     bio: 'I\'m not daredevil.',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -156,7 +148,7 @@ const seedUsersAndPosts = async () => {
                     lastName: 'Parker',
                     dob: new Date('2001-08-10'),
                     bio: 'Your friendly neighborhood helper! Queens born and raised. With great power comes great responsibility.',
-                    profilePicture: null
+                    avatar: null
                 },
                 settings: {
                     dmsEnabled: true
@@ -193,7 +185,7 @@ const seedUsersAndPosts = async () => {
                     console.error('  Full error:', error);
                 }  
             })  
-        )  
+        );
 
         console.log(`\nCreated ${createdUsers.length} users`);
 

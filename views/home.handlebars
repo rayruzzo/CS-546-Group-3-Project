@@ -7,7 +7,7 @@
 
   <div class="create-post-banner">
     <p>Have something to add?</p>
-    <button onclick="window.location.href='/posts/create'" class="button-primary">Create New Post</button>
+    <a href="/posts/create" class="button-primary">Create New Post</a>
   </div>
 
 
@@ -85,24 +85,23 @@
     </div>
 
     {{#if posts.length}}
-        <ul id="posts-container">
+        <div id="posts-container">
         {{#each posts}}
-            <li>
-                <article class="post-item">
-                <h3>{{this.title}}</h3>
-                <p class="post-meta">{{this.category}} • {{this.type}} • {{this.city}}, {{this.state}}</p>
-                <p class="posted-by">Posted by {{this.username}} on {{this.datePosted}}</p>
-                <p class="post-preview">{{this.content}}</p>
-                <a href="/posts/{{this._id}}">Read more</a>
-                </article>
-            </li>
+            <article class="post-item">
+            <h3>{{this.title}}</h3>
+            <p class="post-meta">{{this.category}} • {{this.type}} • {{this.city}}, {{this.state}}</p>
+            <p class="posted-by">Posted by {{this.username}} on {{this.datePosted}}</p>
+            <p class="post-preview">{{this.content}}</p>
+            <a href="/posts/{{this._id}}">Read more</a>
+            </article>
         {{/each}}
-        </ul>
+        </div>
         <div class="load-more-container">
             <button id="load-more-btn" class="load-more-btn">Load More Posts</button>
             <p id="loading-message" style="display: none;">Loading...</p>
             <p id="no-more-posts" style="display: none;">No more posts to load</p>
         </div>
+        <p class="post-error"></p>
     {{else}}
         <p>No posts available in your area at the moment. Please check back later!</p>
     {{/if}}
@@ -110,7 +109,7 @@
 
 
 {{else}}
-  <h1>Welcome to Our Community!</h1>
+  <h1>Welcome to Cup of Sugar!</h1>
   <p>Please log in or sign up to see posts in your area.</p>
 {{/if}}
 
