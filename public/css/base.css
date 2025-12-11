@@ -9,11 +9,17 @@
    --color-secondary-light: hsl(300, 100%, 99%);
    --color-secondary-dark: hsl(271, 31%, 21%);
 
-   --color-tertiary-light: hsl(300, 10%, 50%);
-   --color-tertiary-dark: hsl(271, 10%, 85%);
+   --color-tertiary-light: hsl(300, 10%, 75%);
+   --color-tertiary-dark: hsl(300, 10%, 49%);
 
    --color-accent-light: hsl(43, 100%, 72%);
    --color-accent-dark: hsl(43, 100%, 81%);
+
+   --color-warning-light: hsl(0, 65%, 40%);
+   --color-warning-dark: hsl(0, 83%, 84%);
+
+   --color-bg-warning-light: hsl(0, 66%, 78%);
+   --color-bg-warning-dark: hsl(0, 88%, 25%);
 
    --color-translucent-1-light: hsla(300, 100%, 50%, 0.4);
    --color-translucent-1-dark: hsla(300, 100%, 60%, 0.4);
@@ -40,14 +46,15 @@
    --line-height-loosest: 1.4;
 
    /* FONT SIZE */
-   --size-step--1: clamp(0.85rem, calc(1vw * 2), 0.9rem);
+   --size-step--1: clamp(0.85rem, calc(1vw * 1), 0.9rem);
    --size-step-0: clamp(0.9rem, calc(1vw * 2), 1rem);
-   --size-step-1: clamp(1.15rem, calc(1vw * 4), 1.33rem);
+   --size-step-1: clamp(1.15rem, calc(1vw * 3), 1.33rem);
    --size-step-2: clamp(1.5rem, calc(1vw * 5), 2rem);
    --size-step-3: clamp(2.33rem, calc(1vw * 8), 3rem);
    --size-step-4: clamp(3rem, calc(1vw * 7), 3.5rem);
 
    /* BORDER RADIUS */
+   --border-radius-small: 10px;
    --border-radius-large: 20px;
 
    /* ~~~~~~~~~~~~~~~~~~~~~~ */
@@ -63,6 +70,9 @@
    --fg-tertiary-color: var(--color-tertiary-dark);
 
    --accent-color: var(--color-accent-light);
+
+   --warning-color: var(--color-warning-light);
+   --bg-warning-color: var(--color-bg-warning-light);
 
    --translucent-color-1: var(--color-translucent-1-light);
    --translucent-color-2: var(--color-translucent-2-light);
@@ -89,6 +99,9 @@
       --fg-tertiary-color: var(--color-tertiary-light);
 
       --accent-color: var(--color-accent-dark);
+
+      --warning-color: var(--color-warning-dark);
+      --bg-warning-color: var(--color-bg-warning-dark);
 
       --translucent-color-1: var(--color-translucent-1-dark);
       --translucent-color-2: var(--color-translucent-2-dark);
@@ -117,7 +130,7 @@
 
 
 
-.error-container { /* FIXME: change back to `body` - just temp for others */ 
+.error-container, #avatarUploader { /* FIXME: change back to `body` - just temp for others */ 
    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
    color: var(--fg-color);
 }
@@ -126,6 +139,7 @@
 
 label {
    font-weight: 600;
+   font-size: var(--size-step-1);
 }
 
 
@@ -137,6 +151,12 @@ label {
 
 .visually-hidden {
    visibility: hidden;
+}
+
+.switcher {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 0.8rem;
 }
 
 .colorful-blur-ring {

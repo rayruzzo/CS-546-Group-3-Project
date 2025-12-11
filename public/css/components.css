@@ -1,11 +1,15 @@
 /* FORM */
 .form-container {
    display: flex;
-   max-width: 20rem;
    flex-direction: column;
+   max-width: 20rem;
+   padding: 2rem 1rem;
+   background-color: var(--bg-secondary-color);
+   border: var(--border-primary);
+   border-radius: var(--border-radius-small);
 }
 
-.form-container > * {
+.form-container > :not(:last-child) {
    margin-bottom: 1rem;
 }
 
@@ -15,12 +19,16 @@
 .input-message {
    display: block;
    min-height: 1.2rem;
-   margin: 0.5rem 0;
-   color: black;
+   width: fit-content;
+   padding: 0.2rem 0.6rem;
+   /* background-color: var(--bg-color); */
+   color: var(--fg-color);
+   /* border: var(--border-primary); */
+   border-radius: var(--border-radius-small);
 }
 
 .input-error {
-   color: red;
+   color: var(--warning-color);
 }
 
 
@@ -44,6 +52,7 @@
    border: var(--border-primary);
    border-radius: var(--border-radius-large);
    overflow: hidden;
+   margin-bottom: 0.5rem;
 }
 
 .avatar-container--small {          /* modifies base avatar-container */
@@ -171,6 +180,26 @@
 .error-contents > .error-message-extended {
    margin-bottom: 3rem;
    word-break: break-word;
+}
+
+
+
+/* BUTTONS */
+button, ::file-selector-button {
+   padding: 0.35rem 0.6rem;
+   margin-right: 1rem;
+   background-color: var(--bg-tertiary-color);
+   background-color: unset;
+   color: var(--fg-color);
+   border-radius: var(--border-radius-small);
+   border: var(--border-primary);
+   font-size: var(--size-step-0);
+   font-weight: 500;
+}
+
+button.btn-warning {
+   background-color: var(--bg-warning-color);
+   color: var(--warning-color);
 }
 
 
