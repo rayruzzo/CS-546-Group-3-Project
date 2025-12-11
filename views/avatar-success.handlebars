@@ -1,0 +1,18 @@
+{{!-- JUST A TEMPORARY TEST FILE TO TEST OUT THE RESULT OF AVATAR UPLOADS --}}
+
+<div class="avatar-container">
+   <div class="image-square">
+
+      {{#with avatar}}
+      <img 
+         src="{{this}}" 
+         alt="{{../username}}" 
+         width="{{../avatarDimensions}}" 
+         height="{{../avatarDimensions}}"
+      >
+      {{else}}
+      <div class="no-avatar"></div>
+      {{/with}}
+
+   </div>
+</div>
