@@ -6,9 +6,10 @@ export class AvatarUploader {
    // ### !!! VARIABLES RECEIVED FROM SERVER: !!! ### //
    // `avatarAllowedMIMETypes`  - Map<string, string> //
    // `avatarMaxOriginalSizeMB` - number              //
+   // `avatarDimensions`        - number              //
    // ############################################### //
 
-   #squareSize    = 200;
+   #squareSize    = avatarDimensions;
    #resizeQuality = 1;
 
    #reader      = new FileReader();
