@@ -104,7 +104,7 @@ router.post('/fulfill/:id', postMiddleware.isPostOwnerAction, async (req, res) =
     }
 });
 
-router.get('/report/:id', async (req, res) => {
+router.post('/report/:id', async (req, res) => {
     try {
         await postData.reportPost(req.params.id);
         res.redirect(`/posts/${req.params.id}`);

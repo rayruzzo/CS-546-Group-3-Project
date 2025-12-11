@@ -48,8 +48,10 @@
 
     <div class="content">{{post.content}}</div>
 
-    {{#if post.commentsEnabled and (not post.reported)}}
+    {{#if post.commentsEnabled}}
+    {{#unless post.reported}}
 <!-- Comments Section Placeholder -->
+    {{/unless}}
     {{/if}}
 </article>
 
