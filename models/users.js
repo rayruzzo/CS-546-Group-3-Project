@@ -99,6 +99,17 @@ export const nameSchemaBase = yup
    .trim();
 
 
+export const avatarSchema = yup
+   .object({
+      resized:       yup.string().transform((val) => val ? val : null).nullable().default(null).trim(),
+      resizedSquare: yup.string().transform((val) => val ? val : null).nullable().default(null).trim()
+   })
+   .exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
+   .nullable()
+   .default(null)
+   .label("Avatar");
+
+
 export const profileSchema = yup.object({
    username: 
       usernameSchema,      // REQUIRED
@@ -126,14 +137,7 @@ export const profileSchema = yup.object({
          .label("Bio"),
 
    avatar:                 // OPTIONAL
-      yup.object({
-         resized:       yup.string().trim().nullable().default(null),
-         resizedSquare: yup.string().trim().nullable().default(null)
-      })
-      .exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
-      .nullable()
-      .default(null)
-      .label("Avatar"),
+      avatarSchema
 
 })
 .label("User Profile")
