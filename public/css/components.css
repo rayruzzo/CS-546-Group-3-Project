@@ -26,26 +26,51 @@
 
 
 /* IMAGE */
-#avatarContainer {
+.avatar-container {
+   --avatar-max-dimensions: 200px;
+   --avatar-max-icon-size: calc(var(--avatar-max-dimensions) / 1.2);
+
    position: relative;
    display: flex;
    justify-content: center;
    align-items: center;
-   max-width: 200px;
-   max-height: 200px;
+   max-width: var(--avatar-max-dimensions);
+   max-height: var(--avatar-max-dimensions);
+
+   /* scale icon font-size with viewport AND container dimensions */
+   font-size: clamp(1em, calc(6vw * 13), var(--avatar-max-icon-size));
+
+   background-color: var(--bg-secondary-color);
    border: var(--border-primary);
    border-radius: var(--border-radius-large);
    overflow: hidden;
 }
 
+.avatar-container--small {          /* modifies base avatar-container */
+   --avatar-max-dimensions: 50px;
+}
+
+.avatar-container .no-avatar {
+   position: absolute;
+}
+
+.avatar-container .no-avatar::after {
+   content: "◌";
+   font-size: inherit;
+   display: block;
+   color: var(--fg-color);
+}
+
 .image-square {
    position: relative;
-   display: block;
+   display: flex;
    width: 100%;
    height: 100%;
    /* padding-top: 100%; */
    aspect-ratio: 1;
    /* overflow: hidden; */
+   justify-content: center;
+   align-items: center;
 }
 
 .image-square img {
@@ -54,11 +79,8 @@
    left: 0;
    right: 0;
    top: 0;
-   /* width: 100%; */
    height: 100%;
    object-fit: cover;
-   
-   /* max-width: 100%; */
 }
 
 .image-square img[src]:not([src=""]) {
@@ -80,7 +102,7 @@
    transform-origin: 50% 41.5%;
    font-size: 4rem;
    display: block;
-   color: black;
+   color: var(--fg-color);
    animation: animate-spinner infinite 3s linear;
 }
 
