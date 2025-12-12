@@ -72,6 +72,9 @@ router.post(
   async (req, res) => {
     try {
       await moderatorData.markFulfilled(req.params.id);
+      // resolving a report when a post is fulfilled
+      await moderatorData.clearReport(req.params.id);
+
       return res.redirect("/moderator");
     } catch (error) {
       console.error("Fulfill failed:", error);
