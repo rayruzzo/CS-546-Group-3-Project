@@ -229,3 +229,84 @@ button.btn-warning {
 .link-medium:hover::after {
    transform: rotate(-20deg);
 }
+
+/* REPORTING */
+.report-form {
+   margin-left: auto;
+}
+
+.report-link::before {
+  content: "⚠ ";
+  opacity: 0.6;
+}
+
+.report-link {
+   background: none;
+   border: none;
+   padding: 0;
+   font-size: 0.85rem;
+   color: var(--color-muted, #888);
+   cursor: pointer;
+}
+
+.report-link:hover {
+   color: var(--warning-color);
+   text-decoration: underline;
+}
+.post-reported-status::before {
+  content: "⚠ ";
+  opacity: 0.6;
+}
+
+.post-reported-status {
+  font-size: 0.85rem;
+  color: var(--color-muted, #888);
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* ================================
+   Moderator Dashboard
+================================ */
+
+.moderator-description {
+  margin-bottom: 1rem;
+  color: var(--color-muted, #777);
+}
+
+.moderator-empty {
+  margin-top: 2rem;
+  font-style: italic;
+  color: var(--color-muted, #777);
+}
+
+/* Action button container */
+.moderator-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+/* Prevent form layout issues */
+.moderator-actions form {
+  display: inline;
+}
+
+/* Button styles aligned with project */
+.btn-secondary {
+  background-color: var(--bg-secondary-color);
+  color: var(--fg-color);
+}
+
+.btn-danger {
+  background-color: var(--bg-warning-color);
+  color: var(--warning-color);
+  border-color: var(--warning-color);
+}
+
+/* Hover polish */
+.moderator-actions button:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
