@@ -380,7 +380,7 @@ const postFunctions = {
     },
 
     async reportPost(postId) {
-        postId = typeof postId === ObjectId ? postId : new ObjectId(postId);
+        postId = postId instanceof ObjectId ? postId : new ObjectId(postId);
 
         const postCollection = await posts();
         const updateInfo = await postCollection.updateOne(
