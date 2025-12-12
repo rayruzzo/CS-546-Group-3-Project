@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import bcrypt from "bcrypt";
-import { users } from "../config/mongoCollections.js";
+import db from "../config/mongoCollections.js";
 
 export const loginSchema = yup.object().shape({
     email: yup.string().required().email(),
@@ -19,7 +19,7 @@ export const validateLogin = async (req, res, next) => {
         });
     }
 
-    const userCollection = await users();
+    const userCollection = await db.users();
     const user = await userCollection.findOne({ email: email.toLowerCase() });
 
     if (!user) {

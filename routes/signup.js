@@ -33,7 +33,14 @@ router.post("/", async (req, res) => {
             }
         };
 
-        await userFunctions.createUser(validUserData);
+        const {user} = await userFunctions.createUser(validUserData);
+        req.session.user = {
+            _id: user._id.toString(),
+            email: user.email,
+            zipcode: user.zipcode,
+            role: user.role,
+            username: user.profile?.username || ""
+        };
         return res.redirect("/");
 
     } catch (error) {
