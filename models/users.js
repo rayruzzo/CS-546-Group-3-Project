@@ -99,8 +99,19 @@ export const nameSchemaBase = yup
    .trim();
 
 
+export const avatarSchema = yup
+   .object({
+      resized:       yup.string().transform((val) => val ? val : null).nullable().default(null).trim(),
+      resizedSquare: yup.string().transform((val) => val ? val : null).nullable().default(null).trim()
+   })
+   .exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
+   .nullable()
+   .default(null)
+   .label("Avatar");
+
+
 export const profileSchema = yup.object({
-   username: 
+   username:
       usernameSchema,      // REQUIRED
 
    firstName:              // OPTIONAL
@@ -117,7 +128,7 @@ export const profileSchema = yup.object({
          .requiredIfNotLoggedIn("Date of Birth")
          .label("Date of Birth"),
 
-   bio:                    // OPTIONAL    
+   bio:                    // OPTIONAL
       yup.string()
          .max(250)
          .nullable()
@@ -125,13 +136,9 @@ export const profileSchema = yup.object({
          .trim()
          .label("Bio"),
 
-   avatar:         // OPTIONAL
-      yup.string()
-         .url()
-         .nullable()
-         .default(null)
-         .trim()
-         .label("Profile Picture"),
+   avatar:                 // OPTIONAL
+      avatarSchema
+
 })
 .label("User Profile")
 .exact(({ label, properties }) => `${label} has invalid properties: ${properties}`)
@@ -139,7 +146,7 @@ export const profileSchema = yup.object({
 
 
 export const settingsSchema = yup.object({
-   dmsEnabled: 
+   dmsEnabled:
       yup.boolean()
          .typeError(({ label, type }) => `${label} must be either 'true' or 'false'`)
          .default(true)
@@ -158,7 +165,7 @@ export const settingsSchema = yup.object({
 
 /**
  * Validates an `ObjectId` on the surface to not make unnecessary requests to MongoDB.
- * 
+ *
  * @param {string} label - the label to inject in the `${label} id is not a valid id` error message
  * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
  */
@@ -168,12 +175,12 @@ export const getResourceByIdSchema = (label) => yup.object({
 
 /**
  * Validates a `username` URL param on the surface to not make unnecessary requests to MongoDB.
- * 
+ *
  * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
  */
 export const usernameParamSchema = yup.object()
-   .test("usernameShape", 
-      ({value}) => `User with username ${value?.username || null} is invalid`, 
+   .test("usernameShape",
+      ({value}) => `User with username ${value?.username || null} is invalid`,
       async (value) => usernameBaseSchema.isValid(value?.username)
    );
 
@@ -184,13 +191,13 @@ export const usernameParamSchema = yup.object()
 // ***************** //
 
 export const userSchema = yup.object({
-   email: 
+   email:
       emailSchema,
 
    password:          // NOTE: password will be hashed in `createUser()`, not here
       passwordSchema,
 
-   role: 
+   role:
       roleSchema,
 
    zipcode:            // TODO: finish zipcode validation
@@ -204,10 +211,10 @@ export const userSchema = yup.object({
          // TODO: <----- LOOKUP ZIPCODE HERE
          .label("ZIP Code"),
 
-   profile: 
+   profile:
       profileSchema,
 
-   settings: 
+   settings:
       settingsSchema,
 })
 .label("User")

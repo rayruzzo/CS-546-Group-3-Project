@@ -1,0 +1,24 @@
+<div class="login-container">
+    <link rel="stylesheet" href="/public/css/login.css">
+    <h1>Sign In</h1>
+    
+    {{#if success}}
+    <p class="success-toast">{{success}}</p>
+    {{/if}}
+
+    {{#if error}}
+    <p class="error">{{error}}</p>
+    {{/if}}
+
+    <form action="/login" method="POST">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="text" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+     <p class="signup-prompt">Don't have an account?</p>
+    <a href="/signup" class="signup-button">Sign Up</a>
+   </div>

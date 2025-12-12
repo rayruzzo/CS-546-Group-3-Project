@@ -1,0 +1,35 @@
+/* AT-RULES */
+@supports (hyphens: auto) {
+   h1 {
+      hyphens: auto;
+   }
+}
+
+@supports (color: hsl(from var(--accent-color) h s 40%)) {
+   .button-medium:hover {
+      background-color: hsl(from var(--accent-color) h s 50%);
+      filter: none;
+   }
+}
+
+/* fix layout issues in chrome */
+@supports (not (-moz-appearance: button)) and (-webkit-tap-highlight-color: black)  {
+   .spinner::after {
+      transform-origin: 50% 47.5%;
+   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .colorful-blur-ring {
+      animation: none;
+   }
+
+   .link-medium {
+      transition: none;
+   }
+
+   .link-medium:hover::after {
+      transition: none;
+      transform: none;
+   }
+}

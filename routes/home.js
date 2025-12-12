@@ -15,11 +15,10 @@ router.get('/', async (req, res) => {
             });
         }
 
-        // Load posts for authenticated user based on their zip code
+        // Load posts for authenticated user
         let posts = [];
-        
         posts = await loadPosts(req.session.user.zipcode, { limit: 10 });
-        
+
         // Format categories and priorities for the template
         const categories = Object.entries(postCategories).map(([key, value]) => ({
             value: value,
@@ -30,7 +29,7 @@ router.get('/', async (req, res) => {
             value: value,
             label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()
         }));
-        
+
         res.render('home', { 
             title: 'Home',
             user: req.session.user,

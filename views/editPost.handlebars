@@ -44,7 +44,29 @@
     </div>
     <div class="form-group">
         <label for="commentsEnabled">Enable Comments:</label>
-        <input type="checkbox" name="commentsEnabled" id="commentsEnabled" {{#if post.commentsEnabled}}checked{{/if}}>
+        <input 
+            type="checkbox" 
+            name="commentsEnabled" 
+            id="commentsEnabled" 
+            {{#if post.commentsEnabled}}checked{{/if}}
+        >
+    </div>
+    <div class="form-group">
+        <label for="fulfilledState">Fulfilled state:</label>
+        <select name="fulfilledState" id="fulfilledState" value="{{post.fulfilledState}}" required>
+            <option 
+                value="open" 
+                {{#if (eq post.fulfilledState "open")}}selected="selected"{{/if}}
+            >
+                Open
+            </option>
+            <option 
+                value="fulfilled"
+                {{#if (eq post.fulfilledState "fulfilled")}}selected="selected"{{/if}}
+            >
+                Fulfilled
+            </option>
+        </select>
     </div>
     {{#if error}}
         <div class="form-error">

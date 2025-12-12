@@ -70,7 +70,7 @@
             if (data.posts && data.posts.length > 0) {
                 appendPosts(data.posts);
                 currentSkip += data.posts.length;
-                
+
                 if (data.posts.length < limit) {
                     // No more posts to load
                     noMoreMessage.style.display = 'block';
@@ -100,31 +100,31 @@
 
     function buildQueryParams() {
         const params = new URLSearchParams();
-        
+
         if (distanceFilter?.value) {
             params.append('distance', distanceFilter.value);
         }
-        
+
         if (categoryFilter?.value) {
             params.append('category', categoryFilter.value);
         }
-        
+
         if (typeFilter?.value) {
             params.append('type', typeFilter.value);
         }
-        
+
         if (tagsFilter?.value) {
             params.append('tags', tagsFilter.value);
         }
-        
+
         if (priorityFilter?.value) {
             params.append('priority', priorityFilter.value);
         }
-        
+
         if (expiringFilter?.value) {
             params.append('expiring', expiringFilter.value);
         }
-        
+
         if (sortByFilter?.value) {
             params.append('sortBy', sortByFilter.value);
         }
@@ -148,7 +148,7 @@
                 <a href="/posts/${post._id}">Read more</a>
                 </article>
         `).join('');
-        
+
         postsContainer.insertAdjacentHTML('beforeend', postsHTML);
     }
 
@@ -184,15 +184,15 @@
                     <a href="/posts/${post._id}">Read more</a>
                     </article>
                 `).join('');
-                
+
                 postsListContainer.innerHTML = postsHTML;
 
                 currentSkip = data.posts.length;
-                
+
             } else {
                 postsListContainer.innerHTML = '<p>No posts available in your area at the moment. Please check back later!</p>';
             }
-            
+
         } catch (error) {
             console.error('Error loading posts:', error);
             const errorElement = document.querySelector('.post-error');
