@@ -7,6 +7,7 @@ import configRoutes from './routes/index.js';
 import checkAndSeedLocations from './scripts/checkAndSeed.js';
 import seedUsersAndPosts from './scripts/seedUsersAndPosts.js';
 import postMiddleware from './middleware/posts.mw.js';
+import dmMiddleware from "./middleware/dmthreads.mw.js";
 import handlebarsHelpers from './middleware/handlebarsHelpers.js';
 import { postCategories, postTypes, priorityValues } from './models/posts.js';
 
@@ -25,31 +26,19 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-// TODO: Remove this mock middleware once you have proper authentication
-// This is only for testing purposes - in production, users must login
-app.use((req, res, next) => {
-  if (!req.session.user) {
-    req.session.user = { 
-      _id: "693a6650d10301cab36edb66", // testing kamala's login
-      zipcode: "07030",
-      email: "kamala.khan@gmail.com",
-      username: "msmarvel-jc"
-    }; 
-  }
-  next();
-});
 
 // setup middleware
 app.use('/public', express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.json({limit: "300kb"}));
+app.use(express.urlencoded({limit: "300kb", extended: true}));
 
 // Set local variables available to all templates
 app.use((req, res, next) => {
-  res.locals.postCategories = Object.values(postCategories);
-  res.locals.postTypes = Object.values(postTypes);
-  res.locals.priorityValues = priorityValues;
-  next();
+   res.locals.user = req.session.user || null;
+   res.locals.postCategories = Object.values(postCategories);
+   res.locals.postTypes = Object.values(postTypes);
+   res.locals.priorityValues = priorityValues;
+   next();
 });
 
 // handlebars
@@ -59,11 +48,17 @@ const handlebarsInstance = exphbs.create({
    partialsDir: ['views/partials/']
    // ...further config
 });
+
 app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
 
 app.use('/posts/filter', postMiddleware.parseFilterParams);
 app.use('/posts', postMiddleware.requireAuthentication);
+
+// DM Middleware
+app.use("/dmthreads/thread/:id", dmMiddleware.requireThreadAuthorization);
+app.use("/dmthreads/thread/:id/message", dmMiddleware.enforceMessageRateLimit);
+app.use("/dmthreads", dmMiddleware.requireAuthentication);
 
 configRoutes(app);
 
@@ -82,7 +77,7 @@ server.on('error', (e) => {
 
    if (e.code === 'EADDRINUSE') {
       console.error(`port ${PORT} in use, retrying in ${timeoutSeconds}s`);
-      
+
       setTimeout(() => {
          server.close();
          server.listen(PORT);
@@ -93,19 +88,19 @@ server.on('error', (e) => {
 });
 
 // `process` is this Node process
-// debugging graceful shutdown from 
+// debugging graceful shutdown from
 // https://expressjs.com/en/advanced/healthcheck-graceful-shutdown.html
 process.on('SIGTERM', shutdownGracefully);
 process.on('SIGINT', shutdownGracefully);
 
 async function shutdownGracefully(signal) {
    const forcefulShutdownDelaySecs = 3;
-   
+
    try {
       console.log(`\n${signal} signal received: closing HTTP server`);
-   
+
       const closeStatus = await closeConnection();  // check if MongoDB is even connected
-      if (closeStatus) 
+      if (closeStatus)
          console.log("MongoDB connection closed");
       else if (closeStatus === undefined)
          console.log("MongoDB is not connected. Continuing shutdown anyway.");
@@ -113,7 +108,7 @@ async function shutdownGracefully(signal) {
       server.close(() => {
          console.log('HTTP server closed');
       })
-      
+
       server.getConnections((e, count) => {
          if (count) {
             console.log(`All connections will be forcefully closed in ${forcefulShutdownDelaySecs} seconds`);
@@ -124,7 +119,7 @@ async function shutdownGracefully(signal) {
             }, forcefulShutdownDelaySecs * 1000);
          }
       })
-      
+
    } catch (e) {
       console.error("An error occurred while shutting down gracefully:", e);
       process.exitCode = 1;   // set error code and allow Node to exit naturally

@@ -54,7 +54,7 @@ const postFunctions = {
             );
             post.fulfilledState = 'open';
         }
-        
+
         // Check if post has expired
         if (post.expiresAt && post.fulfilledState === 'open') {
             const now = new Date();

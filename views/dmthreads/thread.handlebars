@@ -1,0 +1,40 @@
+<div class="dm-thread-page">
+  <div class="dm-thread-container">
+
+    <a href="/dmthreads" class="dm-back-link">Back to Messages</a>
+
+    <h2 class="dm-thread-title">
+      Conversation with {{chatPartner}}
+    </h2>
+
+    <div class="dm-messages-box">
+
+      {{#each thread.messages}}
+        <div class="dm-message-wrapper
+          {{#if (eq this.from ../currentUserId)}}dm-message-self{{else}}dm-message-other{{/if}}">
+
+          <div class="dm-message-bubble">
+            {{this.content}}
+          </div>
+
+          <div class="dm-message-time">
+            {{formatDate this.timestamp}}
+          </div>
+
+        </div>
+      {{/each}}
+
+    </div>
+
+    <form method="POST" action="/dmthreads/thread/{{thread._id}}/message" class="dm-form">
+      <textarea
+        name="message"
+        class="dm-input"
+        placeholder="Type your message..."
+        required></textarea>
+
+      <button type="submit" class="dm-send-btn">Send</button>
+    </form>
+
+  </div>
+</div>

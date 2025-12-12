@@ -10,7 +10,7 @@
         {{/if}}
     </div>
 {{/if}}
-    
+
     <div class="post-meta">
         <span class="author">Posted by <strong>{{post.username}}</strong></span>
         <span class="location">📍 {{post.city}}, {{post.state}}</span>
@@ -53,7 +53,7 @@
         <h2>Comments</h2>
 
         <div class="add-comment">
-            {{#if userLoggedIn}}
+            {{#if user}}
             <h3>Add a Comment</h3>
             <form id="comment-form" method="POST" action="/comments/create/{{post._id}}" data-post-id="{{post._id}}">
                 <textarea id="comment-content" name="content" placeholder="Write your comment here..." required></textarea>
@@ -89,6 +89,11 @@
     {{/if}}
 </article>
 
+{{!-- conditionally load postManagement javascript if we are the post owner --}}
+{{#if isPostOwner}}
 <script src="/public/js/postManagement.js"></script>
 <script src="/public/js/commentManagement.js"></script>
+
+{{/if}}
+
 <script src="/public/js/submitComment.js"></script>

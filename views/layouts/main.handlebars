@@ -1,21 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} | Cup Of Sugar</title>
-    <link rel="stylesheet" href="/public/css/errors.css">
+    <link rel="stylesheet" href="/public/css/main.css">
 </head>
 <body>
     <header>
     </header>
 
-    <main>
-        <!-- Content goes here -->
+    <!-- GLOBAL STYLES -->
+    <link rel="stylesheet" href="/public/css/errors.css">
+    <link rel="stylesheet" href="/public/style.css">
+    <link rel="stylesheet" href="/public/css/dm.css">
+    <link rel="stylesheet" href="/public/css/nav.css">
+</head>
+
+<body>
+    <header></header>
+
+    <!-- GLOBAL NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">Community App</a>
+        </div>
+
+        <div class="nav-right">
+            {{#if user}}
+                <a href="/">Home</a>
+                <a href="/dmthreads">DMs</a>
+                <a href="/posts/create">New Post</a>
+                <span class="nav-user">Hi, {{user.username}}</span>
+                <a href="/logout" class="logout-btn">Logout</a>
+            {{else}}
+                <a href="/">Home</a>
+                <a href="/login">Login</a>
+                <a href="/signup">Sign Up</a>
+            {{/if}}
+        </div>
+    </nav>
+
+    <main class="page-content">
         {{{body}}}
     </main>
-    
-    <footer>
-    </footer>
+
 </body>
 </html>

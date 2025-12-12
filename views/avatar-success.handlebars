@@ -1,0 +1,24 @@
+{{!-- JUST A TEMPORARY TEST FILE TO TEST OUT THE RESULT OF AVATAR UPLOADS --}}
+{{#if avatar}}
+<h1>Avatar Added</h1>
+{{else}}
+<h1>Avatar Not Added</h1>
+<h2>You get generic icon</h2>
+{{/if}}
+
+<div class="avatar-container">
+   <div class="image-square">
+
+      {{#with avatar}}
+      <img 
+         src="{{this}}" 
+         alt="{{../username}}" 
+         width="{{../avatarDimensions}}" 
+         height="{{../avatarDimensions}}"
+      >
+      {{else}}
+      <div class="no-avatar"></div>
+      {{/with}}
+
+   </div>
+</div>

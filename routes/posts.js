@@ -32,7 +32,7 @@ router.post('/create', async (req, res) => {
     try {
         const { title, content, type, category, commentsEnabled, tags, priority, expiresAt } = req.body;
         const userId = req.session.user._id;
-        
+
         const { post } = await postData.createPost(title, userId, content, type, category, commentsEnabled, tags, priority, expiresAt);
         res.redirect(`/posts/${post._id}`);
     } catch (error) {
@@ -52,9 +52,20 @@ router.get('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 // POST /posts/edit/:id - edit post and redirect to it
 router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
-        const { title, content, type, category, commentsEnabled, tags, priority, expiresAt } = req.body;
-        const post = req.post;
+        const { 
+            title, 
+            content, 
+            type, 
+            category, 
+            commentsEnabled, 
+            tags, 
+            priority, 
+            expiresAt, 
+            fulfilledState 
+        } = req.body;
         
+        const post = req.post;
+
         const editedPostData = {
             title,
             userId: post.userId,
@@ -67,10 +78,11 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
             tags,
             priority: priority || post.priority,
             expiresAt,
+            fulfilledState,
             editedAt: new Date()
         };
         
-        await postData.editPost(req.params.id, editedPostData);
+        await postData.updatePost(req.params.id, editedPostData);
         res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
         renderErrorPage(res, 400, error.message);
@@ -80,11 +92,7 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 // GET /posts/:id - View a single post
 router.get('/:id', postMiddleware.isPostOwnerDisplay, commentMiddleware.getCommentsForPostDisplay, async (req, res) => {
     try {
-        res.render('post', { 
-            post: req.post, 
-            comments: res.locals.comments,
-            userLoggedIn: !!req.session.user
-        });
+        res.render('partials/post', { post: req.post});
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
@@ -94,7 +102,7 @@ router.get('/:id', postMiddleware.isPostOwnerDisplay, commentMiddleware.getComme
 router.post('/delete/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
         await postData.deletePost(req.params.id);
-        return res.status(200).json({ success: true, message: 'Post deleted' });  
+        return res.status(200).json({ success: true, message: 'Post deleted' });
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
