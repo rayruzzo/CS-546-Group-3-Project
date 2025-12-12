@@ -1,5 +1,3 @@
-//This will allow us to show more posts without reloading the page
-//get the current logged in user from session
 import postData from "../data/posts.js";
 import locationData from "../data/locations.js";
 
@@ -26,7 +24,6 @@ const loadPosts = async (userZipCode, filters = {}) => {
         );
         const zipCodes = nearbyLocations.map(loc => loc.zipcode);
 
-        // Build filter object for posts
         const postFilters = {
             zipCodes,
             category: filters.category,
@@ -37,7 +34,10 @@ const loadPosts = async (userZipCode, filters = {}) => {
         };
 
         const postsList = await postData.filterPosts(postFilters);
-        return postsList;
+        
+        const enrichedPosts = await postData.enrichPostsWithUserAndLocation(postsList);
+
+        return enrichedPosts;
     } catch (error) {
         throw error;
     }

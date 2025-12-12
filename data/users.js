@@ -386,7 +386,7 @@ const userFunctions = Object.freeze({
       const nullableKeys = {
          firstName:      true,
          lastName:       true,
-         profilePicture: true,
+         avatar: true,
          bio:            true,
       }
 
