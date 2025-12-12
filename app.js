@@ -28,8 +28,8 @@ app.use(session({
 
 // setup middleware
 app.use('/public', express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.json({limit: "300kb"}));
+app.use(express.urlencoded({limit: "300kb", extended: true}));
 
 // Set local variables available to all templates
 app.use((req, res, next) => {

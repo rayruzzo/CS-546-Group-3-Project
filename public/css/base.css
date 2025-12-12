@@ -9,11 +9,17 @@
    --color-secondary-light: hsl(300, 100%, 99%);
    --color-secondary-dark: hsl(271, 31%, 21%);
 
-   --color-tertiary-light: hsl(300, 10%, 50%);
-   --color-tertiary-dark: hsl(271, 10%, 85%);
+   --color-tertiary-light: hsl(300, 10%, 75%);
+   --color-tertiary-dark: hsl(300, 10%, 49%);
 
    --color-accent-light: hsl(43, 100%, 72%);
    --color-accent-dark: hsl(43, 100%, 81%);
+
+   --color-warning-light: hsl(0, 65%, 40%);
+   --color-warning-dark: hsl(0, 83%, 84%);
+
+   --color-bg-warning-light: hsl(0, 66%, 78%);
+   --color-bg-warning-dark: hsl(0, 88%, 25%);
 
    --color-translucent-1-light: hsla(300, 100%, 50%, 0.4);
    --color-translucent-1-dark: hsla(300, 100%, 60%, 0.4);
@@ -40,12 +46,16 @@
    --line-height-loosest: 1.4;
 
    /* FONT SIZE */
-   --size-step--1: clamp(0.85rem, calc(1vw * 2), 0.9rem);
+   --size-step--1: clamp(0.85rem, calc(1vw * 1), 0.9rem);
    --size-step-0: clamp(0.9rem, calc(1vw * 2), 1rem);
-   --size-step-1: clamp(1.15rem, calc(1vw * 4), 1.33rem);
+   --size-step-1: clamp(1.15rem, calc(1vw * 3), 1.33rem);
    --size-step-2: clamp(1.5rem, calc(1vw * 5), 2rem);
    --size-step-3: clamp(2.33rem, calc(1vw * 8), 3rem);
    --size-step-4: clamp(3rem, calc(1vw * 7), 3.5rem);
+
+   /* BORDER RADIUS */
+   --border-radius-small: 10px;
+   --border-radius-large: 20px;
 
    /* ~~~~~~~~~~~~~~~~~~~~~~ */
    /* SEMANTIC REASSIGNMENTS */
@@ -60,6 +70,9 @@
    --fg-tertiary-color: var(--color-tertiary-dark);
 
    --accent-color: var(--color-accent-light);
+
+   --warning-color: var(--color-warning-light);
+   --bg-warning-color: var(--color-bg-warning-light);
 
    --translucent-color-1: var(--color-translucent-1-light);
    --translucent-color-2: var(--color-translucent-2-light);
@@ -87,6 +100,9 @@
 
       --accent-color: var(--color-accent-dark);
 
+      --warning-color: var(--color-warning-dark);
+      --bg-warning-color: var(--color-bg-warning-dark);
+
       --translucent-color-1: var(--color-translucent-1-dark);
       --translucent-color-2: var(--color-translucent-2-dark);
       --translucent-color-3: var(--color-translucent-3-dark);
@@ -110,29 +126,37 @@
    --translucent-color-3: var(--color-translucent-3-dark);
 }
 
-@keyframes animate-blur {
-   0% {
-      filter: hue-rotate(0deg) contrast(120%) blur(20px);
-   }
-   50% {
-      filter: hue-rotate(360deg) contrast(250%) blur(40px);
-   }
-   100% {
-      filter: hue-rotate(720deg) contrast(120%) blur(20px);
-   }
-}
 
 
 
 
-.error-container { /* FIXME: change back to `body` - just temp for others */ 
+.error-container, #avatarUploader { /* FIXME: change back to `body` - just temp for others */ 
    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
    color: var(--fg-color);
 }
 
+
+
+label {
+   font-weight: 600;
+   font-size: var(--size-step-1);
+}
+
+
+
 /* UTILITY */
 .relative {
    position: relative;
+}
+
+.visually-hidden {
+   visibility: hidden;
+}
+
+.switcher {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 0.8rem;
 }
 
 .colorful-blur-ring {
@@ -141,127 +165,11 @@
    top: 0;
    width: 100%;
    height: 100%;
-   border-radius: 20px;
+   border-radius: var(--border-radius-large);
    filter: contrast(120%) blur(20px);
    animation: 30s animate-blur infinite linear;
    box-shadow: 
       12px 3px 15px 12px var(--translucent-color-1),
       -12px -3px 15px 12px var(--translucent-color-2),
       12px -3px 15px 12px var(--translucent-color-3);
-}
-
-/* ERRORS */
-.error-container {
-   position: relative;
-   max-width: 40rem;
-   margin: 10rem auto;
-}
-
-.error-contents {
-   position: relative;
-   max-width: inherit;
-   min-height: 20rem;
-   padding: 2rem 0.8rem;
-   margin: 1.5rem;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   background-color: var(--bg-secondary-color);
-   border: var(--border-primary);
-   border-radius: 20px;
-}
-
-.error-contents > * {
-   text-align: center;
-}
-
-.error-contents :last-child {
-   margin-top: auto;
-}
-
-.error-contents h1 {
-   font-size: var(--size-step-3);
-   font-weight: var(--font-weight-bolder);
-   line-height: var(--line-height-tight);
-}
-
-.error-contents h2 {
-   font-size: var(--size-step-2);
-   font-weight: var(--font-weight-bolder);
-   line-height: var(--line-height-loose);
-}
-
-.error-contents > .error-code {
-   position: absolute;
-   left: -20px;
-   top: -20px;
-   padding: 0.5rem 0.8rem;
-   margin: 0;
-   background-color: inherit;
-   border: var(--border-primary);
-   border-radius: 20px;
-   font-size: 2em;
-   font-weight: 100;
-}
-
-.error-contents > .error-message-extended {
-   margin-bottom: 3rem;
-   word-break: break-word;
-}
-
-/* LINKS */
-.link-medium {
-   display: inline-block;
-   padding: 0.2rem 0.5rem;
-   font-size: 1.3rem;
-   color: var(--fg-color);
-   text-decoration: solid var(--color-clear) 2px underline;
-   text-underline-offset: 5px;
-   transition: 0.1s text-decoration ease-in-out;
-}
-
-.link-medium::after {
-   content: "↺";
-   display: inline-block;
-   margin-left: 0.5rem;
-   transition: 0.1s transform ease-in-out;
-}
-
-.link-medium:hover {
-   text-decoration: solid var(--fg-color) 2px underline;
-}
-
-.link-medium:hover::after {
-   transform: rotate(-20deg);
-}
-
-
-
-/* AT-RULES */
-@supports (hyphens: auto) {
-   h1 {
-      hyphens: auto;
-   }
-}
-
-@supports (color: hsl(from var(--accent-color) h s 40%)) {
-   .button-medium:hover {
-      background-color: hsl(from var(--accent-color) h s 50%);
-      filter: none;
-   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-   .colorful-blur-ring {
-      animation: none;
-   }
-
-   .link-medium {
-      transition: none;
-   }
-
-   .link-medium:hover::after {
-      transition: none;
-      transform: none;
-   }
 }

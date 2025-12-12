@@ -88,9 +88,7 @@ export function validateSchema(...schemaTuples) {
                   abortEarly: false,        // `false` shows all errors
                   context: {                
                      session: {             // decides whether some fields are active based on session
-                        // user: {
-                        //    email: "test@test.com", profile: { username: "testingAgainHere" } 
-                        // }
+                        user: req.session?.user
                      }
                   }
                }    
