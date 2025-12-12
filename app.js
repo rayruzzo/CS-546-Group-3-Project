@@ -5,7 +5,6 @@ import session from 'express-session';
 import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
 import checkAndSeedLocations from './scripts/checkAndSeed.js';
-import { validateLogin } from "./middleware/loginValidation.js";
 import seedUsersAndPosts from './scripts/seedUsersAndPosts.js';
 import postMiddleware from './middleware/posts.mw.js';
 import handlebarsHelpers from './middleware/handlebarsHelpers.js';
@@ -31,7 +30,6 @@ app.use(session({
 app.use('/public', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-
 
 // Set local variables available to all templates
 app.use((req, res, next) => {
