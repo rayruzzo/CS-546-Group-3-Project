@@ -266,9 +266,10 @@ button.btn-warning {
 }
 
 /* ================================
-   Moderator Dashboard
+   MODERATOR (Dashboard + Users)
 ================================ */
 
+/* ---- Shared text ---- */
 .moderator-description {
   margin-bottom: 1rem;
   color: var(--color-muted, #777);
@@ -276,11 +277,49 @@ button.btn-warning {
 
 .moderator-empty {
   margin-top: 2rem;
-  font-style: italic;
   color: var(--color-muted, #777);
+  font-style: italic;
 }
 
-/* Action button container */
+.moderator-nav {
+  margin: 1rem 0 1.5rem;
+}
+
+/* ---- Shared buttons (match project tokens) ---- */
+.btn-secondary,
+.btn-danger {
+  border: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary-color, #e0e0e0);
+  color: var(--fg-color, #333);
+}
+
+.btn-secondary:hover {
+  opacity: 0.9;
+}
+
+.btn-danger {
+  background-color: var(--bg-warning-color, #d32f2f);
+  color: var(--warning-contrast-color, #fff);
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+/* Disabled buttons */
+button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ---- Dashboard action row ---- */
 .moderator-actions {
   display: flex;
   gap: 0.75rem;
@@ -288,25 +327,125 @@ button.btn-warning {
   margin-top: 0.75rem;
 }
 
-/* Prevent form layout issues */
+/* Prevent form layout weirdness in flex rows */
 .moderator-actions form {
   display: inline;
 }
 
-/* Button styles aligned with project */
-.btn-secondary {
-  background-color: var(--bg-secondary-color);
-  color: var(--fg-color);
+/* =========================
+   USERS PAGE (Dropdown UI)
+   ========================= */
+
+.hidden {
+  display: none;
 }
 
-.btn-danger {
-  background-color: var(--bg-warning-color);
-  color: var(--warning-color);
-  border-color: var(--warning-color);
+#userSelect {
+  margin-top: 1rem;
+  padding: 0.45rem 0.6rem;
+  min-width: 260px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
 }
 
-/* Hover polish */
-.moderator-actions button:hover {
-  cursor: pointer;
-  opacity: 0.9;
+.user-details {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  max-width: 420px;
+}
+
+.user-details h3 {
+  margin-bottom: 0.5rem;
+}
+
+.user-details p {
+  margin: 0.25rem 0;
+}
+
+#actionArea {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Optional status coloring if you still show labels */
+.status-active {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.status-banned {
+  color: #c62828;
+  font-weight: 600;
+}
+
+option[data-banned="true"] {
+  color: #c62828;
+  font-weight: 600;
+}
+
+/* =========================
+   ROLE BADGES
+   ========================= */
+.role-badge {
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-user {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.role-moderator {
+  background: #ede7f6;
+  color: #4527a0;
+}
+
+.role-admin {
+  background: #fbe9e7;
+  color: #bf360c;
+}
+
+/* =========================
+   DASHBOARD NAV POLISH
+   ========================= */
+.moderator-manage-btn {
+  display: inline-block;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* =========================
+   MODERATOR NOTES
+   ========================= */
+.moderator-note {
+  font-size: 0.85rem;
+  color: var(--color-muted, #777);
+  font-style: italic;
+}
+
+/* =========================
+   BACK BUTTON (Users Page)
+   ========================= */
+.moderator-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.moderator-back-btn:hover {
+  text-decoration: none;
+  transform: translateX(-1px);
 }

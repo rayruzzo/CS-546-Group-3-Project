@@ -1,18 +1,15 @@
-/****************************************************************************
- * data/moderator.js
- * --------------------------------------------------------------------------
- * Moderator data functions.
- * Read operations + safe moderation actions.
- ****************************************************************************/
-
 import { ObjectId } from "mongodb";
 import mongoCollections from '../config/mongoCollections.js';
+import postData from "./posts.js";
 
 const posts = mongoCollections.posts;
-import postData from "./posts.js";
+const users = mongoCollections.users;
 
 /****************************************************************************
  * GET REPORTED POSTS
+ * --------------------------------------------------------------------------
+ * Returns all posts currently flagged as reported.
+ * Posts are enriched with user and location data for moderator review.
  ****************************************************************************/
 async function getReportedPosts() {
   const postCollection = await posts();
@@ -27,6 +24,9 @@ async function getReportedPosts() {
 
 /****************************************************************************
  * CLEAR REPORT FLAG
+ * --------------------------------------------------------------------------
+ * Clears the reported flag on a post after moderator review.
+ * The post remains visible to users.
  ****************************************************************************/
 async function clearReport(postId) {
   if (!postId || !ObjectId.isValid(postId)) {
@@ -48,7 +48,125 @@ async function clearReport(postId) {
 }
 
 /****************************************************************************
- * MODERATION ACTIONS (thin wrappers)
+ * GET BANNABLE USERS
+ * --------------------------------------------------------------------------
+ * Returns users eligible for moderation actions.
+ *
+ * Notes:
+ * - Includes regular users and moderators
+ * - Excludes admins entirely
+ * - Used to populate moderator/admin UI controls
+ ****************************************************************************/
+export async function getBannableUsers() {
+  const userCollection = await users();
+
+  return await userCollection.find(
+  { role: { $in: ["user", "moderator"] } },
+  {
+    projection: {
+      "profile.username": 1,
+      role: 1,
+      isBanned: 1
+    }
+  }
+  ).toArray();
+}
+
+/****************************************************************************
+ * BAN USER
+ * --------------------------------------------------------------------------
+ * Applies a ban to a target user.
+ *
+ * Rules enforced:
+ * - Only moderators or admins may ban users
+ * - Admins cannot be banned
+ * - Moderators cannot ban other moderators
+ *
+ * Metadata recorded:
+ * - bannedAt
+ * - bannedBy
+ ****************************************************************************/
+export async function banUser({ actor, targetUserId }) {
+  if (!actor || !actor.role) {
+    throw new Error("Invalid actor");
+  }
+
+  const userCollection = await users();
+  const targetUser = await userCollection.findOne({
+    _id: new ObjectId(targetUserId)
+  });
+
+  if (!targetUser) {
+    throw new Error("User not found");
+  }
+
+  // No one can ban admins
+  if (targetUser.role === "admin") {
+    throw new Error("Admins cannot be banned");
+  }
+
+  // Moderators cannot ban moderators
+  if (actor.role === "moderator" && targetUser.role === "moderator") {
+    throw new Error("Moderators cannot ban other moderators");
+  }
+
+  await userCollection.updateOne(
+    { _id: targetUser._id },
+    {
+      $set: {
+        isBanned: true,
+        bannedAt: new Date(),
+        bannedBy: actor._id
+      }
+    }
+  );
+
+  return { success: true };
+}
+
+/****************************************************************************
+ * UNBAN USER
+ * --------------------------------------------------------------------------
+ * Removes a ban from a user.
+ *
+ * Rules enforced:
+ * - Admins only
+ * - Cannot unban admins (I dont think admins should never be banned)
+ ****************************************************************************/
+export async function unbanUser({ actor, targetUserId }) {
+  if (!actor || actor.role !== "admin") {
+    throw new Error("Only admins may unban users");
+  }
+
+  const userCollection = await users();
+  const targetUser = await userCollection.findOne({
+    _id: new ObjectId(targetUserId)
+  });
+
+  if (!targetUser) {
+    throw new Error("User not found");
+  }
+
+  await userCollection.updateOne(
+    { _id: targetUser._id },
+    {
+      $set: {
+        isBanned: false
+      },
+      $unset: {
+        bannedAt: "",
+        bannedBy: ""
+      }
+    }
+  );
+
+  return { success: true };
+}
+
+/****************************************************************************
+ * POST MODERATION ACTIONS (THIN WRAPPERS)
+ * --------------------------------------------------------------------------
+ * Delegates post-level moderation actions to the posts data layer.
  ****************************************************************************/
 async function deletePost(postId) {
   return await postData.deletePost(postId);
@@ -62,5 +180,8 @@ export default {
   getReportedPosts,
   clearReport,
   deletePost,
+  getBannableUsers,
+  banUser,
+  unbanUser,
   markFulfilled
 };

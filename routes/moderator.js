@@ -4,7 +4,7 @@ import { postIdParamSchema } from "../models/moderator.js";
 import { renderErrorPage } from "../utils/errorUtils.js";
 
 import moderatorData from "../data/moderator.js";
-
+import { requireAdmin } from "../middleware/moderator.mw.js";
 
 const router = Router();
 
@@ -13,6 +13,7 @@ const router = Router();
  * --------------------------------------------------------------------------
  * Middleware:
  * requireModeratorOrAdmin:
+ *   - Mounted on the app.js level for route.
  *   - Ensures user is authenticated
  *   - Ensures user role is moderator or admin
  *
@@ -97,6 +98,90 @@ router.post(
     } catch (error) {
       console.error("Delete failed:", error);
       return renderErrorPage(res, 400, error.message || "Unable to delete post.");
+    }
+  }
+);
+
+/****************************************************************************
+ * GET /moderator/users
+ * --------------------------------------------------------------------------
+ * Middleware: requireModeratorOrAdmin
+ *
+ * Description:
+ *   Displays a list of users eligible for moderation actions.
+ *
+ * Notes:
+ *   - Excludes admins
+ *   - Includes users and moderators
+ ****************************************************************************/
+router.get("/users", async (req, res) => {
+  const users = await moderatorData.getBannableUsers();
+  //console.log(users); // Debug
+  res.render("moderator/users", { users });
+});
+
+/****************************************************************************
+ * POST /moderator/users/:id/ban
+ * --------------------------------------------------------------------------
+ * Middleware: requireModeratorOrAdmin
+ *
+ * Description:
+ *   Applies a ban to a target user.
+ *
+ * Enforcement:
+ *   - Admins cannot be banned
+ *   - Moderators cannot ban other moderators
+ ****************************************************************************/
+router.post("/users/:id/ban", async (req, res) => {
+  try {
+    await moderatorData.banUser({
+      actor: req.session.user,
+      targetUserId: req.params.id
+    });
+
+    return res.redirect("/moderator/users");
+  } catch (error) {
+    console.error("Ban failed:", error);
+    return renderErrorPage(
+      res,
+      400,
+      error.message || "Unable to ban user."
+    );
+  }
+});
+
+/****************************************************************************
+ * POST /moderator/users/:id/unban
+ * --------------------------------------------------------------------------
+ * Middleware
+ * requireAdmin
+ *   - Ensures user is authenticated
+ *   - Ensures user role is an admin
+ *
+ * Description:
+ *   Removes an existing ban from a user.
+ *
+ * Notes:
+ *   - Admin-only action
+ ****************************************************************************/
+router.post(
+  "/users/:id/unban",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      await moderatorData.unbanUser({
+        actor: req.session.user,
+        targetUserId: req.params.id
+      });
+
+      return res.redirect("/moderator/users");
+    } catch (error) {
+      console.error("Unban failed:", error);
+      return renderErrorPage(
+        res,
+        400,
+        error.message || "Unable to unban user."
+      );
     }
   }
 );

@@ -8,7 +8,7 @@ import { renderErrorPage } from "../utils/errorUtils.js";
  * Responsibilities:
  *   - Ensures the user is logged in
  *   - Ensures the user has moderator or admin privileges
- * ****************************************************************************/
+ * **************************************************************************/
 
 const requireModeratorOrAdmin = (req, res, next) => {
   try {
@@ -31,6 +31,27 @@ const requireModeratorOrAdmin = (req, res, next) => {
   }
 };
 
+/****************************************************************************
+ * requireAdmin
+ * ------------------------------------------------------------
+ * Admin Only authorization middleware. Used for unbanning.
+ *
+ * Responsibilities:
+ *   - Ensures the user is logged in
+ *   - Ensures the user has admin privileges.
+ * **************************************************************************/
+
+export function requireAdmin(req, res, next) {
+  const user = req.session.user;
+
+  if (!user || user.role !== "admin") {
+    return renderErrorPage(res, 403, "Admins only");
+  }
+
+  next();
+}
+
 export default {
-  requireModeratorOrAdmin
+  requireModeratorOrAdmin,
+  requireAdmin
 };
