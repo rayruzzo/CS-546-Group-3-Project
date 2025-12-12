@@ -10,7 +10,7 @@
         {{/if}}
     </div>
 {{/if}}
-    
+
     <div class="post-meta">
         <span class="author">Posted by <strong>{{post.username}}</strong></span>
         <span class="location">📍 {{post.city}}, {{post.state}}</span>
@@ -53,4 +53,7 @@
     {{/if}}
 </article>
 
+{{!-- conditionally load postManagement javascript if we are the post owner --}}
+{{#if isPostOwner}}
 <script src="/public/js/postManagement.js"></script>
+{{/if}}

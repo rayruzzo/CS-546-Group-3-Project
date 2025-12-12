@@ -72,7 +72,7 @@ const requireAuthentication = (req, res, next) => {
 };
 
 /****************************************************************************
- * EXPORT 
+ * EXPORT
  ****************************************************************************/
 export default {
     requireThreadAuthorization,
