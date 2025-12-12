@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { validateLogin } from "../middleware/loginValidation.js";
+
 
 const router = Router();
 
@@ -9,7 +11,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.post("/", async (req, res) => {
+router.post("/", validateLogin, async (req, res) => {
     return res.redirect("/");
 });
 

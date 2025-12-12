@@ -13,7 +13,7 @@ export const validateLogin = async (req, res, next) => {
     try {
         await loginSchema.validate({ email, password }, { abortEarly: false });
     } catch (validationError) {
-        return res.status(400).render("login/login", {
+        return res.status(400).render("login", {
             error: "Invalid email or password format.",
             title: "Login"
         });
@@ -23,14 +23,14 @@ export const validateLogin = async (req, res, next) => {
     const user = await userCollection.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-        return res.status(400).render("login/login", {
+        return res.status(400).render("login", {
             error: "Incorrect email or password.",
             title: "Login"
         });
     }
 
     if (user.isBanned) {
-        return res.status(403).render("login/login", {
+        return res.status(403).render("login", {
             error: "Your account has been banned.",
             title: "Login"
         });
@@ -39,7 +39,7 @@ export const validateLogin = async (req, res, next) => {
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
-        return res.status(400).render("login/login", {
+        return res.status(400).render("login", {
             error: "Incorrect email or password.",
             title: "Login"
         });
