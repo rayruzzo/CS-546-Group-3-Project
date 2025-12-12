@@ -1,5 +1,35 @@
 <h1>Moderator Dashboard</h1>
 
 <p>
-  This page is accessible only to moderators and administrators.
+  Below is a list of posts that have been reported by users and require review.
 </p>
+
+{{#if reportedPosts.length}}
+  <ul class="reported-posts-list">
+    {{#each reportedPosts}}
+      <li class="reported-post-item">
+        <h3>{{this.title}}</h3>
+
+        <p class="meta">
+          Posted by <strong>{{this.username}}</strong>
+          {{#if this.city}}
+            — {{this.city}}, {{this.state}}
+          {{/if}}
+          on {{this.datePosted}}
+        </p>
+
+        <p class="excerpt">
+          {{truncate this.content 200}}
+        </p>
+
+        <a href="/posts/{{this._id}}" class="button-secondary">
+          View Post
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+{{else}}
+  <p>
+    🎉 There are currently no reported posts awaiting review.
+  </p>
+{{/if}}

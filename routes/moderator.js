@@ -23,8 +23,11 @@ router.get(
   requireModeratorOrAdmin,
   async (req, res) => {
     try {
+      const reportedPosts = await moderatorData.getReportedPosts();
+
       res.render("moderator/dashboard", {
-        title: "Moderator Dashboard"
+        title: "Moderator Dashboard",
+        reportedPosts
       });
     } catch (error) {
       res.status(500).render("errors", {
