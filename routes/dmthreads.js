@@ -4,7 +4,7 @@ import { Router } from "express";
 import { validateSchema } from "../middleware/validation.mw.js";
 import { messageContentSchema } from "../models/dmthreads.js";
 
-// Data layer 
+// Data layer
 import {
     createThread,
     createMessage,
@@ -13,7 +13,7 @@ import {
 } from "../data/dmthreads.js";
 
 // Users data functions
-import userData from "../data/users.js"; // Note: getUserByUsername returns { user, success } 
+import userData from "../data/users.js"; // Note: getUserByUsername returns { user, success }
 import { unwrapUser } from "../utils/userUtils.js"; // Destructure util just to get the wiring working correctly
 
 // Error rendering
@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
         const filteredThreads = [];
 
         for (const thread of threads) {
-            // Identify the OTHER user in the conversation  
+            // Identify the OTHER user in the conversation
             const otherUserId = thread.participants.find(id => id !== userId);
 
             if (!otherUserId) {
@@ -220,7 +220,7 @@ router.post("/create", async (req, res) => {
         ...errorProps
       });
 
-    // Username validation 
+    // Username validation
 
     if (!usernameRegex.test(recipientUsername)) {
       return renderCreateError({
@@ -243,7 +243,7 @@ router.post("/create", async (req, res) => {
       });
     }
 
-    // Recipient lookup 
+    // Recipient lookup
 
     let recipientUser;
     try {
@@ -347,7 +347,7 @@ router.get("/check-user", async (req, res) => {
       });
     }
 
-    // User lookup 
+    // User lookup
 
     let user;
     try {

@@ -1,0 +1,44 @@
+<div id="avatarUploader" class="form-container">
+
+   {{!-- Inject server-side variables into client --}}
+   <script>
+      const avatarAllowedMIMETypes  = new Map({{{avatarAllowedMIMETypes}}});
+      const avatarMaxOriginalSizeMB = {{avatarMaxOriginalSizeMB}};
+      const avatarDimensions        = {{avatarDimensions}};
+   </script>
+
+   <label for="avatar">
+      Your Avatar
+   </label>
+   <span class="hint">
+      {{avatarAllowedTypesFriendlyStr}}. Images will be downscaled to 200x200px. Images over 10 MB will take a bit longer to downscale. Maximum {{avatarMaxOriginalSizeMB}} MB.
+   </span>
+   <input 
+      type="file" 
+      accept="{{avatarAllowedTypesStr}}"
+      name="fileName" 
+      id="fileName"
+   >
+   <div class="avatar-container">
+      <div class="spinner" hidden></div>
+      <div class="image-square">
+         <img src="" id="avatarPreview" draggable="false">
+      </div>
+   </div>
+
+   <div class="switcher">
+      <span id="fileInputMessage" class="input-message visually-hidden"></span>
+      <button id="removeAvatar" class="visually-hidden btn-warning" aria-label="Remove Avatar">
+         Remove
+      </button>
+   </div>
+
+
+   <form id="avatarForm" action="/user/avatar" method="POST">
+      <button id="submitForm" type="submit">Submit</button>
+      <input type="hidden" id="imgResized" name="resized">
+      <input type="hidden" id="imgResizedSquare" name="resizedSquare">
+   </form>
+</div>
+
+<script type="module" src="/public/js/AvatarUploader.js"></script>

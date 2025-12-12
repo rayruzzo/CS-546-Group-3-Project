@@ -1,7 +1,7 @@
 import { Schema } from "yup";
 import { renderErrorPage } from "../utils/errorUtils.js";
 
-/** 
+/**
  * @import { MixedSchema, ArraySchema, DateSchema, NumberSchema, ObjectSchema, StringSchema, TupleSchema } from "yup"
  * @typedef {(MixedSchema|ArraySchema|ObjectSchema|StringSchema|NumberSchema|DateSchema|TupleSchema)} AnySchema
  * @typedef {AnySchema|() => AnySchema} Schema
@@ -10,7 +10,7 @@ import { renderErrorPage } from "../utils/errorUtils.js";
 /**
  * A middleware validation function which allows a variable number
  * of schemas to validate requests sequentially on a per-route basis.
- * 
+ *
  * @overload
  * @param {...[Schema, (string|undefined)]} schemaTuples - Tuples of `Schema, requestProperty`
  * @return {<Promise<Function>}
@@ -27,7 +27,7 @@ import { renderErrorPage } from "../utils/errorUtils.js";
 */
 export function validateSchema(...schemaTuples) {
 
-   /** supported request properties to validate */ 
+   /** supported request properties to validate */
    const validReqProps = ["body", "params", "query"];
 
    // ensure that all function signatures are handled by making
@@ -76,28 +76,26 @@ export function validateSchema(...schemaTuples) {
 
          if (!validReqProps.includes(requestProperty))
             throw new Error(`Invalid request property for schema validation. Valid: ${validReqProps.join(", ")}`);
-      
+
          // TODO: test user sessions to pass `{ email, username }` to Yup as "context"
-   
+
          try {
-   
+
             // modify request object with neatly shaped data from validation
             req[requestProperty] = await schema.validate(
-               { ...req[requestProperty] }, 
-               { 
+               { ...req[requestProperty] },
+               {
                   abortEarly: false,        // `false` shows all errors
-                  context: {                
+                  context: {
                      session: {             // decides whether some fields are active based on session
-                        // user: {
-                        //    email: "test@test.com", profile: { username: "testingAgainHere" } 
-                        // }
+                        user: req.session?.user
                      }
                   }
-               }    
+               }
             );
-   
+
          } catch (e) {
-   
+
             // send correct error to client
             console.error(e);
 

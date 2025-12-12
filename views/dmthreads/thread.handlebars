@@ -10,7 +10,7 @@
     <div class="dm-messages-box">
 
       {{#each thread.messages}}
-        <div class="dm-message-wrapper 
+        <div class="dm-message-wrapper
           {{#if (eq this.from ../currentUserId)}}dm-message-self{{else}}dm-message-other{{/if}}">
 
           <div class="dm-message-bubble">
@@ -27,7 +27,7 @@
     </div>
 
     <form method="POST" action="/dmthreads/thread/{{thread._id}}/message" class="dm-form">
-      <textarea 
+      <textarea
         name="message"
         class="dm-input"
         placeholder="Type your message..."

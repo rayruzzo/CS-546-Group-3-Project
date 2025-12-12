@@ -3,7 +3,7 @@ import mongoCollections from '../config/mongoCollections.js';
 
 const dmthreads = mongoCollections.dmthreads;
 
-/**************************************************************************** 
+/****************************************************************************
  * function ensureValidId(id, fieldName = "id")
  * Description: Helper to ensure id is valid.
 ****************************************************************************/
@@ -16,7 +16,7 @@ function ensureValidId(id, fieldName = "id") {
     }
 }
 
-/**************************************************************************** 
+/****************************************************************************
  * function createThread(user1, user2)
  * Description: creates a thread document in the DB between two users.
 ****************************************************************************/
@@ -30,7 +30,7 @@ async function createThread(user1Id, user2Id) {
         participants: [user1Id, user2Id],
         messages: [],
         created_at: new Date(),
-        updated_at: new Date(), 
+        updated_at: new Date(),
         lastMessageAt: {} // this is just to keep per-user rate limiting. Opted for in thread vs global.
     };
 
@@ -47,7 +47,7 @@ async function createThread(user1Id, user2Id) {
     };
 }
 
-/**************************************************************************** 
+/****************************************************************************
  * function createMessage(from, to, content)
  * Description: returns a message object to be inserted into a thread.
 ****************************************************************************/
@@ -68,7 +68,7 @@ function createMessage(from, to, content) {
     return newMessage;
 };
 
-/**************************************************************************** 
+/****************************************************************************
  * function addMessageToThread(threadId, message)
  * Description: Adds message object to thread document.
 ****************************************************************************/
@@ -98,7 +98,7 @@ async function addMessageToThread(threadId, message) {
     return await fetchThreadById(threadId);
 }
 
-/**************************************************************************** 
+/****************************************************************************
  * function fetchThreadById(threadId)
  * Description: Looks into the database and returns the respective thread by its id.
 ****************************************************************************/
@@ -123,7 +123,7 @@ async function fetchThreadById(threadId) {
     return thread;
 }
 
-/**************************************************************************** 
+/****************************************************************************
  * function fetchThreadsForUser(userId)
  * Returns all threads where the given userId is a participant.
 ****************************************************************************/
@@ -132,7 +132,7 @@ async function fetchThreadsForUser(userId) {
 
     const collection = await dmthreads();
     const threads = await collection
-        .find({ participants: userId }) // participants stored as strings 
+        .find({ participants: userId }) // participants stored as strings
         .toArray();
 
     return threads.map(t => ({
