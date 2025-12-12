@@ -51,7 +51,18 @@ router.get('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 // POST /posts/edit/:id - edit post and redirect to it
 router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
-        const { title, content, type, category, commentsEnabled, tags, priority, expiresAt } = req.body;
+        const { 
+            title, 
+            content, 
+            type, 
+            category, 
+            commentsEnabled, 
+            tags, 
+            priority, 
+            expiresAt, 
+            fulfilledState 
+        } = req.body;
+        
         const post = req.post;
         
         const editedPostData = {
@@ -66,10 +77,11 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
             tags,
             priority: priority || post.priority,
             expiresAt,
+            fulfilledState,
             editedAt: new Date()
         };
         
-        await postData.editPost(req.params.id, editedPostData);
+        await postData.updatePost(req.params.id, editedPostData);
         res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
         renderErrorPage(res, 400, error.message);
