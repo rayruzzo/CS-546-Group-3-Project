@@ -24,6 +24,13 @@
         <div class="nav-right">
             {{#if user}}
                 <a href="/">Home</a>
+                {{#if (eq user.role "moderator")}}
+                <a href="/moderator">Moderator Panel</a>
+                {{/if}}
+
+                {{#if (eq user.role "admin")}}
+                <a href="/moderator">Moderator Panel</a>
+                {{/if}}
                 <a href="/dmthreads">DMs</a>
                 <a href="/posts/create">New Post</a>
                 <span class="nav-user">Hi, {{user.username}}</span>

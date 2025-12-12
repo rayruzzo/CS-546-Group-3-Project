@@ -34,7 +34,8 @@ app.use((req, res, next) => {
       _id: "6931f64c7c05d6abb9507104", // testing kamala's login
       zipcode: "07030",
       email: "kamala.khan@gmail.com",
-      username: "msmarvel-jc"
+      username: "msmarvel-jc",
+      role: "moderator"
     }; 
   }
   next();
