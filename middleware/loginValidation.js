@@ -1,10 +1,11 @@
 import * as yup from 'yup';
 import bcrypt from "bcrypt";
 import db from "../config/mongoCollections.js";
+import { passwordSchema } from "../models/users.js";
 
 export const loginSchema = yup.object().shape({
     email: yup.string().required().email(),
-    password: yup.string().required().min(8)
+    password: passwordSchema
 });
 
 export const validateLogin = async (req, res, next) => {

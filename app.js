@@ -32,7 +32,6 @@ app.use('/public', express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-app.post('/login', validateLogin);
 
 // Set local variables available to all templates
 app.use((req, res, next) => {
