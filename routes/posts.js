@@ -20,7 +20,7 @@ router.get('/filter', async (req, res) => {
 // GET /posts/create - Show create post page
 router.get('/create', async (req, res) => {
     try {
-        res.render('createPost');
+        res.render('createPost', { title: "Create New Post" });
     } catch (error) {
         renderErrorPage(res, 500, error.toString());
     }
@@ -42,7 +42,7 @@ router.post('/create', async (req, res) => {
 // GET /posts/edit/:id - Show edit post page
 router.get('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
-        res.render('editPost', { post: req.post });
+        res.render('editPost', { post: req.post, title: "Edit Post" });
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
@@ -79,7 +79,7 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 // GET /posts/:id - View a single post
 router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
     try {
-        res.render('post', { post: req.post});
+        res.render('post', { post: req.post, title: req.post.title });
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
@@ -99,6 +99,15 @@ router.post('/fulfill/:id', postMiddleware.isPostOwnerAction, async (req, res) =
     try {
         await postData.markPostAsFulfilled(req.params.id);
         return res.status(200).json({ success: true, message: 'Post marked as fulfilled' });
+    } catch (error) {
+        renderErrorPage(res, 404, error.toString());
+    }
+});
+
+router.post('/report/:id', async (req, res) => {
+    try {
+        await postData.reportPost(req.params.id);
+        res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }

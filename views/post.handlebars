@@ -49,8 +49,21 @@
     <div class="content">{{post.content}}</div>
 
     {{#if post.commentsEnabled}}
+    {{#unless post.reported}}
 <!-- Comments Section Placeholder -->
+    {{/unless}}
     {{/if}}
 </article>
+
+<div class="report-post-section">
+    <p class="report-post-message">
+        {{#if post.reported}}
+            This post has been reported. Thank you for helping us keep the community safe.
+        {{else}}
+            If you find this post inappropriate or violating our community guidelines, you can report it.
+            <a href="/posts/report/{{post._id}}" id="report-post-btn" class="button-secondary">Report Post</a>
+        {{/if}}
+    </p>
+</div>
 
 <script src="/public/js/postManagement.js"></script>
