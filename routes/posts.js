@@ -98,7 +98,7 @@ router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
 });
 
 // DELETE /posts/:id - Delete a post
-router.post('/delete/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
+router.delete('/delete/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
         await postData.deletePost(req.params.id);
         return res.status(200).json({ success: true, message: 'Post deleted' });
