@@ -111,9 +111,7 @@ const postFunctions = {
             errors.creationError = "Could not create a new post";
         }
 
-
-
-        console.log("NEW POST CREATED");
+        newPostData._id = insertInfo.insertedId.toString();
 
         return { post: newPostData, success: true };
     },

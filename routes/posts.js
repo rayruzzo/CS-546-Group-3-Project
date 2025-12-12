@@ -9,7 +9,17 @@ const router = Router();
 // GET /posts/filter - Filter posts (API endpoint for AJAX)
 router.get('/filter', async (req, res) => {
     try {
-        const filteredPosts = await loadPosts(req.session.user.zipcode, req.filters);
+        const filters = { ...req.query };
+
+        if (filters.limit) filters.limit = parseInt(filters.limit);
+        if (filters.skip) filters.skip = parseInt(filters.skip);
+        if (filters.distance) filters.distance = parseInt(filters.distance);
+
+        if (filters.tags && typeof filters.tags === 'string') {
+            filters.tags = filters.tags.split(',').map(t => t.trim()).filter(Boolean);
+        }
+
+        const filteredPosts = await loadPosts(req.session.user.zipcode, filters);
         res.json({ posts: filteredPosts });
     } catch (error) {
         console.error('Error filtering posts:', error);
