@@ -1,36 +1,36 @@
+import { renderErrorPage } from "../utils/errorUtils.js";
+
 /****************************************************************************
  * requireModeratorOrAdmin
- * --------------------------------------------------------------------------
- * Authorization middleware for moderator and admin access.
+ * ------------------------------------------------------------
+ * Moderator authorization middleware.
  *
- * Description:
- * - Restricts access to moderator-only routes (e.g. moderation dashboard)
- * - Ensures the user is:
- *    1) Authenticated and
- *    2) Authorized (role === "moderator" or "admin")
- *
- * TO DO:
- * - ban enforcement
- ****************************************************************************/
-export function requireModeratorOrAdmin(req, res, next) {
-  
-  const user = req.session?.user;
+ * Responsibilities:
+ *   - Ensures the user is logged in
+ *   - Ensures the user has moderator or admin privileges
+ * ****************************************************************************/
 
-  if (!user) {
-    return res.status(401).render("errors", {
-      title: "Unauthorized",
-      error: "You must be logged in to access this page."
-    });
+const requireModeratorOrAdmin = (req, res, next) => {
+  try {
+    const user = req.session?.user;
+
+    // Must be logged in
+    if (!user) {
+      return renderErrorPage(res, 401, null);
+    }
+
+    // Must be moderator or admin
+    if (user.role !== "moderator" && user.role !== "admin") {
+      return renderErrorPage(res, 403, null);
+    }
+
+    next();
+  } catch (error) {
+    console.error("Moderator authorization middleware failed:", error);
+    return renderErrorPage(res, 500, "Unable to authorize moderator access.");
   }
+};
 
-  // Must be moderator or admin
-  if (user.role !== "moderator" && user.role !== "admin") {
-    return res.status(403).render("errors", {
-      title: "Forbidden",
-      error: "You do not have permission to access this page."
-    });
-  }
-
-  // Authorized
-  next();
-}
+export default {
+  requireModeratorOrAdmin
+};

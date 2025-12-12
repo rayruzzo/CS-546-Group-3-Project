@@ -47,6 +47,24 @@
     </div>
 
     <div class="content">{{post.content}}</div>
+    {{#if user}}
+        {{#unless isPostOwner}}
+
+            {{#if post.reported}}
+            <span class="post-reported-status">
+                ⚠ Reported
+            </span>
+            {{else}}
+            <form method="POST"
+                    action="/posts/report/{{post._id}}"
+                    class="report-form">
+                <button type="submit" class="report-link">
+                Report
+                </button>
+            </form>
+            {{/if}}
+        {{/unless}}
+    {{/if}}
 
     {{#if post.commentsEnabled}}
     {{#unless post.reported}}
