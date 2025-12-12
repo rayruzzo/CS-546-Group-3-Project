@@ -79,7 +79,7 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 // GET /posts/:id - View a single post
 router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
     try {
-        res.render('post', { post: req.post});
+        res.render('partials/post', { post: req.post});
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
