@@ -31,6 +31,12 @@
                 <a href="/">Home</a>
                 <a href="/dmthreads">DMs</a>
                 <a href="/posts/create">New Post</a>
+                {{#if (eq user.role "moderator")}}
+                    <a href="/moderator">Moderation</a>
+                {{else if (eq user.role "admin")}}
+                    <a href="/moderator">Moderation</a>
+                {{/if}}
+
                 <span class="nav-user">Hi, {{user.username}}</span>
                 <a href="/logout" class="logout-btn">Logout</a>
             {{else}}

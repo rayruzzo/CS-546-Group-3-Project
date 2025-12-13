@@ -9,6 +9,7 @@ import seedUsersAndPosts from './scripts/seedUsersAndPosts.js';
 import postMiddleware from './middleware/posts.mw.js';
 import dmMiddleware from "./middleware/dmthreads.mw.js";
 import handlebarsHelpers from './middleware/handlebarsHelpers.js';
+import moderatorMiddleware from "./middleware/moderator.mw.js";
 import { postCategories, postTypes, priorityValues } from './models/posts.js';
 
 const app = express();
@@ -34,6 +35,7 @@ app.use(express.urlencoded({limit: "300kb", extended: true}));
 
 // Set local variables available to all templates
 app.use((req, res, next) => {
+  res.locals.user = req.session.user || null; // ensures user gets passed to all views. (e.g. navbar state, role-based UI, conditional actions)
   res.locals.postCategories = Object.values(postCategories);
   res.locals.postTypes = Object.values(postTypes);
   res.locals.priorityValues = priorityValues;
@@ -58,6 +60,9 @@ app.use('/posts', postMiddleware.requireAuthentication);
 app.use("/dmthreads/thread/:id", dmMiddleware.requireThreadAuthorization);
 app.use("/dmthreads/thread/:id/message", dmMiddleware.enforceMessageRateLimit);
 app.use("/dmthreads", dmMiddleware.requireAuthentication);
+
+// Moderator Middleware
+app.use("/moderator", moderatorMiddleware.requireModeratorOrAdmin);
 
 configRoutes(app);
 
