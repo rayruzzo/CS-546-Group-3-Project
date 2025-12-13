@@ -1,3 +1,20 @@
+/****************************************************************************
+ * moderatorUsers.js
+ * --------------------------------------------------------------------------
+ * Client-side logic for Moderator / Admin user management UI.
+ *
+ * Responsibilities:
+ *   - Populate user details from dropdown selection
+ *   - Enforce role-based UI actions (admin vs moderator)
+ *   - Prevent self-moderation
+ *   - Render ban / unban / promote / demote controls
+ *
+ * Notes:
+ *   - Authorization is enforced server-side; this file controls UI only
+ *   - Admins can ban/unban and manage roles
+ *   - Moderators can only ban regular users
+ ****************************************************************************/
+
 document.addEventListener("DOMContentLoaded", () => {
   const select = document.getElementById("userSelect");
   const details = document.getElementById("userDetails");
@@ -39,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
        SELF PROTECTION
        ========================== */
     if (userId === viewerId) {
-      actionArea.innerHTML = `
+      actionArea.innerHTML += `
         <p class="moderator-note">
           You cannot perform moderation actions on your own account.
         </p>
@@ -49,29 +66,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ==========================
-       ADMIN ACTIONS
-       ========================== */
+    ADMIN ACTIONS
+    ========================== */
     if (viewerRole === "admin") {
-      actionArea.innerHTML = banned
-        ? `
-          <form method="POST" action="/moderator/users/${userId}/unban"
+
+    // --- Ban / Unban ---
+    if (banned) {
+        actionArea.innerHTML += `
+        <form method="POST" action="/moderator/users/${userId}/unban"
                 onsubmit="return confirm('Unban this user?');">
             <button class="btn-secondary">Unban</button>
-          </form>
-        `
-        : `
-          <form method="POST" action="/moderator/users/${userId}/ban"
+        </form>
+        `;
+    } else {
+        actionArea.innerHTML += `
+        <form method="POST" action="/moderator/users/${userId}/ban"
                 onsubmit="return confirm('Ban this user?');">
             <button class="btn-danger">Ban</button>
-          </form>
+        </form>
         `;
     }
+
+    // --- Role Management (ADMIN ONLY) ---
+    if (role === "user") {
+        actionArea.innerHTML += `
+        <form method="POST" action="/moderator/users/${userId}/role"
+                onsubmit="return confirm('Promote this user to moderator?');">
+            <input type="hidden" name="role" value="moderator">
+            <button class="btn-secondary">Promote to Moderator</button>
+        </form>
+        `;
+    }
+
+    if (role === "moderator") {
+        actionArea.innerHTML += `
+        <form method="POST" action="/moderator/users/${userId}/role"
+                onsubmit="return confirm('Demote this moderator to regular user?');">
+            <input type="hidden" name="role" value="user">
+            <button class="btn-secondary">Demote to User</button>
+        </form>
+        `;
+    }
+    }
+
 
     /* ==========================
        MODERATOR ACTIONS
        ========================== */
     if (viewerRole === "moderator" && role === "user" && !banned) {
-      actionArea.innerHTML = `
+      actionArea.innerHTML += `
         <form method="POST" action="/moderator/users/${userId}/ban"
               onsubmit="return confirm('Ban this user?');">
           <button class="btn-danger">Ban</button>

@@ -189,4 +189,40 @@ router.post(
   }
 );
 
+/****************************************************************************
+ * POST /moderator/users/:id/role
+ * --------------------------------------------------------------------------
+ *  Middleware: requireAdmin
+ *
+ *  Description:
+ *   Updates Role: User <-> Moderator
+ *
+ *  Notes:
+ *   - Admin-only action
+ ****************************************************************************/
+router.post(
+  "/users/:id/role",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { role } = req.body;
+
+      await moderatorData.updateUserRole({
+        actor: req.session.user,
+        targetUserId: req.params.id,
+        newRole: role
+      });
+
+      return res.redirect("/moderator/users");
+    } catch (error) {
+      console.error("Role update failed:", error);
+      return renderErrorPage(
+        res,
+        400,
+        error.message || "Unable to update user role."
+      );
+    }
+  }
+);
+
 export default router;

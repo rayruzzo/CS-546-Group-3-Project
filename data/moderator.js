@@ -164,6 +164,52 @@ export async function unbanUser({ actor, targetUserId }) {
 }
 
 /****************************************************************************
+ * UPDATE USER ROLE
+ * --------------------------------------------------------------------------
+ * Admin-only role management
+ *
+ * Rules:
+ * - Only admins may change roles
+ * - Cannot modify admins
+ * - Allowed transitions:  user <-> moderator
+ ****************************************************************************/
+export async function updateUserRole({ actor, targetUserId, newRole }) {
+  if (!actor || actor.role !== "admin") {
+    throw new Error("Only admins may change user roles");
+  }
+
+  if (!["user", "moderator"].includes(newRole)) {
+    throw new Error("Invalid target role");
+  }
+
+  const userCollection = await users();
+  const targetUser = await userCollection.findOne({
+    _id: new ObjectId(targetUserId)
+  });
+
+  if (!targetUser) {
+    throw new Error("User not found");
+  }
+
+  if (targetUser.role === "admin") {
+    throw new Error("Admins cannot be modified");
+  }
+
+  await userCollection.updateOne(
+    { _id: targetUser._id },
+    {
+      $set: {
+        role: newRole,
+        roleUpdatedAt: new Date(),
+        roleUpdatedBy: actor._id
+      }
+    }
+  );
+
+  return { success: true };
+}
+
+/****************************************************************************
  * POST MODERATION ACTIONS (THIN WRAPPERS)
  * --------------------------------------------------------------------------
  * Delegates post-level moderation actions to the posts data layer.
@@ -183,5 +229,6 @@ export default {
   getBannableUsers,
   banUser,
   unbanUser,
-  markFulfilled
+  markFulfilled,
+  updateUserRole
 };
