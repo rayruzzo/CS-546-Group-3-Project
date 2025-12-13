@@ -5,7 +5,7 @@
     const postId = article.id
 
     // Delete post handler
-    const deleteBtn = document.querySelector('.button-danger');
+    const deleteBtn = document.querySelector('.post-actions .button-danger');
     if (deleteBtn) {
         deleteBtn.addEventListener('click', async (e) => {
             e.preventDefault();
