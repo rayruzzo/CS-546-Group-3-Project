@@ -87,13 +87,15 @@
     {{#if posts.length}}
         <div id="posts-container">
         {{#each posts}}
-            <article class="post-item">
-            <h3>{{this.title}}</h3>
-            <p class="post-meta">{{this.category}} • {{this.type}} • {{this.city}}, {{this.state}}</p>
-            <p class="posted-by">Posted by {{this.username}} on {{this.datePosted}}</p>
-            <p class="post-preview">{{this.content}}</p>
-            <a href="/posts/{{this._id}}">Read more</a>
-            </article>
+
+            {{#if postOwner}}
+                {{> postPreview post=this isPostOwner=../isPostOwner }}
+            {{else if (eq ../user.username this.username)}}
+                {{> postPreview post=this isPostOwner=true }}
+            {{else}}
+                {{> postPreview post=this isPostOwner=false }}
+            {{/if}}
+
         {{/each}}
         </div>
         <div class="load-more-container">
@@ -116,4 +118,5 @@
 {{#if user}}
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 <script src="/public/js/loadPosts.js"></script>
+<script src="/public/js/postManagement.js"></script>
 {{/if}}
