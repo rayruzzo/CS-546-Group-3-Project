@@ -35,7 +35,7 @@ const Post = Object.freeze(class Post {
         this.createdAt = new Date();
         this.updatedAt = new Date();
         this.comments = [];
-        
+
         // zipcode and loc will be set in createPost function
         this.zipcode = "";
         this.loc = null;
@@ -102,25 +102,24 @@ const postFunctions = {
         newPostData.zipcode = user.zipcode;
         newPostData.loc = location.loc;
         newPostData.fulfilledState = 'open';
+        newPostData.reported = false;
 
         const validatedPost = await postSchema.validate(newPostData);
-        
+
         const postCollection = await posts();
         const insertInfo = await postCollection.insertOne(validatedPost);
         if (!insertInfo.acknowledged) {
             errors.creationError = "Could not create a new post";
         }
 
-
-
-        console.log("NEW POST CREATED");
+        newPostData._id = insertInfo.insertedId.toString();
 
         return { post: newPostData, success: true };
     },
 
     async getPostById(id) {
         if (!id) throw new Error("Post ID must be provided", { cause: { id: "Post ID not provided" } });
-        
+
         const postCollection = await posts();
         let post = await postCollection.findOne({ _id: ObjectId.createFromHexString(id) });
         if (!post) throw new Error("Post not found", { cause: { id: "No post found with the provided ID" } });
@@ -154,7 +153,7 @@ const postFunctions = {
 
     async deletePost(postId) {
         if (!postId) throw new Error("Post ID must be provided", { cause: { postId: "Post ID not provided" } });
-        
+
         const postCollection = await posts();
         const deletionInfo = await postCollection.deleteOne({ _id: ObjectId.createFromHexString(postId) });
 
@@ -167,15 +166,15 @@ const postFunctions = {
 
     async getPostsNearZipcode(zipcode, radiusMiles = 5, limit = 10, skip = 0) {
         const location = await locationFunctions.getLocationByZipcode(zipcode);
-        
+
         limit = validators.validateWholeNumber(limit, "Limit");
         skip = validators.validateWholeNumber(skip, "Skip");
         radiusMiles = validators.validateWholeNumber(radiusMiles, "Radius");
-        
+
         const radiusMeters = radiusMiles * 1609.34;
         const postCollection = await posts();
-        
-        
+
+
         const postsList = await postCollection
             .find({
                 loc: {
@@ -188,7 +187,7 @@ const postFunctions = {
             .skip(skip)
             .limit(limit)
             .toArray();
-    
+
         return postsList;
     },
     async filterPosts(filters = {}) {
@@ -207,30 +206,29 @@ const postFunctions = {
          * - limit: number (default 10)
          * - skip: number (default 0)
          */
-        
-        const { 
+
+        const {
             zipcode,
             zipCodes,
             radius,
-            category, 
-            type, 
+            category,
+            type,
             tags,
             priority,
             expiring,
             userId,
             sortBy = 'newest',
-            limit = 10, 
-            skip = 0 
+            limit = 10,
+            skip = 0
         } = filters;
-    
-        // Build MongoDB query dynamically
+
         const query = {};
-    
+
         // Handle geospatial filtering if zipcode and radius provided
         if (zipcode && radius) {
             const location = await locationFunctions.getLocationByZipcode(zipcode);
             const radiusMeters = radius * 1609.34; // Convert miles to meters
-            
+
             query.loc = {
                 $near: {
                     $geometry: {
@@ -245,27 +243,38 @@ const postFunctions = {
         else if (zipCodes && Array.isArray(zipCodes) && zipCodes.length > 0) {
             query.zipcode = { $in: zipCodes };
         }
-    
+
         if (category) {
             query.category = category;
         }
-    
+
         if (type) {
             query.type = type;
         }
-    
+
         if (tags && Array.isArray(tags) && tags.length > 0) {
             query.tags = { $in: tags };
         }
-    
+
         if (priority) {
-            query.priority = priority;
+            let priorityNum = priority;
+            if (typeof priority === 'string') {
+                if (!isNaN(priority)) {
+                    priorityNum = parseInt(priority);
+                } else {
+                    const key = priority.toUpperCase();
+                    if (priorityValues[key]) {
+                        priorityNum = priorityValues[key];
+                    }
+                }
+            }
+            query.priority = priorityNum;
         }
-    
+
         if (expiring) {
             const now = new Date();
             let expirationDate;
-            
+
             if (expiring === '24h') {
                 expirationDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
             } else if (expiring === '3d') {
@@ -273,7 +282,7 @@ const postFunctions = {
             } else if (expiring === '7d') {
                 expirationDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
             }
-            
+
             if (expirationDate) {
                 query.expiresAt = {
                     $ne: null,
@@ -282,14 +291,13 @@ const postFunctions = {
                 };
             }
         }
-    
+
         if (userId) {
             query.userId = userId;
         }
-    
-        // Build sort options
+
         let sortOptions = {};
-        
+
         if (sortBy === 'newest') {
             sortOptions = { createdAt: -1 };
         } else if (sortBy === 'oldest') {
@@ -297,20 +305,28 @@ const postFunctions = {
         } else if (sortBy === 'expiration') {
             sortOptions = { expiresAt: 1 };
         } else if (sortBy === 'priority') {
-            sortOptions = { priority: -1, createdAt: -1 }; // Sort by priority desc, then newest
+            sortOptions = { priority: -1, createdAt: -1 }; 
         } else if (sortBy === 'distance') {
-            // Distance sorting is already handled by $near query
-            sortOptions = { createdAt: -1 }; // Secondary sort by newest
+            sortOptions = { createdAt: -1 }; 
         }
-    
+
         const postCollection = await posts();
-        const postsList = await postCollection
+        let postsList = await postCollection
             .find(query)
             .sort(sortOptions)
             .skip(skip)
             .limit(limit)
             .toArray();
-    
+
+        // If sorting by expiration, move posts with null expiresAt to the bottom
+        if (sortBy === 'expiration') {
+            postsList = postsList.sort((a, b) => {
+                if (a.expiresAt === null && b.expiresAt === null) return 0;
+                if (a.expiresAt === null) return 1;
+                if (b.expiresAt === null) return -1;
+                return new Date(a.expiresAt) - new Date(b.expiresAt);
+            });
+        }
         return postsList;
     },
 
@@ -322,13 +338,13 @@ const postFunctions = {
             // Get user info for the post's userId
             const userResult = await userFunctions.getUserById(post.userId);
             const user = userResult.user;
-            
+
             // Get location info for the post's zipcode
             const postLocation = await locationFunctions.getLocationByZipcode(post.zipcode);
-            
+
             // Format date
             const datePosted = post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Unknown';
-            
+
             return {
                 ...post,
                 _id: post._id.toString(),
@@ -353,12 +369,12 @@ const postFunctions = {
 
     async enrichPostsWithUserAndLocation(postsList) {
         const enrichedPosts = [];
-        
+
         for (const post of postsList) {
             const enrichedPost = await this.enrichPostWithUserAndLocation(post);
             enrichedPosts.push(enrichedPost);
         }
-        
+
         return enrichedPosts;
     },
 
@@ -378,6 +394,21 @@ const postFunctions = {
         return { postId: postId, fulfilled: true, success: true };
     },
 
+    async reportPost(postId) {
+        postId = postId instanceof ObjectId ? postId : new ObjectId(postId);
+
+        const postCollection = await posts();
+        const updateInfo = await postCollection.updateOne(
+            { _id: postId },
+            { $set: { reported: true } }
+        );
+
+        if (updateInfo.matchedCount === 0) { throw new Error("Post not found", { cause: { postId: "No post found with the provided ID" } }); }
+        if (updateInfo.modifiedCount === 0) {
+            throw new Error("Could not report post", { cause: { postId: "Post update failed" } });
+        }
+        return { postId: postId, reported: true, success: true };
+    }
 };
 
 export default postFunctions;

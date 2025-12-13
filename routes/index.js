@@ -17,6 +17,8 @@ const configRoutes = (app) => {
     app.use('/login', loginRoutes);
     app.use('/signup',signupRoutes);
     app.use('/logout', logoutRoutes);
+    app.use('/moderator', moderatorRouter);
+
     app.use((req, res) => {
         return renderErrorPage(res, 404, null);
     });

@@ -47,8 +47,27 @@
     </div>
 
     <div class="content">{{post.content}}</div>
+    {{#if user}}
+        {{#unless isPostOwner}}
+
+            {{#if post.reported}}
+            <span class="post-reported-status">
+                ⚠ Reported
+            </span>
+            {{else}}
+            <form method="POST"
+                    action="/posts/report/{{post._id}}"
+                    class="report-form">
+                <button type="submit" class="report-link">
+                Report
+                </button>
+            </form>
+            {{/if}}
+        {{/unless}}
+    {{/if}}
 
     {{#if post.commentsEnabled}}
+    {{#unless post.reported}}
     <section id="comments-section">
         <h2>Comments</h2>
 
@@ -86,8 +105,22 @@
         </div>
         {{/if}}
     </section>
+    {{/unless}}
     {{/if}}
 </article>
+
+<div class="report-post-section">
+    <p class="report-post-message">
+        {{#if post.reported}}
+            This post has been reported. Thank you for helping us keep the community safe.
+        {{else}}
+            If you find this post inappropriate or violating our community guidelines, you can report it.
+            <form action="/posts/report/{{post._id}}" method="post" style="display:inline;">
+            <button type="submit" id="report-post-btn" class="button-secondary">Report Post</button>
+            </form>
+        {{/if}}
+    </p>
+</div>
 
 {{!-- conditionally load postManagement javascript if we are the post owner --}}
 {{#if isPostOwner}}

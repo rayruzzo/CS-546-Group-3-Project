@@ -1,0 +1,68 @@
+<div class="page-content">
+  <h1>Moderator Dashboard</h1>
+
+  <div class="moderator-nav">
+    <a href="/moderator/users" class="btn-secondary moderator-manage-btn">
+      Manage Users
+    </a>
+  </div>
+
+  {{#if reportedPosts.length}}
+    <p class="moderator-description">
+      Reported posts require review. Use actions below.
+    </p>
+
+    <div class="posts-container">
+      {{#each reportedPosts}}
+        <article class="post-card">
+
+          <h2 class="post-title">{{this.title}}</h2>
+
+          <div class="post-meta">
+            <span class="author">
+              Posted by <strong>{{this.username}}</strong>
+            </span>
+            <span class="location">
+              📍 {{this.city}}, {{this.state}}
+            </span>
+          </div>
+
+          <div class="post-content">
+            <p>{{this.content}}</p>
+          </div>
+
+          <!-- MODERATOR ACTIONS -->
+          <div class="moderator-actions">
+            <form method="POST" action="/moderator/post/{{this._id}}/clear-report">
+              <button type="submit" class="btn-secondary">
+                Clear Report
+              </button>
+            </form>
+
+            <form method="POST" action="/moderator/post/{{this._id}}/fulfill">
+              <button type="submit" class="btn-secondary">
+                Mark Fulfilled
+              </button>
+            </form>
+
+            <form
+              method="POST"
+              action="/moderator/post/{{this._id}}/delete"
+              onsubmit="return confirm('Delete this post? This cannot be undone.');"
+            >
+              <button type="submit" class="btn-danger">
+                Delete Post
+              </button>
+            </form>
+          </div>
+
+        </article>
+      {{/each}}
+    </div>
+
+  {{else}}
+    <p class="moderator-empty">
+      No reported posts right now. 🎉
+    </p>
+  {{/if}}
+</div>

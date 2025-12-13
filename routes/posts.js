@@ -10,7 +10,17 @@ const router = Router();
 // GET /posts/filter - Filter posts (API endpoint for AJAX)
 router.get('/filter', async (req, res) => {
     try {
-        const filteredPosts = await loadPosts(req.session.user.zipcode, req.filters);
+        const filters = { ...req.query };
+
+        if (filters.limit) filters.limit = parseInt(filters.limit);
+        if (filters.skip) filters.skip = parseInt(filters.skip);
+        if (filters.distance) filters.distance = parseInt(filters.distance);
+
+        if (filters.tags && typeof filters.tags === 'string') {
+            filters.tags = filters.tags.split(',').map(t => t.trim()).filter(Boolean);
+        }
+
+        const filteredPosts = await loadPosts(req.session.user.zipcode, filters);
         res.json({ posts: filteredPosts });
     } catch (error) {
         console.error('Error filtering posts:', error);
@@ -21,7 +31,7 @@ router.get('/filter', async (req, res) => {
 // GET /posts/create - Show create post page
 router.get('/create', async (req, res) => {
     try {
-        res.render('createPost');
+        res.render('createPost', { title: "Create New Post" });
     } catch (error) {
         renderErrorPage(res, 500, error.toString());
     }
@@ -43,7 +53,7 @@ router.post('/create', async (req, res) => {
 // GET /posts/edit/:id - Show edit post page
 router.get('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
-        res.render('editPost', { post: req.post });
+        res.render('editPost', { post: req.post, title: "Edit Post" });
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
@@ -52,18 +62,18 @@ router.get('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 // POST /posts/edit/:id - edit post and redirect to it
 router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
-        const { 
-            title, 
-            content, 
-            type, 
-            category, 
-            commentsEnabled, 
-            tags, 
-            priority, 
-            expiresAt, 
-            fulfilledState 
+        const {
+            title,
+            content,
+            type,
+            category,
+            commentsEnabled,
+            tags,
+            priority,
+            expiresAt,
+            fulfilledState
         } = req.body;
-        
+
         const post = req.post;
 
         const editedPostData = {
@@ -81,7 +91,7 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
             fulfilledState,
             editedAt: new Date()
         };
-        
+
         await postData.updatePost(req.params.id, editedPostData);
         res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
@@ -99,7 +109,7 @@ router.get('/:id', postMiddleware.isPostOwnerDisplay, commentMiddleware.getComme
 });
 
 // DELETE /posts/:id - Delete a post
-router.post('/delete/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
+router.delete('/delete/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
     try {
         await postData.deletePost(req.params.id);
         return res.status(200).json({ success: true, message: 'Post deleted' });
@@ -112,6 +122,15 @@ router.post('/fulfill/:id', postMiddleware.isPostOwnerAction, async (req, res) =
     try {
         await postData.markPostAsFulfilled(req.params.id);
         return res.status(200).json({ success: true, message: 'Post marked as fulfilled' });
+    } catch (error) {
+        renderErrorPage(res, 404, error.toString());
+    }
+});
+
+router.post('/report/:id', async (req, res) => {
+    try {
+        await postData.reportPost(req.params.id);
+        res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
         renderErrorPage(res, 404, error.toString());
     }
