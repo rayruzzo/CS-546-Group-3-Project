@@ -1,3 +1,20 @@
+
+const formatDate = (date, format) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (format === 'YYYY-MM-DD') {
+        return d.toISOString().split('T')[0];
+    }
+    // Default: readable format
+    return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
 (function () {
     const postsContainer = document.getElementById('posts-container');
     const loadMoreBtn = document.getElementById('load-more-btn');
@@ -138,16 +155,92 @@
         window.history.pushState({ filters: Object.fromEntries(params) }, '', newURL);
     }
 
+    function buildPostHTML(post) {
+
+        const sanitizedPostId             = DOMPurify.sanitize(post._id);
+        const sanitizedUsername           = DOMPurify.sanitize(post.username || 'Anonymous');
+        const sanitizedPostTitle          = DOMPurify.sanitize(post.title);
+        const santizedPostCity            = DOMPurify.sanitize(post.city);
+        const sanitizedPostState          = DOMPurify.sanitize(post.state);
+        const sanitizedPostCreatedAt      = DOMPurify.sanitize(post.createdAt);
+        const sanitizedPostDatePosted     = DOMPurify.sanitize(post.datePosted);
+        const sanitizedPostFulfilledState = DOMPurify.sanitize(post.fulfilledState);
+        const sanitizedPostType           = DOMPurify.sanitize(post.type);
+        const sanitizedPostCategory       = DOMPurify.sanitize(post.category);
+        const sanitizedPostPriority       = DOMPurify.sanitize(post.priority);
+        const sanitizedPostExpiresAt      = DOMPurify.sanitize(post.expiresAt);
+        const sanitizedPostTags           = post.tags?.length > 0 && post.tags.map(
+                                                (tag) => DOMPurify.sanitize(tag));
+        const sanitizedPostContent        = DOMPurify.sanitize(post.content);
+        
+        return `
+            <article id="${sanitizedPostId}" data-username="${sanitizedUsername}" class="post-item">
+                <h3>${sanitizedPostTitle}</h3>
+
+                <div class="post-meta">
+                    <span class="author">
+                    Posted by <a href="/user/${sanitizedUsername}"><strong>${sanitizedUsername}</strong></a>
+                </span>
+                    <span class="location">📍 ${santizedPostCity}, ${sanitizedPostState}</span>
+                    <span class="date">
+                        <time datetime="${sanitizedPostCreatedAt}">${sanitizedPostDatePosted || ""}</time>
+                    </span>
+                    ${
+                        sanitizedPostFulfilledState === "fulfilled" ? 
+                        `<span class="status fulfilled">✅ Fulfilled</span>` : ""
+                    }
+                </div>
+
+                <div class="post-details">
+                    <p class="type ${sanitizedPostType}">${sanitizedPostType}</p>
+                    <span class="category">${sanitizedPostCategory}</span>
+                    <span class="priority priority-${sanitizedPostPriority}">
+                        ${(() => {
+                            if (sanitizedPostPriority === "4")
+                                return `🔴 Urgent`
+                            else if (sanitizedPostPriority === "3")
+                                return `🟠 High Priority`
+                            else if (sanitizedPostPriority === "2")
+                                return `🟡 Normal`
+                            else if (sanitizedPostPriority === "1")
+                                return `🟢 Low Priority`
+                            else 
+                                return ""
+                        })()}
+                    </span>
+                    ${
+                        sanitizedPostExpiresAt ? 
+                        `<span class="expiration">
+                            Expires:
+                            <time datetime="${sanitizedPostExpiresAt}">
+                            ${formatDate(sanitizedPostExpiresAt)}
+                            </time>
+                        </span>
+                        ` : ""
+                    }           
+                    ${
+                        sanitizedPostTags ?
+                        `<div class="tags">
+                            ${(() => {
+                                return sanitizedPostTags.map((tag) => `
+                                    <span class="tag">${tag}</span>
+                                `).join("")
+                            })()}
+                        </div>
+                        ` : ""
+                    }
+                </div>
+
+                <p class="post-preview">${sanitizedPostContent}</p>
+                <a href="/posts/${sanitizedPostId}">Read more</a>
+
+            </article>
+        `
+    }
+
     function appendPosts(posts) {
-        const postsHTML = posts.map(post => `
-                <article class="post-item">
-                <h3>${DOMPurify.sanitize(post.title)}</h3>
-                <p class="post-meta">${DOMPurify.sanitize(post.category)} • ${DOMPurify.sanitize(post.type)} • ${DOMPurify.sanitize(post.city)}, ${DOMPurify.sanitize(post.state)}</p>
-                <p class="posted-by">Posted by ${DOMPurify.sanitize(post.username || 'Anonymous')} on ${DOMPurify.sanitize(post.datePosted)}</p>
-                <p class="post-preview">${DOMPurify.sanitize(post.content)}</p>
-                <a href="/posts/${post._id}">Read more</a>
-                </article>
-        `).join('');
+
+        const postsHTML = posts.map(post => buildPostHTML(post)).join('');
 
         postsContainer.insertAdjacentHTML('beforeend', postsHTML);
     }
@@ -175,15 +268,8 @@
 
             // Update the posts list
             if (data.posts && data.posts.length > 0) {
-                const postsHTML = data.posts.map(post => `
-                    <article class="post-item">
-                    <h3>${DOMPurify.sanitize(post.title)}</h3>
-                    <p class="post-meta">${DOMPurify.sanitize(post.category)} • ${DOMPurify.sanitize(post.type)} • ${DOMPurify.sanitize(post.city)}, ${DOMPurify.sanitize(post.state)}</p>
-                    <p class="posted-by">Posted by ${DOMPurify.sanitize(post.username || 'Anonymous')} on ${DOMPurify.sanitize(post.datePosted)}</p>
-                    <p class="post-preview">${DOMPurify.sanitize(post.content)}</p>
-                    <a href="/posts/${post._id}">Read more</a>
-                    </article>
-                `).join('');
+                
+                const postsHTML = data.posts.map(post => buildPostHTML(post)).join('');
 
                 postsListContainer.innerHTML = postsHTML;
 
