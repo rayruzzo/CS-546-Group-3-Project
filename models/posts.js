@@ -130,6 +130,8 @@ export const expiresAtSchema = yup
   })
   .default(null);
 
+export const reportedFlag = yup.boolean().default(false);
+
 export const postSchema = yup.object().shape({
     title: titleSchema,
     userId: yup.string().required("User ID is required"),
@@ -144,6 +146,7 @@ export const postSchema = yup.object().shape({
     priority: prioritySchema,
     expiresAt: expiresAtSchema,
     fulfilledState: fillfilledStateSchema,
+    reported: reportedFlag,
     zipcode: yup.string().required("Zipcode is required"),
     loc: locSchema
 });

@@ -1,6 +1,8 @@
 // Handlebars helper functions
 
 export const eq = (a, b) => a === b;
+export const and = (...args) => args.every(Boolean);
+export const or = (...args) => args.some(Boolean);
 
 export const formatDate = (date, format) => {
     if (!date) return '';
@@ -43,6 +45,8 @@ export const set = function (name, value, options) {
 
 export default {
     eq,
+    and,
+    or,
     formatDate,
     join,
     last,

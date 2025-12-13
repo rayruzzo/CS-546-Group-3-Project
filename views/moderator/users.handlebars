@@ -1,0 +1,48 @@
+<div class="page-content">
+  <h1>Moderation – User Management</h1>
+
+  <div class="moderator-nav">
+    <a href="/moderator" class="btn-secondary moderator-back-btn">
+        ← Back to Dashboard
+    </a>
+    </div>
+
+  <p class="moderator-description">
+    Select a user to view moderation options.
+  </p>
+
+  <select id="userSelect">
+    <option value="">Select a user…</option>
+    {{#each users}}
+      <option
+        value="{{this._id}}"
+        data-username="{{this.profile.username}}"
+        data-role="{{this.role}}"
+        data-banned="{{this.isBanned}}">
+        {{this.profile.username}} ({{this.role}})
+      </option>
+    {{/each}}
+  </select>
+
+  <div id="userDetails" class="user-details hidden">
+    <h3 id="detailUsername"></h3>
+
+    <p>
+      Role:
+      <span id="detailRole" class="role-badge"></span>
+    </p>
+
+    <p>
+      Status:
+      <span id="detailStatus"></span>
+    </p>
+
+    <div id="actionArea"></div>
+  </div>
+</div>
+
+<script>
+  window.CURRENT_USER_ROLE = "{{user.role}}";
+  window.CURRENT_USER_ID = "{{user._id}}";
+</script>
+<script src="/public/js/moderatorUsers.js"></script>
