@@ -44,9 +44,15 @@ const formatDate = (date, format) => {
     }
 
     // Attach event listeners to form and all filter inputs
+    function resetLoadMoreState() {
+        currentSkip = 0;
+        if (loadMoreBtn) loadMoreBtn.style.display = 'block';
+        if (noMoreMessage) noMoreMessage.style.display = 'none';
+    }
+
     filterForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        currentSkip = 0; // Reset skip when filtering
+        resetLoadMoreState();
         await loadFilteredPosts(true);
         updateBrowserURL();
     });
@@ -55,7 +61,7 @@ const formatDate = (date, format) => {
     [distanceFilter, categoryFilter, typeFilter, tagsFilter, priorityFilter, expiringFilter, sortByFilter].forEach(filter => {
         if (filter) {
             filter.addEventListener('change', async () => {
-                currentSkip = 0; // Reset skip when filtering
+                resetLoadMoreState();
                 await loadFilteredPosts(true);
                 updateBrowserURL();
             });

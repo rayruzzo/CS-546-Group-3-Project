@@ -29,6 +29,9 @@ const loadPosts = async (userZipCode, filters = {}) => {
             category: filters.category,
             type: filters.type,
             tags: filters.tags,
+            expiring: filters.expiring,
+            priority: filters.priority,
+            sortBy: filters.sortBy,
             limit: filters.limit || 10,
             skip: filters.skip || 0
         };

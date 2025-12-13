@@ -112,9 +112,7 @@ const postFunctions = {
             errors.creationError = "Could not create a new post";
         }
 
-
-
-        console.log("NEW POST CREATED");
+        newPostData._id = insertInfo.insertedId.toString();
 
         return { post: newPostData, success: true };
     },
@@ -224,7 +222,6 @@ const postFunctions = {
             skip = 0
         } = filters;
 
-        // Build MongoDB query dynamically
         const query = {};
 
         // Handle geospatial filtering if zipcode and radius provided
@@ -260,7 +257,18 @@ const postFunctions = {
         }
 
         if (priority) {
-            query.priority = priority;
+            let priorityNum = priority;
+            if (typeof priority === 'string') {
+                if (!isNaN(priority)) {
+                    priorityNum = parseInt(priority);
+                } else {
+                    const key = priority.toUpperCase();
+                    if (priorityValues[key]) {
+                        priorityNum = priorityValues[key];
+                    }
+                }
+            }
+            query.priority = priorityNum;
         }
 
         if (expiring) {
@@ -288,7 +296,6 @@ const postFunctions = {
             query.userId = userId;
         }
 
-        // Build sort options
         let sortOptions = {};
 
         if (sortBy === 'newest') {
@@ -298,20 +305,28 @@ const postFunctions = {
         } else if (sortBy === 'expiration') {
             sortOptions = { expiresAt: 1 };
         } else if (sortBy === 'priority') {
-            sortOptions = { priority: -1, createdAt: -1 }; // Sort by priority desc, then newest
+            sortOptions = { priority: -1, createdAt: -1 }; 
         } else if (sortBy === 'distance') {
-            // Distance sorting is already handled by $near query
-            sortOptions = { createdAt: -1 }; // Secondary sort by newest
+            sortOptions = { createdAt: -1 }; 
         }
 
         const postCollection = await posts();
-        const postsList = await postCollection
+        let postsList = await postCollection
             .find(query)
             .sort(sortOptions)
             .skip(skip)
             .limit(limit)
             .toArray();
 
+        // If sorting by expiration, move posts with null expiresAt to the bottom
+        if (sortBy === 'expiration') {
+            postsList = postsList.sort((a, b) => {
+                if (a.expiresAt === null && b.expiresAt === null) return 0;
+                if (a.expiresAt === null) return 1;
+                if (b.expiresAt === null) return -1;
+                return new Date(a.expiresAt) - new Date(b.expiresAt);
+            });
+        }
         return postsList;
     },
 
