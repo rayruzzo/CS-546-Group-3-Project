@@ -49,8 +49,18 @@ export class InputMessager {
    error(text) {
       this.#validateString(text);
       this.#messageContainer.innerText = text.trim();
+      this.#messageContainer.classList.remove("input-success");
       this.#messageContainer.classList.add("input-error");
       this.#isErrored = true;
+      return this.#show();
+   }
+
+   success(text) {
+      this.#validateString(text);
+      this.#messageContainer.innerText = text.trim();
+      this.#messageContainer.classList.remove("input-error");
+      this.#messageContainer.classList.add("input-success");
+      this.#isErrored = false;
       return this.#show();
    }
 
@@ -68,5 +78,9 @@ export class InputMessager {
 
    get isErrored() {
       return this.#isErrored;
+   }
+
+   get id() {
+      return this.#messageContainer.id;
    }
 }
