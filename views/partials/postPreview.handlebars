@@ -1,0 +1,68 @@
+<article id="{{this._id}}" data-username="{{this.username}}" class="post-item">
+	<h3>{{this.title}}</h3>
+
+	{{#if isPostOwner}}
+		<div class="post-actions">
+			<a href="/posts/edit/{{post._id}}" class="button-primary">
+            Update Post
+         </a>
+			<button data-delete-post class="button-danger">
+            Delete Post
+         </button>
+         
+			{{#if (eq post.fulfilledState "open")}}
+         <button 
+            data-fulfill-post 
+            data-post-id="{{post._id}}"
+            class="fulfill-post-btn button-secondary">
+            Mark as Fulfilled
+         </button>
+			{{/if}}
+
+		</div>
+	{{/if}}
+
+	<div class="post-meta">
+		<span class="author">
+         Posted by <a href="/user/{{post.username}}"><strong>{{post.username}}</strong></a>
+      </span>
+		<span class="location">📍 {{post.city}}, {{post.state}}</span>
+		<span class="date">
+			<time datetime="{{post.createdAt}}">{{post.datePosted}}</time>
+		</span>
+		{{#if (eq post.fulfilledState "fulfilled")}}
+			<span class="status fulfilled">✅ Fulfilled</span>
+		{{/if}}
+	</div>
+
+	<div class="post-details">
+		<p class="type {{post.type}}">{{post.type}}</p>
+		<span class="category">{{post.category}}</span>
+		<span class="priority priority-{{post.priority}}">
+			{{#if (eq post.priority 4)}}🔴 Urgent
+			{{else if (eq post.priority 3)}}🟠 High Priority
+			{{else if (eq post.priority 2)}}🟡 Normal
+			{{else}}🟢 Low Priority
+			{{/if}}
+		</span>
+		{{#if post.expiresAt}}
+			<span class="expiration">
+				Expires:
+				<time datetime="{{post.expiresAt}}">
+               {{formatDate post.expiresAt}}
+            </time>
+			</span>
+		{{/if}}
+		{{#if post.tags}}
+			<div class="tags">
+				{{#each post.tags}}
+					<span class="tag">{{this}}</span>
+				{{/each}}
+			</div>
+		{{/if}}
+	</div>
+
+	<p class="post-preview">{{this.content}}</p>
+	<a href="/posts/{{this._id}}">Read more</a>
+
+</article>

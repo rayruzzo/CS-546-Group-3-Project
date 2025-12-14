@@ -25,7 +25,7 @@ const addFriend = async (userId, friendId) => {
     // Add friend to user
     await userCollection.updateOne(
         { _id: new ObjectId(userId) },
-        { $addToSet: { friends: friendId } }
+        { $addToSet: { friends: friendId} }
     );
 
     // Add user to friend
@@ -68,6 +68,10 @@ const getMutualFriends = async (userId1, userId2) => {
     userId1 = _validateUserId(userId1, "User ID 1");
     userId2 = _validateUserId(userId2, "User ID 2");
 
+    // return empty result object if comparing against ourself
+    if (userId1 === userId2) 
+        return {};
+
     const user1 = await users.getUserById(userId1);
     const user2 = await users.getUserById(userId2);
     if (!user1 || !user2) {
@@ -77,11 +81,24 @@ const getMutualFriends = async (userId1, userId2) => {
     const friends1 = new Set(user1.user.friends || []);
     const friends2 = new Set(user2.user.friends || []);
 
-     //intersection
+    // find mutual friends - intersection
+    let mutualFriendIds;
+    if (Set.prototype.intersection) {
+        mutualFriendIds = friends1.intersection(friends2);
+    } else {
+        mutualFriendIds = [...friends1].filter(id => friends2.has(id.toString()));
+    }
 
-     const mutual  = [...friends1].filter(id => friends2.has(id));
-     return mutual;
+    // check if the two are friends
+    const friendsWith = friends2.has(userId1);
+
+    return {
+        mutualFriendIds: mutualFriendIds, 
+        friendsWith:     friendsWith
+    };
 };
+
+
 
 //Get all friends for a user
 const getFriends = async (userId) => {

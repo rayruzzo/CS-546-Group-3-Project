@@ -1,0 +1,102 @@
+<section>
+   
+   {{#with profile}}
+   <div class="avatar-container">
+      <div class="image-square">
+
+         {{#with avatar}}
+         <img 
+            src="{{this}}" 
+            alt="{{../username}}" 
+            width="{{../../avatarDimensions}}" 
+            height="{{../../avatarDimensions}}"
+         >
+         {{else}}
+         <div class="no-avatar"></div>
+         {{/with}}
+
+      </div>
+   </div>
+   {{/with}}
+
+   <div>
+      {{#with profile}}
+
+      <h1>
+         {{#if username}}
+         {{username}}
+         {{else}}
+         Unknown User
+         {{/if}}
+      </h1>
+      
+      {{#with firstName}}
+      <p title="Full Name">
+         <span title="First Name">{{this}}</span>
+         {{#with ../lastName}}
+         <span title="Last Name"> {{this}}</span>
+         {{/with}}
+      </p>
+      {{/with}}
+
+      {{/with}}
+
+      <p title="ZIP Code">{{zipcode}}</p>
+      <p title="Role">{{role}}</p>
+
+      {{#with profile.bio}}
+      <p title="Bio">{{this}}</p>
+      {{/with}}
+      
+   </div>
+   
+   {{#if friends.length}}
+   <p>{{friends.length}} Friend{{#if (gt friends.length 1)}}s{{/if}}</p>
+   {{else}}
+   <p>No Friends Yet</p>
+   {{/if}}
+
+   {{#if numMutualFriends}}
+   <p>{{numMutualFriends}} Mutual</p>
+   {{/if}}
+
+   {{#unless isPostOwner}}
+      {{#if friendsWith}}
+         <p>🫂 Friends</p>
+         <button data-unfriend="{{profile.username}}">
+            Unfriend
+         </button>
+      {{else}}
+         <button data-add-friend="{{profile.username}}">
+            Add Friend
+         </button>
+      {{/if}}
+   {{/unless}}
+</section>
+
+{{#if posts}}
+<section>
+   <h2>Posts</h2>
+   {{#each posts}}
+
+      {{#if ../isPostOwner}}
+         {{> postPreview post=this isPostOwner=../isPostOwner }}
+      {{else if (eq ../user.username this.username)}}
+         {{> postPreview post=this isPostOwner=true }}
+      {{else}}
+         {{> postPreview post=this isPostOwner=false }}
+      {{/if}}
+
+   {{/each}}
+</section>
+{{/if}}
+
+{{!-- conditionally load friendManagement javascript if we are NOT the post owner --}}
+{{#unless isPostOwner}}
+<script src="/public/js/friendManagement.js"></script>
+{{/unless}}
+
+{{!-- conditionally load postManagement javascript if we are the post owner --}}
+{{#if isPostOwner}}
+<script src="/public/js/postManagement.js"></script>
+{{/if}}

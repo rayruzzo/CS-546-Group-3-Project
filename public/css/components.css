@@ -188,8 +188,8 @@
 button, ::file-selector-button {
    padding: 0.35rem 0.6rem;
    margin-right: 1rem;
-   background-color: var(--bg-tertiary-color);
-   background-color: unset;
+   background-color: var(--bg-secondary-color);
+   /* background-color: unset; */
    color: var(--fg-color);
    border-radius: var(--border-radius-small);
    border: var(--border-primary);

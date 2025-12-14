@@ -56,6 +56,9 @@ app.set('view engine', 'handlebars');
 app.use('/posts/filter', postMiddleware.parseFilterParams);
 app.use('/posts', postMiddleware.requireAuthentication);
 
+app.use('/user', postMiddleware.requireAuthentication);
+app.use('/friend', postMiddleware.requireAuthentication);
+
 // DM Middleware
 app.use("/dmthreads/thread/:id", dmMiddleware.requireThreadAuthorization);
 app.use("/dmthreads/thread/:id/message", dmMiddleware.enforceMessageRateLimit);

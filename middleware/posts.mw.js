@@ -1,5 +1,7 @@
 import {postTypeSchema, postCategorySchema, tagsSchema, prioritySchema} from '../models/posts.js';
 import postData from '../data/posts.js';
+import userData from "../data/users.js";
+import { renderErrorPage } from '../utils/errorUtils.js';
 
 const isPostOwnerAction = async (req, res, next) => {
     try {
@@ -24,6 +26,23 @@ const isPostOwnerDisplay = async (req, res, next) => {
         next();
     } catch (error) {
         return res.status(404).json({ error: 'Post not found' });
+    }
+}
+
+const isProfileOwnerDisplay = async (req, res, next) => {
+    try {
+        const userId = req.session?.user?._id;
+        const { user } = await userData.getUserByUsername(req.params.username.toLowerCase());
+        
+        res.locals.sessionUserId   = userId.toString();
+        res.locals.requestedUserId = user._id.toString();
+        res.locals.requestedUser   = user;
+        res.locals.isPostOwner = (res.locals.sessionUserId === res.locals.requestedUserId);
+        
+        next();
+    } catch (error) {
+        console.error(error);
+        return renderErrorPage(res, 404, error.message);
     }
 }
 
@@ -98,6 +117,7 @@ const parseFilterParams = (req, res, next) => {
 export default {
      isPostOwnerAction,
      isPostOwnerDisplay,
+     isProfileOwnerDisplay,
      requireAuthentication, 
      parseFilterParams 
     };

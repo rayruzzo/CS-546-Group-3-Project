@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} | Cup Of Sugar</title>
     <link rel="stylesheet" href="/public/css/main.css">
-</head>
-<body>
-    <header>
-    </header>
-
-    <!-- GLOBAL STYLES -->
-    <link rel="stylesheet" href="/public/css/errors.css">
     <link rel="stylesheet" href="/public/style.css">
     <link rel="stylesheet" href="/public/css/dm.css">
     <link rel="stylesheet" href="/public/css/nav.css">
@@ -37,7 +30,9 @@
                     <a href="/moderator">Moderation</a>
                 {{/if}}
 
-                <span class="nav-user">Hi, {{user.username}}</span>
+                <a href="/user/{{user.username}}">
+                    <span class="nav-user">Hi, {{user.username}}</span>
+                </a>
                 <a href="/logout" class="logout-btn">Logout</a>
             {{else}}
                 <a href="/">Home</a>
@@ -50,6 +45,10 @@
     <main class="page-content">
         {{{body}}}
     </main>
+
+    <footer>
+
+    </footer>
 
 </body>
 </html>

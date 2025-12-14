@@ -1,8 +1,12 @@
 import Router from 'express';
 import { validateSchema } from '../middleware/validation.mw.js';
 import userData from '../data/users.js';
+import postData from '../data/posts.js';
+import friendData from '../data/friends.js';
+import loadPosts from '../scripts/loadPosts.js';
 import { avatarSchema, getResourceByIdSchema, usernameParamSchema, userSchema } from "../models/users.js";
 import { renderErrorPage } from '../utils/errorUtils.js';
+import postMiddleware from '../middleware/posts.mw.js';
 
 const router = Router();
 
@@ -103,17 +107,47 @@ router.patch("/:id",
 router.get("/:username", 
    // FIXME: authenticate user, if no session respond with 401 Unauthorized
    validateSchema(usernameParamSchema, "params"), 
+   postMiddleware.isProfileOwnerDisplay,
    async (req, res, next) => {
    
-      const { username } = req.params;
+      // the requested `user` with the `username` param has been attached to `res.locals`
+      const { requestedUser } = res.locals;
 
       try {
-         const user = await userData.getUserByUsername(username.toLowerCase());
-         return res.json({ ...user });
+         const postsList     = await postData.filterPosts({userId: requestedUser._id.toString()});
+         const enrichedPosts = await postData.enrichPostsWithUserAndLocation(postsList);
+
+         // get your mutual friends
+         const { mutualFriendIds, friendsWith } = await friendData.getMutualFriends(
+            requestedUser._id.toString(), req.session?.user._id.toString()
+         );
+
+         return res.render("profile", {
+            zipcode:          requestedUser.zipcode,
+            role:             requestedUser.role,
+            profile: {
+               username:      requestedUser.profile?.username,
+               firstName:     requestedUser.profile?.firstName,
+               lastName:      requestedUser.profile?.lastName,
+               avatar:        requestedUser.profile?.avatar?.resizedSquare,
+               bio:           requestedUser.profile?.bio
+            },
+            friends:          requestedUser.friends,
+            friendsWith:      friendsWith,
+            mutualFriendIds:  mutualFriendIds,
+            numMutualFriends: mutualFriendIds?.size ?? mutualFriendIds?.length,
+            creationDate:     requestedUser.creationDate,
+            lastUpdated:      requestedUser.lastUpdated,
+
+            posts:            enrichedPosts,
+
+            avatarDimensions: userData.server.avatarDimensions || 200,
+            title:            requestedUser.profile?.username
+         });
          
       } catch (e) {
          console.error(e);
-         return renderErrorPage(res, 404, e.message);
+         return renderErrorPage(res, 500, e.message);
 
          // TODO: `return next(e)` instead and create a catch-all 500 err handler as the last `app.use(...)`
       }
