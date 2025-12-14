@@ -6,6 +6,27 @@ import db from "../config/mongoCollections.js";
 
 const { users } = db;
 
+
+export const SCHEMA_CONFIG = Object.freeze({
+   username: Object.freeze({
+      regex: /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/,
+      minLength: 4,
+      maxLength: 50
+   }),
+   password: Object.freeze({
+      regex: /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/,
+      message: "must have at least one lowercase letter, uppercase letter, one number, and one special character",
+      minLength: 10,
+      maxLength: 80
+   }),
+   zipcode:  Object.freeze({
+      regex: /^[0-9]{5}$/,
+      minLength: 5,
+      maxLength: 5
+   })
+})
+
+
 /** load custom Yup methods */
 loadYupCustomMethods()
 
@@ -48,12 +69,11 @@ export const passwordSchema = yup
    })
    // `typeError()` is for dev (HTML inputs are already strings)
    .typeError(({ label, type }) => `${label} must be a ${type}`)
-   .min(10)
+   .min(SCHEMA_CONFIG.password.minLength)
    // regex good enough for this project but def not for prod
    // https://stackoverflow.com/questions/48345922/reference-password-validation
-   .matches(
-      /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/gmu,
-      ({ path }) => `${path} must have at least one lowercase letter, uppercase letter, one number, and one special character`
+   .matches(SCHEMA_CONFIG.passwordRegex,
+      ({ path }) => `${path} ${SCHEMA_CONFIG.password.message}`
    )
    .requiredIfNotLoggedIn()
    .label("Password");
@@ -61,10 +81,9 @@ export const passwordSchema = yup
 
 export const usernameBaseSchema = yup
    .string()
-   .min(4)
-   .max(50)
-   .matches(
-      /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/gm,
+   .min(SCHEMA_CONFIG.username.minLength)
+   .max(SCHEMA_CONFIG.username.maxLength)
+   .matches(SCHEMA_CONFIG.username.regex,
       ({label}) => `${label} must be 4 to 50 basic latin characters composed of letters, numbers, or non-consecutive dashes, but no dashes at the beginning or end`
    )
    .label("Username");
@@ -80,7 +99,6 @@ export const usernameSchema = yup
    ]);
 
 
-// TODO: require admin privileges to change role
 export const roleSchema = yup
    .string()
    .lowercase()
@@ -90,6 +108,16 @@ export const roleSchema = yup
    .label("Role")
    .required();
 
+// TODO: finish zipcode validation
+export const zipcodeSchema = yup
+   .string()
+   .requiredIfNotLoggedIn("ZIP Code")
+   .trim()
+   .matches(SCHEMA_CONFIG.zipcode.regex,
+      ({ label }) => `${label} must be 5 digits long`)
+   // TODO: <----- LOOKUP ZIPCODE HERE
+   .label("ZIP Code");
+
 
 export const nameSchemaBase = yup
    .string()
@@ -97,6 +125,14 @@ export const nameSchemaBase = yup
    .nullable()             // NOTE: default key in MongoDB should be `null`
    .default(null)
    .trim();
+
+export const dobSchema = yup
+   .date()
+   .typeError(({ label, type }) => `${label} must be a ${type}`)
+   .min(new Date().getFullYear() - 150, "Impossible. You are not this old")
+   .max(new Date().getFullYear() - 18,  "You must be 18 years or older")
+   .requiredIfNotLoggedIn("Date of Birth")
+   .label("Date of Birth");
 
 
 export const avatarSchema = yup
@@ -121,12 +157,7 @@ export const profileSchema = yup.object({
       nameSchemaBase.label("Last Name"),
 
    dob:                    // REQUIRED
-      yup.date()
-         .typeError(({ label, type }) => `${label} must be a ${type}`)
-         .min(new Date().getFullYear() - 150, "Impossible. You are not this old")
-         .max(new Date().getFullYear() - 18,  "You must be 18 years or older")
-         .requiredIfNotLoggedIn("Date of Birth")
-         .label("Date of Birth"),
+      dobSchema,
 
    bio:                    // OPTIONAL
       yup.string()
@@ -236,16 +267,8 @@ export const userSchema = yup.object({
    role:
       roleSchema,
 
-   zipcode:            // TODO: finish zipcode validation
-      yup.string()
-         .requiredIfNotLoggedIn("ZIP Code")
-         .trim()
-         .length(5)
-         .matches(
-            /^[0-9]{5}$/gm,
-            ({ label }) => `${label} must be 5 digits long`)
-         // TODO: <----- LOOKUP ZIPCODE HERE
-         .label("ZIP Code"),
+   zipcode:
+      zipcodeSchema,
 
    profile:
       profileSchema,
