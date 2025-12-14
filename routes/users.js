@@ -3,7 +3,6 @@ import { validateSchema } from '../middleware/validation.mw.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import friendData from '../data/friends.js';
-import loadPosts from '../scripts/loadPosts.js';
 import { avatarSchema, getResourceByIdSchema, usernameParamSchema, userSchema } from "../models/users.js";
 import { renderErrorPage } from '../utils/errorUtils.js';
 import postMiddleware from '../middleware/posts.mw.js';
@@ -105,7 +104,6 @@ router.patch("/:id",
 );
 
 router.get("/:username", 
-   // FIXME: authenticate user, if no session respond with 401 Unauthorized
    validateSchema(usernameParamSchema, "params"), 
    postMiddleware.isProfileOwnerDisplay,
    async (req, res, next) => {
