@@ -404,15 +404,18 @@ const userFunctions = Object.freeze({
       if (!username) throw new Error("Please provide a validated username", {cause: username});
 
       const userCollection = await users();
-      const user = await userCollection.findOne({ "profile.username": username });
-
-      if (!user) {
+      const user = await userCollection
+                           .find({ "profile.username": username })
+                           .collation({ locale: "en", strength: 2 })
+                           .toArray();
+                           
+      if (!user[0]) {
          throw new Error(`User with username "${username}" does not exist`, {
             cause: {value: username}
          });
       }
 
-      return { user: user, success: true };
+      return { user: user[0], success: true };
    },
 
    // TODO: check if we have the necessary permission to update a user :D !!
