@@ -1,27 +1,148 @@
-<div class="login-container">
-    <link rel="stylesheet" href="/public/css/login.css">
-    <h1>Sign Up</h1>
+{{!-- Inject server-side variables into client --}}
+<script>
 
-    {{#if error}}
-    <p class="error">{{error}}</p>
-    {{/if}}
 
-    <form action="/signup" method="POST">
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" required>
+const passwordErrorMessage = "{{passwordErrorMessage}}";
 
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" required>
+</script>
 
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" required>
+<div class="general-container">
+	{{!-- <link rel="stylesheet" href="/public/css/login.css" /> --}}
+	
+   <div class="colorful-blur-ring no-animate"></div>
 
-        <label for="confirmpassword">Re-enter Password</label>
-        <input id="confirmpassword" name="confirmpassword" type="password" required>
+   <div class="form-container">
+      <h1>Sign Up</h1>
 
-        <label for="zipcode">Zip Code</label>
-        <input id="zipcode" name="zipcode" type="text" required pattern="[0-9]{5}">
+      <form id="signupForm" action="/signup" method="POST">
+         <div class="form-group">
+            <label for="email">
+               Email
+               <abbr title="required">*</abbr>
+            </label>
+            <input
+               id="email"
+               name="email"
+               data-label="Email"
+               type="email"
+               autocomplete="email"
+               required
+            />
+            <p class="hint" id="emailHint"></p>
+         </div>
+         
+         <div class="form-group">
+            <label for="username">
+               Username
+               <abbr title="required">*</abbr>
+            </label>
+            <input
+               id="username"
+               name="username"
+               data-label="Username"
+               type="text"
+               autocomplete="username"
+               minlength="{{SCHEMA_CONFIG.username.minLength}}"
+               maxlength="{{SCHEMA_CONFIG.username.maxLength}}"
+               pattern="{{SCHEMA_CONFIG.username.regex}}"
+               required
+            />
+            <p class="hint" id="usernameHint"></p>
+         </div>
 
-        <button type="submit">Create Account</button>
-    </form>
+         <div class="form-group">
+            <label for="password">
+               Password
+               <abbr title="required">*</abbr>
+            </label>
+            <input
+               id="password"
+               name="password"
+               data-label="Password"
+               type="password"
+               autocomplete="new-password"
+               minlength="{{SCHEMA_CONFIG.password.minLength}}"
+               maxlength="{{SCHEMA_CONFIG.password.maxLength}}"
+               pattern="{{SCHEMA_CONFIG.password.regex}}"
+               required
+            />
+            <p class="hint" id="passwordHint"></p>
+         </div>
+
+         <div class="form-group">
+            <label for="confirmPassword">
+               Confirm Password
+               <abbr title="required">*</abbr>
+            </label>
+            <input
+               id="confirmPassword"
+               name="confirmPassword"
+               data-label="Password confirmation"
+               type="password"
+               autocomplete="new-password"
+               minlength="{{SCHEMA_CONFIG.password.minLength}}"
+               maxlength="{{SCHEMA_CONFIG.password.maxLength}}"
+               pattern="{{SCHEMA_CONFIG.password.regex}}"
+               required
+            />
+            <p class="hint" id="confirmPasswordHint"></p>
+         </div>
+
+         <div class="form-group">
+            <label for="dob">
+               Date of birth
+               <abbr title="required">*</abbr>
+            </label>
+            <input 
+               id="dob" 
+               name="dob" 
+               data-label="Date of birth"
+               type="date" 
+               autocomplete="bday" 
+               required 
+            />
+            <p class="hint" id="dobHint"></p>
+         </div>
+
+         <div class="form-group">
+            <label for="zipcode">
+               ZIP Code
+               <abbr title="required">*</abbr>
+            </label>
+            <input
+               id="zipcode"
+               name="zipcode"
+               data-label="ZIP Code"
+               type="text"
+               minlength="{{SCHEMA_CONFIG.zipcode.minLength}}"
+               maxlength="{{SCHEMA_CONFIG.zipcode.maxLength}}"
+               pattern="{{SCHEMA_CONFIG.zipcode.regex}}"
+               required
+            />
+            <p class="hint" id="zipcodeHint"></p>
+         </div>
+
+
+         <div class="mt-2">
+            <p 
+               id="signupMessage"
+               aria-live="assertive" 
+               class="
+               input-message 
+               {{#unless error}}
+               visually-hidden
+               {{/unless}}"
+            >
+               {{#if error}}
+               {{error}}
+               {{/if}}
+            </p>
+         </div>
+
+         <button type="submit">Create Account</button>
+      </form>
+   </div>
 </div>
+
+<script type="module" src="/public/js/signupValidation.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
