@@ -184,6 +184,42 @@ export const usernameParamSchema = yup.object()
       async (value) => usernameBaseSchema.isValid(value?.username)
    );
 
+/**
+ * Fully validates a `username` request body.
+ *
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const usernameBodySchema = yup.object({
+   username: usernameSchema
+});
+
+/**
+ * Fully validates an `email` request body.
+ *
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const emailBodySchema = yup.object({
+   email: emailSchema
+});
+
+/**
+ * Fully validates a `dob` (date of birth) request body.
+ *
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const dobBodySchema = yup.object({
+   dob: dobSchema
+});
+
+/**
+ * Fully validates a `dob` (date of birth) request body.
+ *
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const zipcodeBodySchema = yup.object({
+   zipcode: zipcodeSchema
+});
+
 
 
 // ***************** //
