@@ -19,7 +19,6 @@ function redirectBasedOnCurrentPath(username) {
             const postId = article.id
             const username = article.dataset.dataUsername;
 
-            // Delete post handler
             const deleteBtn = article.querySelector('[data-delete-post]');
             
             if (deleteBtn) {

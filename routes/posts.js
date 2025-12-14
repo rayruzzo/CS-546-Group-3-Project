@@ -3,6 +3,7 @@ import postData from '../data/posts.js';
 import loadPosts from '../scripts/loadPosts.js';
 import { renderErrorPage } from '../utils/errorUtils.js';
 import postMiddleware from '../middleware/posts.mw.js';
+import commentMiddleware from '../middleware/comments.mw.js';
 
 const router = Router();
 
@@ -91,7 +92,7 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
             editedAt: new Date()
         };
 
-        await postData.updatePost(req.params.id, editedPostData);
+        await postData.editPost(req.params.id, editedPostData);
         res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
         renderErrorPage(res, 400, error.message);
@@ -99,7 +100,7 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
 });
 
 // GET /posts/:id - View a single post
-router.get('/:id', postMiddleware.isPostOwnerDisplay, async (req, res) => {
+router.get('/:id', postMiddleware.isPostOwnerDisplay, commentMiddleware.getCommentsForPostDisplay, async (req, res) => {
     try {
         res.render('partials/post', { post: req.post});
     } catch (error) {

@@ -49,7 +49,43 @@
     <div class="content">{{post.content}}</div>
     {{#if post.commentsEnabled}}
     {{#unless post.reported}}
-<!-- Comments Section Placeholder -->
+    <section id="comments-section">
+        <h2>Comments</h2>
+
+        <div class="add-comment">
+            {{#if user}}
+            <h3>Add a Comment</h3>
+            <form id="comment-form" method="POST" action="/comments/create/{{post._id}}" data-post-id="{{post._id}}">
+                <textarea id="comment-content" name="content" placeholder="Write your comment here..." required></textarea>
+                <button type="submit" id="submit-comment" class="button-primary">Submit Comment</button>
+            </form>
+            {{else}}
+            <p>Please <a href="/login">log in</a> to add a comment.</p>
+            {{/if}}
+
+        </div>
+        {{#if comments.length}}
+        <div id="comments-list">
+            {{#each comments}}
+            <div class="comment" id="comment-{{this._id}}">
+                <div class="comment-meta">
+                    <span class="comment-author"><strong>{{this.username}}</strong></span>
+                    <span class="comment-date">
+                        <time datetime="{{this.createdAt}}">{{this.datePosted}}</time>
+                    </span>
+                    {{#if this.isOwner}}
+                    <span class="comment-actions">
+                        <a href="/comments/edit/{{this._id}}" class="comment-edit">Edit</a>
+                        <button class="comment-delete button-danger" data-comment-id="{{this._id}}">Delete</button>
+                    </span>
+                    {{/if}}
+                </div>
+                <div class="comment-content">{{this.content}}</div>
+            </div>
+            {{/each}}
+        </div>
+        {{/if}}
+    </section>
     {{/unless}}
     {{/if}}
 </article>
@@ -83,4 +119,8 @@
 {{!-- conditionally load postManagement javascript if we are the post owner --}}
 {{#if isPostOwner}}
 <script src="/public/js/postManagement.js"></script>
+<script src="/public/js/commentManagement.js"></script>
+
 {{/if}}
+
+<script src="/public/js/submitComment.js"></script>

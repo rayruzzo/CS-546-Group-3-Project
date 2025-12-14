@@ -1,13 +1,14 @@
-import { default as postRouter } from './posts.js';
-import { default as userRouter } from './users.js';
+import {default as postRouter} from './posts.js';
+import {default as userRouter} from './users.js';
 import { default as friendRouter} from './friends.js';
-import { default as homeRouter } from './home.js';
+import {default as homeRouter} from './home.js';
+import {default as loginRoutes} from './login.js';
+import {default as signupRoutes} from './signup.js';
+import {default as logoutRoutes} from './logout.js';
+import {default as commentRouter} from './comments.js';
 import { default as dmthreadsRouter } from './dmthreads.js';
 import { renderErrorPage } from '../utils/errorUtils.js';
-import {default as loginRoutes} from './login.js'
-import {default as signupRoutes} from './signup.js'
-import {default as logoutRoutes} from './logout.js'
-import {default as moderatorRouter} from './moderator.js';
+import {default as moderatorRouter} from './moderator.js'
 import {default as checkRouter} from './check.js';
 
 const configRoutes = (app) => {
@@ -15,6 +16,7 @@ const configRoutes = (app) => {
     app.use('/posts', postRouter);
     app.use('/user', userRouter);
     app.use('/friend', friendRouter);
+    app.use('/comments', commentRouter);
     app.use('/dmthreads', dmthreadsRouter);
     app.use('/login', loginRoutes);
     app.use('/signup',signupRoutes);

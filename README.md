@@ -1,14 +1,16 @@
-# Mutual Aid Network
-
+# Cup of Sugar - A Community Care App
 A community-driven platform connecting neighbors to share resources, offer help, and build stronger local communities.
 
 ## 📋 Project Overview
 
-The Mutual Aid Network enables users to connect with people in their local community to offer or request help across various categories including childcare, pet care, household tasks, financial assistance, food, and goods. Think of it as an elevated "Buy Nothing" group that builds community connections while helping neighbors meet their needs.
+Cup of Sugar enables users to connect with people in their local community to offer or request help across various categories including childcare, pet care, household tasks, financial assistance, food, and goods. Think of it as an elevated "Buy Nothing" group that builds community connections while helping neighbors meet their needs.
 Made as a group final project for CS-546
 
 
-### Installation
+
+## Running the Application
+
+### Installation & Setup
 
 ```bash
 # Clone the repository
@@ -20,10 +22,41 @@ npm install
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your configuration
 
 # Start the development server
 npm run dev
+
+# Seeding the DB
+There is a script to run the seeding script at startup in app.js but you can run this as well
+```
+npm run seed
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000) by default.
+## 👤 Test Accounts & Important 
+Notes
+
+The database is seeded with several test accounts for development and testing. All accounts use the same password:
+
+**Password for all accounts:** `Password123!`
+
+### Admin Account
+- **Email:** `nick.fury@shield.gov`
+
+### Moderator Account
+- **Email:** `maria.hill@shield.gov`
+
+### Regular User Accounts
+- **Email:** `steve.rogers@avengers.com`
+- **Email:** `kamala.khan@gmail.com`
+- **Email:** `carol.danvers@usaf.mil`
+- **Email:** `jennifer.walters@law.com`
+- **Email:** `matt.murdock@nelsonmurdock.com` 
+- **Email:** `peter.parker@empire.edu` 
+
+All accounts above use the same password: `Password123!`
+
+
 ```
 
 ### Environment Variables
@@ -31,6 +64,7 @@ npm run dev
 Create a `.env` file in the root directory with the following:
 
 ```
+PORT=3000
 MONGODB_URI='mongodb://localhost:27017/'
 MONGODB_DATABASE='group_3_cs546'
 NODE_ENV=development
@@ -137,12 +171,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👥 Team
 
-- [Team Member Names] - Add your names and roles here
+- Ray R.
+- Gabriel E.
+- Nick R.
+- Cynthia P.
 
 ## 🤝 Support
 
 For questions or issues, please create an issue in the GitHub repository or contact the team leads.
-
----
-
-**Built with ❤️ for stronger communities**
