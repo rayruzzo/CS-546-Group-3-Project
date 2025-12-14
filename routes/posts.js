@@ -92,7 +92,7 @@ router.post('/edit/:id', postMiddleware.isPostOwnerAction, async (req, res) => {
             editedAt: new Date()
         };
 
-        await postData.updatePost(req.params.id, editedPostData);
+        await postData.editPost(req.params.id, editedPostData);
         res.redirect(`/posts/${req.params.id}`);
     } catch (error) {
         renderErrorPage(res, 400, error.message);
