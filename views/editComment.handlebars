@@ -1,0 +1,37 @@
+<section class="comment-editor">
+    <h2>Edit Comment</h2>
+    <form id="edit-comment-form" action="/comments/edit/{{comment._id}}" method="POST">
+        <textarea id="comment-content" name="content" required>{{comment.content}}</textarea>
+        <button type="submit" class="button-primary">Update Comment</button>
+    </form>
+</section>
+
+<script>
+    document.getElementById('edit-comment-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const content = document.getElementById('comment-content').value.trim();
+
+        if (!content) {
+            alert('Comment content cannot be empty.');
+            return;
+        }
+
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content })
+            });
+
+            if (response.ok) {
+                window.location.href = '/posts/{{comment.postId}}';
+            } else {
+                const errorData = await response.json();
+                alert('Error updating comment: ' + errorData.error);
+            }
+        } catch (error) {
+            alert('An unexpected error occurred: ' + error.message);
+        }
+    });
