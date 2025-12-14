@@ -2,6 +2,7 @@ import 'dotenv/config';
 import db from '../config/mongoCollections.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
+import commentData from '../data/comments.js';
 import { userSchema } from '../models/users.js';
 import { postSchema } from '../models/posts.js';
 
@@ -9,6 +10,7 @@ const seedUsersAndPosts = async () => {
     try {
         const usersCollection = await db.users();
         const postsCollection = await db.posts();
+        const commentsCollection = await db.comments();
         
         // Check if already seeded
         const userCount = await usersCollection.countDocuments();
@@ -456,6 +458,7 @@ const seedUsersAndPosts = async () => {
 
         console.log('\nCreating posts...');
         let postsCreated = 0;
+        const allPosts = []; // Store created posts for commenting
 
         for (const user of createdUsers) {
             const username = user.profile.username;
@@ -468,7 +471,7 @@ const seedUsersAndPosts = async () => {
                         const priority = template.priority || 2; // Default to normal
                         const expiresAt = template.expiresAt || null;
                         
-                        await postData.createPost(
+                        const result = await postData.createPost(
                             template.title,
                             user._id.toString(),
                             template.content,
@@ -480,6 +483,7 @@ const seedUsersAndPosts = async () => {
                             expiresAt
                         );
                         postsCreated++;
+                        allPosts.push({ post: result.post, author: user });
                         console.log(`Created post: "${template.title}" for user ${username}`);
                     } catch (error) {
                         console.error(`Error creating post for user ${username}:`, error.message);
@@ -488,8 +492,64 @@ const seedUsersAndPosts = async () => {
             }
         }
 
+        console.log(`\nCreated ${postsCreated} posts`);
+
+        // Seed comments on various posts
+        console.log('\nCreating comments...');
+        let commentsCreated = 0;
+
+        // Sample comments for different posts
+        const commentTemplates = [
+            { content: "This is so helpful! Thank you for organizing this.", username: 'starspangledman' },
+            { content: "Count me in! When do we start?", username: 'msmarvel-jc' },
+            { content: "Great initiative. Let me know how I can help.", username: 'agent-hill' },
+            { content: "I'm interested! Can you send me more details?", username: 'friendly-neighbor' },
+            { content: "This is exactly what our community needs!", username: 'higherfurtherfaster' },
+            { content: "I have some experience with this. Happy to volunteer.", username: 'superhero-at-law' },
+            { content: "Thanks for sharing! This is really useful information.", username: 'devils-advocate' },
+            { content: "I'll spread the word to my neighbors about this!", username: 'starspangledman' },
+            { content: "Love seeing community members help each other out!", username: 'msmarvel-jc' },
+            { content: "Is there a sign-up sheet or should I just show up?", username: 'friendly-neighbor' }
+        ];
+
+        // Add 2-5 comments to the first several posts
+        const postsToComment = allPosts.slice(0, Math.min(10, allPosts.length));
+        
+        console.log(`Found ${postsToComment.length} posts to add comments to`);
+        
+        for (const { post } of postsToComment) {
+            // Random number of comments per post (2-5)
+            const numComments = Math.floor(Math.random() * 4) + 2;
+            
+            // Shuffle comment templates and take the first numComments
+            const shuffled = [...commentTemplates].sort(() => 0.5 - Math.random());
+            const selectedComments = shuffled.slice(0, numComments);
+            
+            for (const template of selectedComments) {
+                try {
+                    // Find the user who should make this comment
+                    const commenter = createdUsers.find(u => u.profile.username === template.username);
+                    if (!commenter) {
+                        console.log(`Could not find user: ${template.username}`);
+                        continue;
+                    }
+                    
+                    await commentData.createComment(
+                        post._id.toString(),
+                        commenter._id.toString(),
+                        template.content
+                    );
+                    commentsCreated++;
+                    console.log(`Created comment by ${template.username} on post "${post.title}"`);
+                } catch (error) {
+                    console.error(`Error creating comment by ${template.username}:`, error.message);
+                    console.error('Full error:', error);
+                }
+            }
+        }
+
         console.log(`\n✅ Seed complete!`);
-        console.log(`Created ${createdUsers.length} users and ${postsCreated} posts`);
+        console.log(`Created ${createdUsers.length} users, ${postsCreated} posts, and ${commentsCreated} comments`);
         console.log('\nTest user credentials (all use password: Password123!):');
         console.log('  ADMIN & MODERATOR ACCOUNTS:');
         console.log(`  - ${testUsers[0].email} (${testUsers[0].zipcode}) - ADMIN`);

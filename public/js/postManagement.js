@@ -19,14 +19,13 @@ function redirectBasedOnCurrentPath(username) {
             const postId = article.id
             const username = article.dataset.dataUsername;
 
-            // Delete post handler
-            const deleteBtn = article.querySelector('[data-delete-post]');
+    // Delete post handler
+    const deleteBtn = document.querySelector('.post-actions .button-danger');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
             
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    
-                    if (!confirm('Are you sure you want to delete this post?')) return;
+            if (!confirm('Are you sure you want to delete this post?')) return;
 
                     try {
                         const response = await fetch(`/posts/delete/${postId}`, {
