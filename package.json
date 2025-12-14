@@ -17,7 +17,8 @@
   "scripts": {
     "dev": "node --watch --watch-preserve-output app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "seed": "node scripts/checkAndSeed.js; node scripts/seedUsersAndPosts.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
