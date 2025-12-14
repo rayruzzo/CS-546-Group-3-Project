@@ -100,10 +100,11 @@ export function validateSchema(...schemaTuples) {
             console.error(e);
 
             // TODO: get back to this to make sure this is fine
-            if (requestProperty === "params")
+            if (requestProperty === "params") {
                return renderErrorPage(res, 400, e.message);
-            else
+            } else {
                return res.status(400).json(e);
+            }
          }
       }
 
