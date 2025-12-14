@@ -1,9 +1,9 @@
 /* Reset */
-body, h1, p, ul {
+/* body, h1, p, ul {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
+} */
 
 body {
   font-family: "Segoe UI", Roboto, sans-serif;
@@ -14,7 +14,7 @@ body {
   padding-top: 60px;
 }
 
-/* Centered wrapper */
+/* Centered wrapper 
 .hub-container {
   background: white;
   padding: 40px 45px;
@@ -24,7 +24,6 @@ body {
   width: 420px;
 }
 
-/* Title styling */
 .hub-title {
   font-size: 2rem;
   font-weight: 700;
@@ -32,14 +31,12 @@ body {
   color: #272d35;
 }
 
-/* Subtitle */
 .hub-subtitle {
   font-size: 1rem;
   color: #5d646d;
   margin-bottom: 30px;
 }
 
-/* Link list */
 .hub-links {
   list-style: none;
 }
@@ -60,9 +57,5 @@ body {
   color: #244dcf;
   text-decoration: underline;
 }
+*/
 
-.page-content {
-    max-width: 900px;  
-    margin: 100px auto;
-    padding: 20px;
-}

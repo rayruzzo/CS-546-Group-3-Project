@@ -1,16 +1,38 @@
-/* FORM */
-.form-container {
-   display: flex;
-   flex-direction: column;
-   max-width: 20rem;
-   padding: 2rem 1rem;
-   background-color: var(--bg-secondary-color);
-   border: var(--border-primary);
-   border-radius: var(--border-radius-small);
+/* PAGE */
+.page-content {
+   max-width: 900px;  
+   margin: 100px auto;
+   padding: 0.5rem;
 }
 
-.form-container > :not(:last-child) {
+.general-container {
+   position: relative;
+   width: 100%;
+   max-width: 35rem;
+   margin: 5rem auto;
+}
+
+
+
+/* FORM */
+.form-container {
+   padding: 2rem 1rem;
+   position: relative;
+   background-color: var(--bg-secondary-color);
+   border: var(--border-primary);
+   border-radius: var(--border-radius-large);
+}
+
+form .form-group:not(:last-child) {
    margin-bottom: 1rem;
+}
+
+.form-group > label {
+   width: fit-content;
+}
+
+.form-group > * {
+   margin: 0 0 0.5rem 0;
 }
 
 
@@ -18,17 +40,41 @@
 /* INPUT MESSAGE */
 .input-message {
    display: block;
-   min-height: 1.2rem;
-   width: fit-content;
-   padding: 0.2rem 0.6rem;
-   /* background-color: var(--bg-color); */
+   /* min-height: 1.2rem; */
+   /* width: fit-content; */
+   padding: 1rem 1.5rem;
+   background-color: var(--bg-secondary-color);
    color: var(--fg-color);
    /* border: var(--border-primary); */
    border-radius: var(--border-radius-small);
 }
 
+.input-message.input-error {
+   background-color: var(--bg-warning-color);
+}
+
 .input-error {
    color: var(--warning-color);
+}
+
+.input-error::before {
+   content: "⚠";
+   color: inherit;
+   margin-right: 0.5rem;
+}
+
+.input-message.input-success {
+   background-color: var(--bg-success-color);
+}
+
+.input-success {
+   color: var(--success-color);
+}
+
+.input-success::before {
+   content: "🧑‍🤝‍🧑";
+   color: inherit;
+   margin-right: 0.5rem;
 }
 
 
@@ -124,12 +170,6 @@
 
 
 /* ERRORS */
-.error-container {
-   position: relative;
-   max-width: 40rem;
-   margin: 10rem auto;
-}
-
 .error-contents {
    position: relative;
    max-width: inherit;
@@ -187,7 +227,6 @@
 /* BUTTONS */
 button, ::file-selector-button {
    padding: 0.35rem 0.6rem;
-   margin-right: 1rem;
    background-color: var(--bg-secondary-color);
    /* background-color: unset; */
    color: var(--fg-color);
@@ -200,6 +239,10 @@ button, ::file-selector-button {
 button.btn-warning {
    background-color: var(--bg-warning-color);
    color: var(--warning-color);
+}
+
+.form-container button {
+   width: 100%;
 }
 
 
@@ -353,7 +396,7 @@ button[disabled] {
 .user-details {
   margin-top: 1.5rem;
   padding: 1rem 1.25rem;
-  background-color: #fff;
+  background-color: var(--bg-secondary-color);
   border-radius: 8px;
   border: 1px solid #e0e0e0;
   max-width: 420px;

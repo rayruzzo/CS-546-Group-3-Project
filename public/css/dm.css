@@ -4,7 +4,7 @@
 .dm-container {
   max-width: 700px;
   margin: 50px auto;
-  background: white;
+  background: var(--bg-secondary-color);
   padding: 30px 40px;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -111,7 +111,7 @@
 .dm-empty-wrapper {
   text-align: center;
   padding: 45px;
-  background: #fafaff;
+  background: var(--bg-tertiary-color);
   border-radius: 14px;
   border: 1px solid #eee;
   max-width: 480px;
@@ -127,7 +127,7 @@
 
 .dm-empty-sub {
   font-size: 14px;
-  color: #666;
+  color: var(--fg-tertiary-color);
   margin-bottom: 20px;
 }
 
@@ -153,7 +153,7 @@
   width: 480px;
   margin: 60px auto;
   padding: 32px;
-  background: white;
+  background: var(--bg-tertiary-color);
   border-radius: 14px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
@@ -207,7 +207,7 @@
 
 .dm-thread-container {
   width: 750px;
-  background: white;
+  background: var(--bg-secondary-color);
   padding: 30px;
   border-radius: 14px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
@@ -272,7 +272,7 @@
 }
 
 .dm-message-other .dm-message-bubble {
-  background: #f1f1f5;
+  background: var(--bg-tertiary-color);
 }
 
 .dm-message-time {
@@ -330,9 +330,9 @@
 .dm-inline-error {
   margin-top: 6px;
   padding: 10px 14px;
-  background: rgba(255, 80, 80, 0.12);
+  background: var(--bg-warning-color);
   border-left: 4px solid #ff4d4d;
-  color: #b30000;
+  color: var(--warning-color);
   font-size: 0.9rem;
   border-radius: 4px;
   line-height: 1.4;
@@ -365,7 +365,7 @@
 .dm-char-counter {
   margin-top: 6px;
   font-size: 0.85rem;
-  color: #777;
+  color: var(--fg-tertiary-color);
   text-align: right;
   opacity: 0.85;
 }

@@ -7,10 +7,10 @@
    --color-base-dark: hsl(300, 5%, 10%);
    
    --color-secondary-light: hsl(300, 100%, 99%);
-   --color-secondary-dark: hsl(271, 31%, 21%);
+   --color-secondary-dark: hsl(250, 20%, 18%);
 
-   --color-tertiary-light: hsl(300, 10%, 75%);
-   --color-tertiary-dark: hsl(300, 10%, 49%);
+   --color-tertiary-light: hsl(255, 37%, 89%);
+   --color-tertiary-dark: hsl(257, 18%, 23%);
 
    --color-accent-light: hsl(43, 100%, 72%);
    --color-accent-dark: hsl(43, 100%, 81%);
@@ -18,8 +18,14 @@
    --color-warning-light: hsl(0, 65%, 40%);
    --color-warning-dark: hsl(0, 83%, 84%);
 
-   --color-bg-warning-light: hsl(0, 66%, 78%);
+   --color-bg-warning-light: hsl(0, 81%, 88%);
    --color-bg-warning-dark: hsl(0, 88%, 25%);
+
+   --color-success-light: hsl(147, 93%, 24%);
+   --color-success-dark: hsl(162, 88%, 87%);
+
+   --color-bg-success-light: hsl(163, 86%, 86%);
+   --color-bg-success-dark: hsl(147, 94%, 21%);
 
    --color-translucent-1-light: hsla(300, 100%, 50%, 0.4);
    --color-translucent-1-dark: hsla(300, 100%, 60%, 0.4);
@@ -74,6 +80,9 @@
    --warning-color: var(--color-warning-light);
    --bg-warning-color: var(--color-bg-warning-light);
 
+   --success-color: var(--color-success-light);
+   --bg-success-color: var(--color-bg-success-light);
+
    --translucent-color-1: var(--color-translucent-1-light);
    --translucent-color-2: var(--color-translucent-2-light);
    --translucent-color-3: var(--color-translucent-3-light);
@@ -82,7 +91,7 @@
    /* COMPOUND */
    /* ~~~~~~~~ */
    /* BORDER */
-   --border-primary: 1px solid var(--bg-tertiary-color);
+   --border-primary: 1px solid var(--fg-tertiary-color);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -103,6 +112,9 @@
       --warning-color: var(--color-warning-dark);
       --bg-warning-color: var(--color-bg-warning-dark);
 
+      --success-color: var(--color-success-light);
+      --bg-success-color: var(--color-bg-success-light);
+
       --translucent-color-1: var(--color-translucent-1-dark);
       --translucent-color-2: var(--color-translucent-2-dark);
       --translucent-color-3: var(--color-translucent-3-dark);
@@ -121,6 +133,12 @@
 
    --accent-color: var(--color-accent-dark);
 
+   --warning-color: var(--color-warning-dark);
+   --bg-warning-color: var(--color-bg-warning-dark);
+
+   --success-color: var(--color-success-light);
+   --bg-success-color: var(--color-bg-success-light);
+
    --translucent-color-1: var(--color-translucent-1-dark);
    --translucent-color-2: var(--color-translucent-2-dark);
    --translucent-color-3: var(--color-translucent-3-dark);
@@ -130,16 +148,61 @@
 
 
 
-.error-container, #avatarUploader { /* FIXME: change back to `body` - just temp for others */ 
+body { /* FIXME: change back to `body` - just temp for others */ 
    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+   background-color: var(--bg-color);
    color: var(--fg-color);
 }
 
-
+a {
+   color: #786bff;
+}
 
 label {
    font-weight: 600;
-   font-size: var(--size-step-1);
+   font-size: var(--size-step-0);
+}
+
+form {
+   position: relative;
+}
+
+form abbr[title="required"] {
+   color: var(--warning-color);
+   text-decoration: none;
+}
+
+input {
+   box-sizing: border-box;
+   width: 100%;
+   line-height: var(--size-step-2);
+   padding: 0.25rem 1rem;
+   border: var(--border-primary);
+   border-radius: var(--border-radius-small);
+   background-color: var(--bg-color);
+   color: var(--fg-color);
+}
+
+input:disabled {
+   background-color: var(--bg-tertiary-color);
+}
+
+textarea {
+   color: var(--fg-color);
+   background-color: var(--bg-color);
+}
+
+textarea::placeholder, 
+input::placeholder {
+   color: var(--fg-tertiary-color);
+}
+
+button {
+   cursor: pointer;
+}
+
+[aria-invalid="true"] {
+   outline: 3px solid var(--warning-color);
 }
 
 
@@ -172,4 +235,12 @@ label {
       12px 3px 15px 12px var(--translucent-color-1),
       -12px -3px 15px 12px var(--translucent-color-2),
       12px -3px 15px 12px var(--translucent-color-3);
+}
+
+.no-animate {
+   animation: none;
+}
+
+.mt-2 {
+   margin-top: 2rem;
 }
