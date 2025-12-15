@@ -10,6 +10,16 @@
       background-color: hsl(from var(--accent-color) h s 50%);
       filter: none;
    }
+
+   button.btn-cta:hover {
+      background-color: hsl(from var(--accent-color) h s calc(l - 5));
+      filter: none;
+   }
+
+   .nav-right span:hover {
+      background-color: hsl(from var(--accent-color) h s calc(l - 5));
+      filter: none;
+   }
 }
 
 /* fix layout issues in chrome */

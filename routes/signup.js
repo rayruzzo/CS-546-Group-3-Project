@@ -3,7 +3,7 @@ import userFunctions from "../data/users.js";
 import { renderErrorPage } from '../utils/errorUtils.js';
 import { SCHEMA_CONFIG, userSchema } from '../models/users.js';
 import { validateSchema } from '../middleware/validation.mw.js';
-import { shapeSignupData } from '../middleware/signup.mw.js';
+import { shapeUserData } from '../middleware/shapeUser.mw.js';
 
 const router = Router();
 
@@ -34,7 +34,7 @@ router.get('/', (req, res) => {
 
 
 router.post("/", 
-shapeSignupData,
+shapeUserData,
 validateSchema(userSchema, "body"),
 async (req, res) => {
 

@@ -22,23 +22,23 @@
 
         <div class="nav-right">
             {{#if user}}
-                <a href="/">Home</a>
-                <a href="/dmthreads">DMs</a>
-                <a href="/posts/create">New Post</a>
+                <a href="/"><span>Home</span></a>
+                <a href="/dmthreads"><span>DMs</span></a>
+                <a href="/posts/create"><span>New Post</span></a>
                 {{#if (eq user.role "moderator")}}
-                    <a href="/moderator">Moderation</a>
+                    <a href="/moderator"><span>Moderation</span></a>
                 {{else if (eq user.role "admin")}}
-                    <a href="/moderator">Moderation</a>
+                    <a href="/moderator"><span>Moderation</span></a>
                 {{/if}}
 
                 <a href="/user/{{user.username}}">
-                    <span class="nav-user">Hi, {{user.username}}</span>
+                    <span class="nav-cta">Hi, {{user.username}}</span>
                 </a>
-                <a href="/logout" class="logout-btn">Logout</a>
+                <a href="/logout" class="logout-btn"><span>Logout</span></a>
             {{else}}
-                <a href="/">Home</a>
-                <a href="/login">Login</a>
-                <a href="/signup">Sign Up</a>
+                <a href="/"><span>Home</span></a>
+                <a href="/login"><span>Login</span></a>
+                <a href="/signup"><span class="nav-cta">Sign Up</span></a>
             {{/if}}
         </div>
     </nav>

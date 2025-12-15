@@ -12,6 +12,12 @@
    margin: 5rem auto;
 }
 
+.user-profile {
+   padding-bottom: 1rem;
+   margin-bottom: 1rem;
+   border-bottom: var(--border-primary);
+}
+
 
 
 /* FORM */
@@ -32,7 +38,7 @@ form .form-group:not(:last-child) {
 }
 
 .form-group > * {
-   margin: 0 0 0.5rem 0;
+   margin: 0 0 0.6rem 0;
 }
 
 
@@ -75,6 +81,10 @@ form .form-group:not(:last-child) {
    content: "🧑‍🤝‍🧑";
    color: inherit;
    margin-right: 0.5rem;
+}
+
+.hint {
+   display: block;
 }
 
 
@@ -140,7 +150,7 @@ form .form-group:not(:last-child) {
 }
 
 /* ^^^ allows repositioning of avatar inside form */
-#avatarUploader #avatarPreview {
+#profileUploader #avatarPreview {
    max-width: none;
 }
 
@@ -225,7 +235,7 @@ form .form-group:not(:last-child) {
 
 
 /* BUTTONS */
-button, ::file-selector-button {
+button, .button-primary, ::file-selector-button {
    padding: 0.35rem 0.6rem;
    background-color: var(--bg-secondary-color);
    /* background-color: unset; */
@@ -234,6 +244,17 @@ button, ::file-selector-button {
    border: var(--border-primary);
    font-size: var(--size-step-0);
    font-weight: 500;
+}
+
+button.btn-cta {
+   font-size: var(--size-step-1);
+   min-height: 3rem;
+   background-color: var(--accent-color);
+   transition: 0.1s background-color ease-in-out;
+}
+
+button.btn-cta:hover {
+   filter: saturate(300%) brightness(95%);
 }
 
 button.btn-warning {

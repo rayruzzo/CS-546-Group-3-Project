@@ -5,7 +5,7 @@
     padding: 28px 32px;
     border-radius: 12px;
 
-    background: #ffffff;
+    background: var(--bg-secondary-color);
     border: 1px solid #e2e8f0; /* soft gray */
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 
@@ -13,33 +13,13 @@
 }
 
 /* Title */
-.login-container h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 28px;
-    color: #2c3e50; /* strong but calm */
-}
+
 
 /* Labels */
-.login-container label {
-    display: block;
-    margin: 12px 0 6px;
-    font-weight: bold;
-    color: #2d3748; /* slate gray */
-}
+/* z */
 
 /* Inputs */
-.login-container input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
 
-    border: 1px solid #cbd5e0; /* soft border */
-    background: #f7fafc;       /* nearly white-gray */
-
-    margin-bottom: 16px;
-    font-size: 15px;
-}
 
 .login-container input:focus {
     border-color: #4a90e2;  /* your accent tone */

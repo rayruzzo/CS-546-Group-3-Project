@@ -1,0 +1,197 @@
+<div id="profileUploader" class="general-container">
+
+   <form id="userForm" data-user-data-form action="/user/{{profile.username}}/settings" method="PATCH">
+
+      {{!-- Inject server-side variables into client --}}
+      <script>
+         const avatarAllowedMIMETypes  = new Map({{{avatarAllowedMIMETypes}}});
+         const avatarMaxOriginalSizeMB = {{avatarMaxOriginalSizeMB}};
+         const avatarDimensions        = {{avatarDimensions}};
+
+         const passwordErrorMessage    = "{{passwordErrorMessage}}";
+      </script>
+
+      <div class="colorful-blur-ring no-animate"></div>
+
+      <div class="form-container">
+         <span id="detailRole" class="role-badge role-{{role}}">{{role}}</span>
+         
+         <h1>Edit Profile</h1>
+
+         <div class="form-group">
+            <label for="email">
+               Email
+               {{!-- <abbr title="required">*</abbr> --}}
+            </label>
+            <input
+               id="email"
+               name="email"
+               data-label="Email"
+               type="email"
+               autocomplete="email"
+               value="{{email}}"
+               
+            />
+            <p class="hint" id="emailHint"></p>
+         </div>
+         
+         <div class="form-group">
+            <label for="username">
+               Username
+               {{!-- <abbr title="required">*</abbr> --}}
+            </label>
+            <input
+               id="username"
+               name="username"
+               data-label="Username"
+               type="text"
+               autocomplete="username"
+               minlength="{{SCHEMA_CONFIG.username.minLength}}"
+               maxlength="{{SCHEMA_CONFIG.username.maxLength}}"
+               pattern="{{SCHEMA_CONFIG.username.regex}}"
+               value="{{profile.username}}"
+               
+            />
+            <p class="hint" id="usernameHint"></p>
+         </div>
+
+         
+
+         <div class="form-group">
+            <label for="zipcode">
+               ZIP Code
+               {{!-- <abbr title="required">*</abbr> --}}
+            </label>
+            <input
+               id="zipcode"
+               name="zipcode"
+               data-label="ZIP Code"
+               type="text"
+               minlength="{{SCHEMA_CONFIG.zipcode.minLength}}"
+               maxlength="{{SCHEMA_CONFIG.zipcode.maxLength}}"
+               pattern="{{SCHEMA_CONFIG.zipcode.regex}}"
+               value="{{zipcode}}"
+               
+            />
+            <p class="hint" id="zipcodeHint"></p>
+         </div>
+
+         <div class="form-group">
+            <label for="firstName">
+               First Name
+               {{!-- <abbr title="required">*</abbr> --}}
+            </label>
+            <input
+               id="firstName"
+               name="firstName"
+               data-label="First Name"
+               type="text"
+               minlength="{{SCHEMA_CONFIG.nameBase.minLength}}"
+               value="{{profile.firstName}}"
+               
+            />
+            <p class="hint" id="firstNameHint"></p>
+         </div>
+
+         <div class="form-group">
+            <label for="lastName">
+               Last Name
+               {{!-- <abbr title="required">*</abbr> --}}
+            </label>
+            <input
+               id="lastName"
+               name="lastName"
+               data-label="Last Name"
+               type="text"
+               minlength="{{SCHEMA_CONFIG.nameBase.minLength}}"
+               value="{{profile.lastName}}"
+               
+            />
+            <p class="hint" id="lastNameHint"></p>
+         </div>
+
+         <div class="form-group">
+            <label for="bio">
+               Bio
+               {{!-- <abbr title="required">*</abbr> --}}
+            </label>
+            <textarea
+               id="bio"
+               name="bio"
+               data-label="bio"
+               rows="10"
+               maxlength="{{SCHEMA_CONFIG.bio.maxLength}}"
+               
+            >{{profile.bio}}</textarea>
+            <p class="hint" id="bioHint"></p>
+         </div>
+
+
+         <div class="form-group">
+            <label for="fileName">
+               Your Avatar
+            </label>
+            <span class="hint">
+               {{avatarAllowedTypesFriendlyStr}}. Images will be downscaled to 200x200px. Images over 10 MB will take a bit longer to downscale. Maximum {{avatarMaxOriginalSizeMB}} MB.
+            </span>
+            <input 
+               type="file" 
+               accept="{{avatarAllowedTypesStr}}"
+               name="fileName" 
+               id="fileName"
+            >
+            <div class="avatar-container">
+               <div class="spinner" hidden></div>
+               <div class="image-square">
+                  {{#with profile.avatar}}
+                  <img 
+                     src="{{{this}}}" 
+                     id="avatarPreview" 
+                     draggable="false"
+                  >
+                  {{/with}}
+
+                  {{#unless profile.avatar}}
+                  <img src="{{{this}}}" id="avatarPreview" draggable="false">
+                  {{/unless}}
+               </div>
+               
+            </div>
+            <div class="switcher">
+               <span id="fileInputMessage" class="input-message visually-hidden"></span>
+               <button id="removeAvatar" class="visually-hidden btn-warning" aria-label="Remove Avatar">
+                  Remove
+               </button>
+            </div>
+         </div>
+
+
+         <div class="mt-2">
+            <p 
+               id="userDataMessage"
+               aria-live="assertive" 
+               class="
+               input-message 
+               {{#unless error}}
+               visually-hidden
+               {{/unless}}"
+            >
+               {{#if error}}
+               {{error}}
+               {{/if}}
+            </p>
+         </div>
+
+         <progress hidden></progress>
+         <button id="submitForm" type="submit" class="btn-cta">Save</button>
+         <input type="hidden" id="imgResized" name="resized">
+         <input type="hidden" id="imgResizedSquare" name="resizedSquare" value="{{profile.avatar}}">
+
+      </div>
+   </form>
+</div>
+
+
+<script type="module" src="/public/js/signupValidation.js"></script>
+<script type="module" src="/public/js/AvatarUploader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
