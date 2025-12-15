@@ -2,6 +2,10 @@ import 'dotenv/config';
 import express from 'express';
 import exphbs from 'express-handlebars';
 import session from 'express-session';
+import favicon from 'serve-favicon';
+import path from "node:path";
+import { fileURLToPath } from 'url';
+import { dirname } from 'node:path';
 import { closeConnection } from "./config/mongoConnection.js";
 import configRoutes from './routes/index.js';
 import checkAndSeedLocations from './scripts/checkAndSeed.js';
@@ -11,6 +15,9 @@ import dmMiddleware from "./middleware/dmthreads.mw.js";
 import handlebarsHelpers from './middleware/handlebarsHelpers.js';
 import moderatorMiddleware from "./middleware/moderator.mw.js";
 import { postCategories, postTypes, priorityValues } from './models/posts.js';
+import { setupServerEmitter } from './data/server.js';
+import { serverEmitter } from './data/server.js';
+import { renderErrorPage } from './utils/errorUtils.js';
 
 const app = express();
 
@@ -18,7 +25,12 @@ const app = express();
 await checkAndSeedLocations();
 await seedUsersAndPosts();
 
+// setup server event emitter
+setupServerEmitter();
+
 const { PORT } = process.env;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // setup middleware
 app.use(session({
@@ -30,8 +42,24 @@ app.use(session({
 
 // setup middleware
 app.use('/public', express.static('public'));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico'), {maxAge: 10000}));
 app.use(express.json({limit: "300kb"}));
 app.use(express.urlencoded({limit: "300kb", extended: true}));
+
+
+// global middleware to check if a user session needs to be updated
+app.use((req, res, next) => {
+   if (req.session?.user) {
+      serverEmitter.emit("checkSessionUpdateTables", req.session?.user);
+   }
+
+   if (req.session?.user?.isBanned) {
+      req.session.destroy();
+      return renderErrorPage(res, 403, "You've been banned");
+   }
+   
+   next();
+});
 
 // Set local variables available to all templates
 app.use((req, res, next) => {
@@ -52,6 +80,17 @@ const handlebarsInstance = exphbs.create({
 
 app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
+
+
+
+
+
+// app.use("/", (req, res, next) => {
+
+   
+
+//    next();
+// });
 
 app.use('/posts/filter', postMiddleware.parseFilterParams);
 app.use('/posts', postMiddleware.requireAuthentication);

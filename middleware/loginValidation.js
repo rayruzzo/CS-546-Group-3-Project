@@ -51,7 +51,8 @@ export const validateLogin = async (req, res, next) => {
         email: user.email,
         zipcode: user.zipcode,
         role: user.role,
-        username: user.profile?.username || ""
+        username: user.profile?.username || "",
+        isBanned: user.isBanned
     };
 
     next();

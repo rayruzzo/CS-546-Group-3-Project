@@ -31,7 +31,6 @@ const isPostOwnerDisplay = async (req, res, next) => {
 
 const isProfileOwnerDisplay = async (req, res, next) => {
     try {
-        console.log("JUST BEGAN WIT OWNER DIS")
 
         const userId = req.session?.user?._id;
         const { user } = await userData.getUserByUsername(req.params.username.toLowerCase());
@@ -40,8 +39,6 @@ const isProfileOwnerDisplay = async (req, res, next) => {
         res.locals.requestedUserId = user._id.toString();
         res.locals.requestedUser   = user;
         res.locals.isPostOwner = (res.locals.sessionUserId === res.locals.requestedUserId);
-
-        console.log("I AM FINISHED WITH PROFILE OWNER DIS")
         
         next();
     } catch (error) {

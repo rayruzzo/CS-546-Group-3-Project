@@ -161,14 +161,6 @@ router.get("/:username/settings",
       // the requested `user` with the `username` param has been attached to `res.locals`
       const { requestedUser } = res.locals;
 
-      console.log(requestedUser);
-
-      try {
-         
-      } catch (e) {
-         
-      }
-
       if (res.locals.isPostOwner) {
          return res.render("settings", {
             title: "Settings",
@@ -231,8 +223,6 @@ router.patch("/:username/settings",
       // the requested `user` with the `username` param has been attached to `res.locals`
       const { requestedUser } = res.locals;
 
-      console.log("RECEIVED PATCH REQUEST!!!")
-
       const resizedBlobSize       = new Blob([req.body?.profile?.avatar?.resized]).size;
       const resizedSquareBlobSize = new Blob([req.body?.profile?.avatar?.resizedSquare]).size;
       const maximumSizeBytes      = userData.server.getAvatarMaxResizedSizeMB() * 1000000;
@@ -245,13 +235,6 @@ router.patch("/:username/settings",
       }
 
       try {
-         // const avatarData = {
-         //    profile: {
-         //       avatar: {
-         //          ...req.body 
-         //       }
-         //    }
-         // }
 
          const { user, success } = await userData.updateUser(req.session.user._id, req.body);
 

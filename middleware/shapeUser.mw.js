@@ -10,9 +10,6 @@ import express from "express";
  */
 export function shapeUserData(req, res, next) {
 
-   console.log("HELLO")
-   console.log(req.body)
-
    const { 
       email, 
       username, 
@@ -44,9 +41,6 @@ export function shapeUserData(req, res, next) {
    }
 
    req.body = shapedData;
-
-
-   console.log("BODY", req.body);
 
    next();
 }

@@ -49,7 +49,7 @@ const signupMessager = new InputMessager(userDataMessage);
 
 // CUSTOM EVENTS
 export const sendAvatarToFetch = new CustomEvent("sendAvatarToFetch");
-profileUploaderRoot.addEventListener("sendAvatarToFetch", handleSignupFormSubmit);
+profileUploaderRoot?.addEventListener("sendAvatarToFetch", handleSignupFormSubmit);
 
 
 const messagers = {
@@ -191,7 +191,7 @@ function handlePasswordInputCheck(event) {
    messagers[id].reset();
 
    for (const mess of Object.values(messagers)) {
-      if (mess.isErrored) return;
+      if (mess?.isErrored) return;
    }
 
    signupMessager.reset();
@@ -211,9 +211,6 @@ async function handleSignupFormSubmit(event) {
    }
 
    for (const [inputKey, inputVal] of Object.entries(formInputs)) {
-
-      console.log("inputKEY", inputKey);
-
 
       // watch out for null props
       if (!inputVal) {
@@ -241,28 +238,9 @@ async function handleSignupFormSubmit(event) {
 
    const formData = new FormData(form);
 
-   
-
    for (const [key, val] of formData) {
-      console.log(val);
       formData.set(key, DOMPurify.sanitize(val));
    }
-
-   console.log(JSON.stringify(Object.fromEntries(formData)));
-
-
-   // insert avatar if it exists
-   const imgResizedInput       = form.querySelector("#imgResized");
-   const imgResizedSquareInput = form.querySelector("#imgResizedSquare");
-
-   if (imgResizedInput?.value && imgResizedSquareInput?.value) {
-
-      console.log("REGULAR:", imgResizedInput.value);
-      console.log("SQUARE", imgResizedSquareInput.value);
-      // formData.set("resized", DOMPurify.sanitize(imgResizedInput?.value));
-      // formData.set("resizedSquare", DOMPurify.sanitize(imgResizedSquareInput?.value));
-   }
-
 
    try {
 
@@ -270,8 +248,6 @@ async function handleSignupFormSubmit(event) {
       submitProgress.hidden = false;
 
       const method = form.getAttribute("method").toString();
-
-
 
       const response = await fetch(form.action, {
          method: method,

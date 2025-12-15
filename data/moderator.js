@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import mongoCollections from '../config/mongoCollections.js';
 import postData from "./posts.js";
+import { serverEmitter } from "./server.js";
 
 const posts = mongoCollections.posts;
 const users = mongoCollections.users;
@@ -121,6 +122,11 @@ export async function banUser({ actor, targetUserId }) {
     }
   );
 
+  serverEmitter.emit("updateSessionBannedTable", { 
+    targetUserId: targetUserId, 
+    isBanned: true 
+  });
+
   return { success: true };
 }
 
@@ -159,6 +165,11 @@ export async function unbanUser({ actor, targetUserId }) {
       }
     }
   );
+
+  serverEmitter.emit("updateSessionBannedTable", { 
+    targetUserId: targetUserId, 
+    isBanned: false 
+  });
 
   return { success: true };
 }
@@ -205,6 +216,11 @@ export async function updateUserRole({ actor, targetUserId, newRole }) {
       }
     }
   );
+
+  serverEmitter.emit("updateSessionRoleTable", { 
+    targetUserId: targetUserId, 
+    newRole: newRole 
+  });
 
   return { success: true };
 }

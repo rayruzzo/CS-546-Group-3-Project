@@ -5,18 +5,6 @@ import { objectIdSchema, userSchema } from "../models/users.js";
 
 function simplifyYupError(yupError) {
 
-   // if (typeof yupError !== 'object')
-   //    return yupError;
-   
-   // if (Array.isArray(yupError))
-   //    return yupError.map(simplifyYupError);
-
-   // return Object.entries(yupError).map(([key, val]) => {
-   //    return [key, simplifyYupError(val)]
-   // })
-   // const validationErr = new ValidationError(yupError)
-   // console.log(validationErr)
-
    yupError?.inner?.map((err) => (delete err.stack));
    delete yupError.stack;
 

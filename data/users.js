@@ -361,8 +361,6 @@ const userFunctions = Object.freeze({
          });
       }
 
-      console.log("NEW USER CREATED");
-
       // TODO: censor OR remove private key/vals from returned User object
       return { user: newUser, success: true };
    },
@@ -489,8 +487,6 @@ const userFunctions = Object.freeze({
 
       // server already has id
       delete user._id;
-
-      console.log("UPDATED:\n", user);
 
       const updateInfo = await userCollection.updateOne(
          { _id: ObjectId.createFromHexString(userId) },
