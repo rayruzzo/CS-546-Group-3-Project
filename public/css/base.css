@@ -12,8 +12,8 @@
    --color-tertiary-light: hsl(255, 37%, 89%);
    --color-tertiary-dark: hsl(257, 18%, 23%);
 
-   --color-accent-light: hsl(43, 100%, 72%);
-   --color-accent-dark: hsl(43, 100%, 81%);
+   --color-accent-light: hsl(247, 100%, 88%); 
+   --color-accent-dark: hsl(247, 50%, 51%);
 
    --color-warning-light: hsl(0, 65%, 40%);
    --color-warning-dark: hsl(0, 83%, 84%);
@@ -183,13 +183,24 @@ input {
    color: var(--fg-color);
 }
 
+input[type="checkbox"] {
+   width: fit-content;
+}
+
 input:disabled {
    background-color: var(--bg-tertiary-color);
 }
 
 textarea {
+   width: 100%;
+   max-width: 100%;
+   min-height: 8rem;
+   max-height: 20rem;
+   padding: 0.5rem 1rem;
    color: var(--fg-color);
    background-color: var(--bg-color);
+   border-radius: var(--border-radius-small);
+   border: var(--border-primary);
 }
 
 textarea::placeholder, 
@@ -205,6 +216,10 @@ button {
    outline: 3px solid var(--warning-color);
 }
 
+progress {
+   width: 100%;
+   margin: 1rem 0rem;
+}
 
 
 /* UTILITY */

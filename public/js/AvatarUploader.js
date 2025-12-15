@@ -1,4 +1,5 @@
 import { InputMessager, visuallyHide, showElement } from "./elementUtils.js";
+import { sendAvatarToFetch } from "./signupValidation.js";
 
 
 export class AvatarUploader {
@@ -16,8 +17,8 @@ export class AvatarUploader {
    #MB_IN_BYTES = 1048576;
    #mbLimit     = avatarMaxOriginalSizeMB * this.#MB_IN_BYTES;
    
-   #avatarUploaderRoot;
-   #avatarForm;
+   #profileUploaderRoot;
+   #userForm;
 
    // file-related
    fileInput;
@@ -52,8 +53,8 @@ export class AvatarUploader {
 
 
    constructor({
-      avatarUploaderRoot    = "#avatarUploader",
-      avatarForm            = "#avatarForm",
+      profileUploaderRoot    = "#profileUploader",
+      userForm               = "#userForm",
 
       fileInput             = "#fileName",
       imgResizedInput       = "#imgResized",
@@ -70,16 +71,16 @@ export class AvatarUploader {
       resizeQuality
 
    } = {}) {
-      this.#avatarUploaderRoot    = document.querySelector(avatarUploaderRoot);
-      this.#avatarForm            = this.#avatarUploaderRoot.querySelector(avatarForm);
-      this.fileInput              = this.#avatarUploaderRoot.querySelector(fileInput);
-      this.#imgResizedInput       = this.#avatarUploaderRoot.querySelector(imgResizedInput);
-      this.#imgResizedSquareInput = this.#avatarUploaderRoot.querySelector(imgResizedSquareInput);
-      // this.#avatarContainer       = this.#avatarUploaderRoot.querySelector(avatarContainer);
-      this.avatarPreview          = this.#avatarUploaderRoot.querySelector(avatarPreview);
-      this.#spinner               = this.#avatarUploaderRoot.querySelector(spinner);
-      this.#fileMessageContainer  = this.#avatarUploaderRoot.querySelector(fileMessageContainer);
-      this.#removeAvatarBtn       = this.#avatarUploaderRoot.querySelector(removeAvatarBtn);
+      this.#profileUploaderRoot   = document.querySelector(profileUploaderRoot);
+      this.#userForm              = this.#profileUploaderRoot.querySelector(userForm);
+      this.fileInput              = this.#profileUploaderRoot.querySelector(fileInput);
+      this.#imgResizedInput       = this.#profileUploaderRoot.querySelector(imgResizedInput);
+      this.#imgResizedSquareInput = this.#profileUploaderRoot.querySelector(imgResizedSquareInput);
+      // this.#avatarContainer       = this.#profileUploaderRoot.querySelector(avatarContainer);
+      this.avatarPreview          = this.#profileUploaderRoot.querySelector(avatarPreview);
+      this.#spinner               = this.#profileUploaderRoot.querySelector(spinner);
+      this.#fileMessageContainer  = this.#profileUploaderRoot.querySelector(fileMessageContainer);
+      this.#removeAvatarBtn       = this.#profileUploaderRoot.querySelector(removeAvatarBtn);
 
       this.#resizeQuality         = resizeQuality;
       this.messager               = new InputMessager(this.#fileMessageContainer);
@@ -125,13 +126,13 @@ export class AvatarUploader {
       this.#reader.addEventListener("load", this.handleFileReaderLoadAndResizeOriginal);
 
       // setup custom events that deal with knowing when image resizing is done
-      this.#avatarUploaderRoot.addEventListener("imgResized", this.handleImgResizedEvent);
-      this.#avatarUploaderRoot.addEventListener("avatarCroppedAndReady", this.handleAvatarCroppedAndReadyEvent);
+      this.#profileUploaderRoot.addEventListener("imgResized", this.handleImgResizedEvent);
+      this.#profileUploaderRoot.addEventListener("avatarCroppedAndReady", this.handleAvatarCroppedAndReadyEvent);
 
       // handles loading of a preview image
       this.avatarPreview.addEventListener("load", this.handleImageLoad);
 
-      this.#avatarForm.addEventListener("submit", this.handleSubmit);
+      this.#userForm.addEventListener("submit", this.handleSubmit);
 
       this.#removeAvatarBtn.addEventListener("click", this.handleResetAvatarUploader);
    }
@@ -220,7 +221,7 @@ export class AvatarUploader {
 
       this.resizeImage().then((val) => {
          console.log(val);
-         this.#avatarUploaderRoot.dispatchEvent(this.#imgResizedEvent);
+         this.#profileUploaderRoot.dispatchEvent(this.#imgResizedEvent);
          return;
       });
    }
@@ -287,7 +288,11 @@ export class AvatarUploader {
       this.#options.imgResizedSquareDataUrl = this.#reader.result;
       this.#imgResizedSquareInput.value     = this.#reader.result;
 
-      this.#avatarForm.submit();
+
+      this.#profileUploaderRoot.dispatchEvent(sendAvatarToFetch);
+
+      // DON'T SUBMIT YET BECAUSE WE PASSED IT ONTO THE OTHER FORM SUBMIT!!!
+      // this.#userForm.submit();
    }
 
    /**
@@ -539,9 +544,11 @@ export class AvatarUploader {
 
       // allow form submission without avatar
       if (!this.#options.imgResizedDataUrl) {
-         event.target.submit();
+         this.#profileUploaderRoot.dispatchEvent(sendAvatarToFetch);
          return;
       }
+
+      console.log("needs to resize again")
 
       // set canvas dimensions to SQUARE for avatar
       this.#options.canvasWidth  = this.#squareSize;
@@ -550,7 +557,7 @@ export class AvatarUploader {
       // resize image for final time
       this.resizeImage().then((val) => {
          console.log(val);
-         this.#avatarUploaderRoot.dispatchEvent(this.#avatarCroppedAndReady);
+         this.#profileUploaderRoot.dispatchEvent(this.#avatarCroppedAndReady);
       });
    }
 }

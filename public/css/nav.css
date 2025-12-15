@@ -1,8 +1,12 @@
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 24px;
+    height: 100%;
     white-space: nowrap;      /* keeps links on one line */
+}
+
+.nav-right > a {
+    align-content: center;
 }
 
 .navbar {
@@ -11,8 +15,8 @@
     align-items: center;
     padding: 0 32px;
     height: 60px;
-    background: #1d1f21;
-    color: white;
+    background: var(--bg-secondary-color);
+    border-bottom: var(--border-primary);
     position: fixed;
     top: 0;
     left: 0;
@@ -24,28 +28,46 @@
 .nav-left .nav-logo {
     font-size: 20px;
     font-weight: 600;
-    color: white;
+    color: var(--fg-tertiary-color);
     text-decoration: none;
 }
 
 .nav-right a {
-    margin-left: 20px;
-    color: #cccccc;
+    height: 100%;
+    /* margin-left: 20px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--fg-tertiary-color);
     text-decoration: none;
     font-size: 15px;
-    transition: color .2s ease;
+    
 }
 
 .nav-right a:hover {
-    color: white;
+    color: var(--fg-color);
 }
 
-.nav-user {
-    margin-left: 20px;
-    font-weight: bold;
-    color: #6ab0ff;
+.nav-right span {
+    margin: auto;
+    min-width: 4rem;
+    text-align: center;
+    height: 100%;
+    align-content: center;
+    padding: 0 1rem;
+    transition: background-color .1s ease;
 }
 
-.logout-btn {
-    color: #ff6b6b !important;
+.nav-cta {
+    font-weight: 700;
+    background-color: var(--accent-color);
+    color: var(--fg-tertiary-color);
+}
+
+.logout-btn span {
+    color: var(--warning-color);
+}
+
+.logout-btn span:hover {
+    background-color: var(--bg-warning-color);
 }

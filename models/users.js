@@ -8,21 +8,32 @@ const { users } = db;
 
 
 export const SCHEMA_CONFIG = Object.freeze({
-   username: Object.freeze({
-      regex: /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/,
-      minLength: 4,
-      maxLength: 50
+   username:  
+      Object.freeze({
+         regex: /^(?!-)(?!.*--)(?=.{4,50}$)(?!.*-$)[a-zA-Z0-9\-]+?$/,
+         minLength: 4,
+         maxLength: 50
    }),
-   password: Object.freeze({
-      regex: /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/,
-      message: "must have at least one lowercase letter, uppercase letter, one number, and one special character",
-      minLength: 10,
-      maxLength: 80
+   password:  
+      Object.freeze({
+         regex: /^(?=\P{Ll}*\p{Ll})(?=\P{Lu}*\p{Lu})(?=\P{N}*\p{N})(?=[\p{L}\p{N}]*[^\p{L}\p{N}])[\s\S]{10,}$/,
+         message: "must have at least one lowercase letter, uppercase letter, one number, and one special character",
+         minLength: 10,
+         maxLength: 80
    }),
-   zipcode:  Object.freeze({
-      regex: /^[0-9]{5}$/,
-      minLength: 5,
-      maxLength: 5
+   zipcode:   
+      Object.freeze({
+         regex: /^[0-9]{5}$/,
+         minLength: 5,
+         maxLength: 5
+   }),
+   nameBase:  
+      Object.freeze({
+         minLength: 2
+   }),
+   bio:       
+      Object.freeze({
+         maxLength: 250
    })
 })
 
@@ -121,7 +132,7 @@ export const zipcodeSchema = yup
 
 export const nameSchemaBase = yup
    .string()
-   .min(2)
+   .min(SCHEMA_CONFIG.nameBase.minLength)
    .nullable()             // NOTE: default key in MongoDB should be `null`
    .default(null)
    .trim();
@@ -133,6 +144,15 @@ export const dobSchema = yup
    .max(new Date().getFullYear() - 18,  "You must be 18 years or older")
    .requiredIfNotLoggedIn("Date of Birth")
    .label("Date of Birth");
+
+
+export const bioSchema = yup
+   .string()
+   .max(SCHEMA_CONFIG.bio.maxLength)
+   .nullable()
+   .default(null)
+   .trim()
+   .label("Bio");
 
 
 export const avatarSchema = yup
@@ -160,12 +180,7 @@ export const profileSchema = yup.object({
       dobSchema,
 
    bio:                    // OPTIONAL
-      yup.string()
-         .max(250)
-         .nullable()
-         .default(null)
-         .trim()
-         .label("Bio"),
+      bioSchema,
 
    avatar:                 // OPTIONAL
       avatarSchema
@@ -243,12 +258,39 @@ export const dobBodySchema = yup.object({
 });
 
 /**
- * Fully validates a `dob` (date of birth) request body.
+ * Fully validates a `zipcode` request body.
  *
  * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
  */
 export const zipcodeBodySchema = yup.object({
    zipcode: zipcodeSchema
+});
+
+/**
+ * Fully validates a `firstName` request body.
+ *
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const firstNameBodySchema = yup.object({
+   firstName: nameSchemaBase.label("First Name")
+});
+
+/**
+ * Fully validates a `lastName` request body.
+ *
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const lastNameBodySchema = yup.object({
+   lastName: nameSchemaBase.label("Last Name")
+});
+
+/**
+ * Fully validates a `bio` request body.
+ *
+ * @returns {ObjectSchema} a Yup schema for use with, ex. `req.params`
+ */
+export const bioBodySchema = yup.object({
+   bio: bioSchema
 });
 
 

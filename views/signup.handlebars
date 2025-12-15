@@ -14,7 +14,7 @@ const passwordErrorMessage = "{{passwordErrorMessage}}";
    <div class="form-container">
       <h1>Sign Up</h1>
 
-      <form id="signupForm" action="/signup" method="POST">
+      <form id="userForm" data-user-data-form action="/signup" method="POST">
          <div class="form-group">
             <label for="email">
                Email
@@ -125,7 +125,7 @@ const passwordErrorMessage = "{{passwordErrorMessage}}";
 
          <div class="mt-2">
             <p 
-               id="signupMessage"
+               id="userDataMessage"
                aria-live="assertive" 
                class="
                input-message 
@@ -139,7 +139,8 @@ const passwordErrorMessage = "{{passwordErrorMessage}}";
             </p>
          </div>
 
-         <button type="submit">Create Account</button>
+         <progress hidden></progress>
+         <button id="newAccount" type="submit" class="btn-cta">Create Account</button>
       </form>
    </div>
 </div>

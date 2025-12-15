@@ -1,4 +1,4 @@
-<section>
+<section class="user-profile">
    
    {{#with profile}}
    <div class="avatar-container">
@@ -72,6 +72,10 @@
          </button>
       {{/if}}
    {{/unless}}
+
+   {{#if isPostOwner}}
+      <a class="button-primary" href="/user/{{profile.username}}/settings">Edit Profile</a>
+   {{/if}}
 </section>
 
 {{#if posts}}

@@ -4,7 +4,10 @@ import {
    emailBodySchema, 
    usernameBodySchema,
    dobBodySchema, 
-   zipcodeBodySchema 
+   zipcodeBodySchema, 
+   firstNameBodySchema,
+   lastNameBodySchema,
+   bioBodySchema
 } from "../models/users.js";
 import locationData from "../data/locations.js";
 
@@ -48,6 +51,28 @@ router.post("/zipcode",
          return res.status(400).json({message: e.message});
       }
 });
+
+/**
+ * Check firstName via `/check/firstName`
+ */
+router.post("/firstName", validateSchema(firstNameBodySchema, "body"), (req, res) => {
+   return res.json({ success: true });
+});
+
+/**
+ * Check lastName via `/check/lastName`
+ */
+router.post("/lastName", validateSchema(lastNameBodySchema, "body"), (req, res) => {
+   return res.json({ success: true });
+});
+
+/**
+ * Check bio via `/check/bio`
+ */
+router.post("/bio", validateSchema(bioBodySchema, "body"), (req, res) => {
+   return res.json({ success: true });
+});
+
 
 
 

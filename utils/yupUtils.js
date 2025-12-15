@@ -138,7 +138,7 @@ export function loadYupCustomMethods() {
             const optional = validationContext?.optional;
             
             // grab session context if exists
-            const sessionUsername = validationContext?.session?.user?.profile?.username?.toLowerCase();
+            const sessionUsername = validationContext?.session?.user?.username?.toLowerCase();
 
             // `username` is allowed to be the same if current user session is the owner of it
             if (sessionUsername && sessionUsername === value?.toLowerCase()) {
